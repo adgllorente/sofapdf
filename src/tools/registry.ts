@@ -1,6 +1,7 @@
 import type { Tool, ToolCategoryId } from './types'
 import { CropPreview } from './CropPreview'
 import { OrganizePreview } from './OrganizePreview'
+import { RedactPreview } from './RedactPreview'
 import { SignaturePreview } from './SignaturePreview'
 
 /** Los ids son estables: se usan como ancla en la URL y como clave del diccionario. */
@@ -293,10 +294,12 @@ export const TOOLS: Tool[] = [
     slug: 'redact',
     icon: 'eyeOff',
     category: 'seguridad',
-    status: 'planned',
+    status: 'ready',
     ...PDF,
     multiple: false,
     minFiles: 1,
+    load: () => import('./impl/redact').then((m) => m.run),
+    Preview: RedactPreview,
   },
 ]
 

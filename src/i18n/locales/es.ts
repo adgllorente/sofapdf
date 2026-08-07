@@ -204,6 +204,8 @@ export const es = {
       'El documento está cifrado: quítale la contraseña con Desbloquear PDF y vuelve a intentarlo.',
     organizeEmpty: 'No queda ninguna página: añade al menos una antes de exportar.',
     cropEmpty: 'El recorte deja la página vacía: reduce algún margen.',
+    redactEmpty: 'Dibuja al menos un rectángulo sobre el texto que quieres censurar.',
+    redactFailed: 'No se pudo renderizar la página para censurar.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
@@ -221,6 +223,7 @@ export const es = {
     signed: 'firmado',
     organized: 'organizado',
     cropped: 'recortado',
+    redacted: 'censurado',
   },
 
   progress: {
@@ -537,12 +540,20 @@ export const es = {
       },
     },
     redact: {
-      name: 'Redactar',
-      short: 'Elimina información sensible de verdad, no solo tapada.',
-      description:
-        'Borra el contenido seleccionado del documento en lugar de cubrirlo con un rectángulo.',
-      action: 'Redactar',
-      note: 'Tapar con un rectángulo negro no borra nada: el texto se sigue pudiendo copiar. Aquí se elimina de verdad.',
+      name: 'Censurar',
+      short: 'Elimina texto del PDF de forma irreversible.',
+      description: 'Dibuja rectángulos sobre el texto que quieres quitar. El texto se borra del documento, no se tapa con un rectángulo.',
+      action: 'Censurar',
+      note: 'El texto seleccionado se elimina del PDF: la página entera se convierte en imagen y el texto deja de ser texto. No es reversible.',
+      preview: {
+        title: 'Zonas a censurar',
+        hint: 'Arrastra sobre la página para dibujar un rectángulo. Clic en uno existente para borrarlo.',
+        clearPage: 'Borrar página',
+        removeRegion: 'Borrar este rectángulo',
+        pageOf: 'Página {n} de {total}',
+        prevPage: 'Página anterior',
+        nextPage: 'Página siguiente',
+      },
     },
   },
 }

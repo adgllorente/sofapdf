@@ -200,6 +200,8 @@ export const en: typeof es = {
       'The document is encrypted: remove the password with Unlock PDF and try again.',
     organizeEmpty: 'No pages left: add at least one before exporting.',
     cropEmpty: 'The crop leaves the page empty: ease one of the margins.',
+    redactEmpty: 'Draw at least one rectangle over the text you want to redact.',
+    redactFailed: 'Could not render the page for redaction.',
   },
 
   filenames: {
@@ -216,6 +218,7 @@ export const en: typeof es = {
     signed: 'signed',
     organized: 'organised',
     cropped: 'cropped',
+    redacted: 'redacted',
   },
 
   progress: {
@@ -532,11 +535,19 @@ export const en: typeof es = {
     },
     redact: {
       name: 'Redact',
-      short: 'Actually remove sensitive information, not just cover it.',
-      description:
-        'Deletes the selected content from the document instead of covering it with a box.',
+      short: 'Remove text from the PDF irreversibly.',
+      description: 'Draw rectangles over the text you want gone. The text is deleted from the document, not covered with a box.',
       action: 'Redact',
-      note: 'Covering text with a black box deletes nothing: it can still be copied. Here it is really removed.',
+      note: 'The selected text is removed from the PDF: the whole page becomes an image and the text stops being text. This is not reversible.',
+      preview: {
+        title: 'Areas to redact',
+        hint: 'Drag on the page to draw a rectangle. Click an existing one to delete it.',
+        clearPage: 'Clear page',
+        removeRegion: 'Remove this rectangle',
+        pageOf: 'Page {n} of {total}',
+        prevPage: 'Previous page',
+        nextPage: 'Next page',
+      },
     },
   },
 }
