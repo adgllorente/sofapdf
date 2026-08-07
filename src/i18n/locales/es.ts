@@ -74,9 +74,25 @@ export const es = {
   },
 
   categories: {
-    paginas: { name: 'Organizar y gestionar', blurb: 'Reorganiza, anota y ajusta el contenido de las páginas.' },
-    conversiones: { name: 'Conversiones', blurb: 'Cambia de formato, reduce peso o repara el documento.' },
-    seguridad: { name: 'Seguridad', blurb: 'Contraseñas, firmas y contenido sensible.' },
+    paginas: {
+      name: 'Organizar y gestionar',
+      short: 'Organizar',
+      blurb: 'Reordena, anota y ajusta el contenido de las páginas.',
+    },
+    conversiones: {
+      name: 'Conversiones',
+      short: 'Convertir',
+      blurb: 'Cambia de formato, reduce peso o repara el documento.',
+    },
+    seguridad: {
+      name: 'Seguridad',
+      short: 'Seguridad',
+      blurb: 'Contraseñas, firmas y contenido sensible.',
+    },
+  },
+
+  tabs: {
+    all: 'Todo',
   },
 
   accept: {

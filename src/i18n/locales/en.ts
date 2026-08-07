@@ -70,9 +70,25 @@ export const en: typeof es = {
   },
 
   categories: {
-    paginas: { name: 'Organise and manage', blurb: 'Reorder, annotate and adjust the contents of your pages.' },
-    conversiones: { name: 'Conversions', blurb: 'Switch formats, shrink the file, or repair it.' },
-    seguridad: { name: 'Security', blurb: 'Passwords, signatures and sensitive content.' },
+    paginas: {
+      name: 'Organise and manage',
+      short: 'Organise',
+      blurb: 'Reorder, annotate and adjust the contents of your pages.',
+    },
+    conversiones: {
+      name: 'Conversions',
+      short: 'Convert',
+      blurb: 'Switch formats, shrink the file, or repair it.',
+    },
+    seguridad: {
+      name: 'Security',
+      short: 'Security',
+      blurb: 'Passwords, signatures and sensitive content.',
+    },
+  },
+
+  tabs: {
+    all: 'All',
   },
 
   accept: {

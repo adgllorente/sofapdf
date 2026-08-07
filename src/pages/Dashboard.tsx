@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import clsx from 'clsx'
 import { Icon, type IconName } from '@/components/Icon'
 import { KofiBadge } from '@/components/KofiBadge'
 import { SofaMascot } from '@/components/SofaMascot'
@@ -15,38 +17,70 @@ const POINTS: { key: PointKey; icon: IconName }[] = [
   { key: 'private', icon: 'lock' },
 ]
 
+type TabId = 'all' | (typeof CATEGORY_IDS)[number]
+
 export function Dashboard() {
   return (
     <>
       <Hero />
+      <ToolsSection />
+    </>
+  )
+}
 
-      <div className="mx-auto max-w-6xl space-y-14 px-5 pt-2 pb-20 sm:pt-4">
-        {CATEGORY_IDS.map((id) => {
-          // Las disponibles primero: dentro de cada sección, las `ready` se
-          // muestran antes que las `planned`, manteniendo el orden del registro.
-          const tools = TOOLS.filter((tool) => tool.category === id).sort((a, b) => {
-            if (a.status === b.status) return 0
-            return a.status === 'ready' ? -1 : 1
-          })
-          if (!tools.length) return null
-          const category = t.categories[id]
+function ToolsSection() {
+  const [activeTab, setActiveTab] = useState<TabId>('all')
 
+  const tabs: { id: TabId; label: string; count: number }[] = [
+    { id: 'all', label: t.tabs.all, count: TOOLS.length },
+    ...CATEGORY_IDS.map((id) => ({
+      id,
+      label: t.categories[id].short,
+      count: TOOLS.filter((tool) => tool.category === id).length,
+    })),
+  ]
+
+  const visibleTools = (activeTab === 'all' ? TOOLS : TOOLS.filter((tool) => tool.category === activeTab))
+    .slice()
+    .sort((a, b) => {
+      if (a.status === b.status) return 0
+      return a.status === 'ready' ? -1 : 1
+    })
+
+  return (
+    <div id="tools" className="mx-auto max-w-6xl space-y-5 px-5 pt-2 pb-20 sm:scroll-mt-24 sm:pt-4">
+      <div role="tablist" className="flex flex-wrap gap-2">
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id
           return (
-            <section key={id} id={id} className="scroll-mt-24">
-              <div className="flex items-baseline gap-3 border-b border-line pb-3">
-                <h2 className="text-lg font-semibold tracking-tight text-ink">{category.name}</h2>
-                <p className="text-sm text-muted">{category.blurb}</p>
-              </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                {tools.map((tool) => (
-                  <ToolCard key={tool.slug} tool={tool} />
-                ))}
-              </div>
-            </section>
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveTab(tab.id)}
+              className={clsx(
+                'inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition',
+                isActive
+                  ? 'border-accent bg-accent text-on-accent'
+                  : 'border-line bg-surface text-muted hover:border-line-strong hover:text-ink',
+              )}
+            >
+              {tab.label}
+              <span className={clsx('text-xs tabular-nums', isActive ? 'opacity-80' : 'opacity-50')}>
+                {tab.count}
+              </span>
+            </button>
           )
         })}
       </div>
-    </>
+
+      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {visibleTools.map((tool) => (
+          <ToolCard key={tool.slug} tool={tool} />
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -71,7 +105,7 @@ function Hero() {
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <a
-                href="#paginas"
+                href="#tools"
                 className="rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-canvas transition hover:opacity-90"
               >
                 {t.hero.tools}
