@@ -98,7 +98,7 @@ function ToolsSection() {
 function Hero() {
   return (
     <section>
-      <div className="mx-auto max-w-6xl px-5 pt-8 pb-10 sm:pt-12 sm:pb-12">
+      <div className="mx-auto max-w-6xl px-5 pt-10 pb-10 sm:pt-16 sm:pb-12">
         <div className="grid items-center gap-10 sm:grid-cols-[1.3fr_1fr] lg:gap-14">
           <div>
             <h1 className="max-w-3xl text-4xl leading-[1.1] font-semibold tracking-tight text-balance text-ink sm:text-6xl">
@@ -111,7 +111,7 @@ function Hero() {
           </div>
 
           <div className="flex justify-center sm:justify-end">
-            <SofaMascot className="w-full max-w-sm sm:max-w-md" />
+            <SofaMascot className="w-full max-w-xs sm:max-w-sm" />
           </div>
         </div>
 
