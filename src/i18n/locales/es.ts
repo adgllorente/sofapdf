@@ -206,6 +206,7 @@ export const es = {
     cropEmpty: 'El recorte deja la página vacía: reduce algún margen.',
     redactEmpty: 'Dibuja al menos un rectángulo sobre el texto que quieres censurar.',
     redactFailed: 'No se pudo renderizar la página para censurar.',
+    ocrFailed: 'No se pudo reconocer el texto de la página {n}.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
@@ -224,6 +225,7 @@ export const es = {
     organized: 'organizado',
     cropped: 'recortado',
     redacted: 'censurado',
+    ocr: 'ocr',
   },
 
   progress: {
@@ -365,7 +367,13 @@ export const es = {
       description:
         'Pasa reconocimiento óptico sobre las páginas escaneadas y añade una capa de texto invisible para poder buscar y copiar.',
       action: 'Reconocer texto',
-      note: 'El modelo de idioma se descarga una vez y se queda en caché. Las páginas nunca salen del navegador.',
+      note: 'El modelo de idioma se sirve desde el propio origen (~2-4 MB por idioma, se cachea). Las páginas nunca salen del navegador.',
+      options: {
+        language: {
+          label: 'Idioma del documento',
+          choices: { spa: 'Español', eng: 'Inglés' },
+        },
+      },
     },
 
     number: {

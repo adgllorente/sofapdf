@@ -202,6 +202,7 @@ export const en: typeof es = {
     cropEmpty: 'The crop leaves the page empty: ease one of the margins.',
     redactEmpty: 'Draw at least one rectangle over the text you want to redact.',
     redactFailed: 'Could not render the page for redaction.',
+    ocrFailed: 'Could not recognise the text on page {n}.',
   },
 
   filenames: {
@@ -219,6 +220,7 @@ export const en: typeof es = {
     organized: 'organised',
     cropped: 'cropped',
     redacted: 'redacted',
+    ocr: 'ocr',
   },
 
   progress: {
@@ -359,7 +361,13 @@ export const en: typeof es = {
       description:
         'Runs optical recognition over the scanned pages and adds an invisible text layer so you can search and copy.',
       action: 'Recognise text',
-      note: 'The language model is downloaded once and cached. The pages never leave the browser.',
+      note: 'The language model is served from the same origin (~2-4 MB per language, cached). The pages never leave the browser.',
+      options: {
+        language: {
+          label: 'Document language',
+          choices: { spa: 'Spanish', eng: 'English' },
+        },
+      },
     },
 
     number: {

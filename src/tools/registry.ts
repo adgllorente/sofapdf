@@ -223,10 +223,14 @@ export const TOOLS: Tool[] = [
     slug: 'ocr',
     icon: 'scan',
     category: 'conversiones',
-    status: 'planned',
+    status: 'ready',
     ...PDF,
     multiple: false,
     minFiles: 1,
+    options: [
+      { key: 'language', type: 'select', default: 'spa', choices: ['spa', 'eng'] },
+    ],
+    load: () => import('./impl/ocr').then((m) => m.run),
   },
   {
     slug: 'compress',

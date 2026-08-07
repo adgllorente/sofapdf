@@ -67,6 +67,7 @@ export type ToolSlug =
   | 'compare'
   | 'compress'
   | 'repair'
+  | 'ocr'
   | 'protect'
   | 'unlock'
   | 'sign'
