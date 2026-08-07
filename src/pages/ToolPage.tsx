@@ -80,11 +80,19 @@ function ToolRunner({ tool }: { tool: Tool }) {
         <span className="grid size-11 shrink-0 place-items-center rounded-lg border border-accent-line bg-accent-soft text-accent">
           <Icon name={tool.icon} />
         </span>
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-semibold tracking-tight text-ink">{text.name}</h1>
           <p className="mt-1.5 text-[15px] leading-relaxed text-muted">{text.description}</p>
         </div>
       </header>
+
+      <Link
+        to="/privacy"
+        className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-accent-line bg-accent-soft px-2.5 py-1 text-xs font-medium text-accent transition hover:bg-accent-soft/70"
+      >
+        <Icon name="cpu" className="size-3.5" strokeWidth={1.8} />
+        {t.header.badge}
+      </Link>
 
       {text.note && (
         <p className="mt-5 flex gap-2.5 rounded-card border border-line bg-subtle px-4 py-3 text-sm text-ink-soft">

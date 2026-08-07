@@ -1,7 +1,7 @@
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import { APP } from '@/config'
 import { fmt, t } from '@/i18n'
-import { Icon } from './Icon'
+import kofiBadgeSmall from '@/assets/kofi-badge-small.webp'
 import { KofiBadge } from './KofiBadge'
 import { Wordmark } from './Logo'
 import { ToolsMenu } from './ToolsMenu'
@@ -19,9 +19,6 @@ export function Layout() {
 }
 
 function Header() {
-  // En la portada el badge ya está en el hero; repetirlo aquí sería insistir.
-  const onHome = useLocation().pathname === '/'
-
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-canvas/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
@@ -30,18 +27,17 @@ function Header() {
         </Link>
 
         <div className="flex items-center gap-3">
-          <span className="hidden items-center gap-2 rounded-full border border-accent-line bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent sm:flex">
-            <Icon name="cpu" className="size-3.5" strokeWidth={1.8} />
-            {t.header.badge}
-          </span>
-          <ToolsMenu />
-          <Link
-            to="/privacy"
-            className="hidden rounded-md px-2 py-1 text-sm whitespace-nowrap text-muted transition hover:text-ink sm:block"
+          <a
+            href={APP.kofiUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t.kofi}
+            className="shrink-0 rounded-lg transition hover:opacity-85 md:hidden"
           >
-            {t.header.howItWorks}
-          </Link>
-          {!onHome && <KofiBadge height="h-9" className="hidden md:block" />}
+            <img src={kofiBadgeSmall} alt="" className="h-9 w-auto" />
+          </a>
+          <KofiBadge height="h-9" className="hidden md:block" />
+          <ToolsMenu />
         </div>
       </div>
     </header>
