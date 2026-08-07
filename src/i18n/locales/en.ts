@@ -18,6 +18,7 @@ export const en: typeof es = {
     home: '{app}, home',
     badge: 'Runs on your device',
     howItWorks: 'How it works',
+    tools: 'Tools',
   },
 
   kofi: 'Buy me a coffee',
@@ -28,11 +29,14 @@ export const en: typeof es = {
   },
 
   locale: {
+    label: 'Language',
     names: { es: 'Spanish', en: 'English' },
     switchTo: 'Switch to {name}',
   },
 
   theme: {
+    label: 'Theme',
+    options: { light: 'Light', dark: 'Dark' },
     toLight: 'Switch to light theme',
     toDark: 'Switch to dark theme',
   },
@@ -53,16 +57,18 @@ export const en: typeof es = {
       body: 'Cut the WiFi and it keeps working. That is the simplest proof that the processing is local.',
     },
     noTracking: {
-      title: 'No accounts, tracking or ads',
+      title: 'No accounts, no tracking',
       body: 'No sign-up, no session cookies, no analytics, no ads, no third-party fonts or scripts. Nothing to tie back to you.',
+    },
+    private: {
+      title: '100% private',
+      body: 'The document is not copied to any disk or server: it only lives in this tab’s memory until you close it.',
     },
   },
 
   categories: {
-    organizar: { name: 'Organise', blurb: 'Merge, split and reorder pages.' },
-    convertir: { name: 'Convert', blurb: 'Into and out of the PDF format.' },
-    editar: { name: 'Edit', blurb: 'Add things to the document, or take them out.' },
-    optimizar: { name: 'Optimise', blurb: 'Cut file size and fix damaged files.' },
+    paginas: { name: 'Organise and manage', blurb: 'Reorder, annotate and adjust the contents of your pages.' },
+    conversiones: { name: 'Conversions', blurb: 'Switch formats, shrink the file, or repair it.' },
     seguridad: { name: 'Security', blurb: 'Passwords, signatures and sensitive content.' },
   },
 
@@ -223,14 +229,14 @@ export const en: typeof es = {
   },
 
   tools: {
-    unir: {
+    merge: {
       name: 'Merge PDF',
       short: 'Combine several documents into one, in the order you choose.',
       description:
         'Joins several PDFs into a single document. The list order is the final order; you can rearrange it before processing.',
       action: 'Merge PDF',
     },
-    dividir: {
+    split: {
       name: 'Split PDF',
       short: 'Break it up by ranges, or pull out just the pages you need.',
       description:
@@ -251,7 +257,7 @@ export const en: typeof es = {
         },
       },
     },
-    rotar: {
+    rotate: {
       name: 'Rotate PDF',
       short: 'Turn every page, or only the ones you name.',
       description:
@@ -272,7 +278,7 @@ export const en: typeof es = {
         },
       },
     },
-    organizar: {
+    organize: {
       name: 'Organise pages',
       short: 'Reorder, duplicate and delete pages with a preview.',
       description: 'Thumbnail view to reorder, duplicate or delete pages before exporting.',
@@ -293,7 +299,7 @@ export const en: typeof es = {
       },
     },
 
-    'jpg-a-pdf': {
+    'jpg-to-pdf': {
       name: 'Images to PDF',
       short: 'Turn JPG and PNG files into a PDF, one image per page.',
       description:
@@ -308,7 +314,7 @@ export const en: typeof es = {
         margin: { label: 'Margin (pt)' },
       },
     },
-    'pdf-a-jpg': {
+    'pdf-to-jpg': {
       name: 'PDF to images',
       short: 'Export the pages as JPG or PNG at the resolution you want.',
       description:
@@ -332,7 +338,7 @@ export const en: typeof es = {
         quality: { label: 'JPG quality' },
       },
     },
-    'pdf-a-texto': {
+    'pdf-to-text': {
       name: 'PDF to text',
       short: 'Extract the text already present in the document.',
       description: 'Dumps the textual content of the PDF as plain text, without OCR.',
@@ -346,14 +352,14 @@ export const en: typeof es = {
       action: 'Recognise text',
       note: 'The language model is downloaded once and cached. The pages never leave the browser.',
     },
-    'html-a-pdf': {
+    'html-to-pdf': {
       name: 'Web to PDF',
       short: 'Save a local HTML page as a PDF.',
       description: 'Converts an HTML file from your disk into a paginated PDF.',
       action: 'Convert',
     },
 
-    numerar: {
+    number: {
       name: 'Number pages',
       short: 'Add page numbers in the position and format you choose.',
       description:
@@ -378,7 +384,7 @@ export const en: typeof es = {
         skipFirst: { label: 'Skip the cover page' },
       },
     },
-    'marca-de-agua': {
+    watermark: {
       name: 'Watermark',
       short: 'Overlay text or a logo on every page.',
       description: 'Adds a watermark with control over opacity, rotation and position.',
@@ -410,20 +416,20 @@ export const en: typeof es = {
         },
       },
     },
-    recortar: {
+    crop: {
       name: 'Crop',
       short: 'Adjust the visible margins of the pages.',
       description: 'Changes the visible area of the document without touching its content.',
       action: 'Crop',
     },
-    comparar: {
+    compare: {
       name: 'Compare PDF',
       short: 'Put two versions side by side and highlight what changed.',
       description: 'Compares the text of two documents and marks additions and deletions.',
       action: 'Compare',
     },
 
-    comprimir: {
+    compress: {
       name: 'Compress PDF',
       short: 'Shrink the PDF without uploading it to any server.',
       description:
@@ -440,14 +446,14 @@ export const en: typeof es = {
         },
       },
     },
-    reparar: {
+    repair: {
       name: 'Repair PDF',
       short: 'Recover documents with a damaged structure.',
       description: 'Rewrites the PDF cross-reference table to rescue files that will not open.',
       action: 'Repair',
       note: 'It tries several strategies, from the most faithful to the most aggressive. What was lost does not come back: from a truncated file it salvages up to the last complete object.',
     },
-    'pdf-a': {
+    pdfa: {
       name: 'Convert to PDF/A',
       short: 'Long-term archival format.',
       description:
@@ -455,7 +461,7 @@ export const en: typeof es = {
       action: 'Convert',
     },
 
-    proteger: {
+    protect: {
       name: 'Password-protect',
       short: 'Encrypt the document with AES on your own machine.',
       description:
@@ -466,7 +472,7 @@ export const en: typeof es = {
         confirm: { label: 'Repeat the password' },
       },
     },
-    desbloquear: {
+    unlock: {
       name: 'Remove password',
       short: 'Strip the encryption from a PDF whose password you know.',
       description: 'Decrypts the document and saves an unprotected copy.',
@@ -479,7 +485,7 @@ export const en: typeof es = {
         },
       },
     },
-    firmar: {
+    sign: {
       name: 'Sign PDF',
       short: 'Place your signature on the document.',
       description: 'Type, draw or upload your signature and place it anywhere with a page preview.',
@@ -515,7 +521,7 @@ export const en: typeof es = {
         empty: 'Create or upload a signature to see the preview.',
       },
     },
-    redactar: {
+    redact: {
       name: 'Redact',
       short: 'Actually remove sensitive information, not just cover it.',
       description:

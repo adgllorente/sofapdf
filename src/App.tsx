@@ -17,8 +17,8 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
-          <Route path="h/:slug" element={<ToolPage />} />
-          <Route path="privacidad" element={<Privacy />} />
+          <Route path="tools/:slug" element={<ToolPage />} />
+          <Route path="privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

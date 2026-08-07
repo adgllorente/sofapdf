@@ -41,7 +41,7 @@ export function ToolCard({ tool }: { tool: Tool }) {
   return planned ? (
     <div className={clsx(base, 'opacity-65')}>{content}</div>
   ) : (
-    <Link to={`/h/${tool.slug}`} className={clsx(base, 'hover:border-line-strong hover:shadow-sm')}>
+    <Link to={`/tools/${tool.slug}`} className={clsx(base, 'hover:border-line-strong hover:shadow-sm')}>
       {content}
     </Link>
   )

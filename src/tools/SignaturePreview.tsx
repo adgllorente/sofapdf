@@ -58,7 +58,7 @@ export function SignaturePreview({ files, values, onChange, disabled }: ToolPrev
     <section className="space-y-6 rounded-card border border-line bg-surface p-5">
       <div>
         <h2 className="text-sm font-semibold tracking-tight text-ink">
-          {t.tools.firmar.preview.source}
+          {t.tools.sign.preview.source}
         </h2>
         <div className="mt-3 flex gap-1 border-b border-line">
           {MODES.map((m) => (
@@ -75,7 +75,7 @@ export function SignaturePreview({ files, values, onChange, disabled }: ToolPrev
                 disabled && 'opacity-50',
               )}
             >
-              {t.tools.firmar.preview.modes[m]}
+              {t.tools.sign.preview.modes[m]}
             </button>
           ))}
         </div>
@@ -88,9 +88,9 @@ export function SignaturePreview({ files, values, onChange, disabled }: ToolPrev
 
       <div className="border-t border-line pt-5">
         <h2 className="text-sm font-semibold tracking-tight text-ink">
-          {t.tools.firmar.preview.position}
+          {t.tools.sign.preview.position}
         </h2>
-        <p className="mt-1 text-xs text-muted">{t.tools.firmar.preview.positionHint}</p>
+        <p className="mt-1 text-xs text-muted">{t.tools.sign.preview.positionHint}</p>
         <div className="mt-3">
           <PositioningPreview
             file={file}
@@ -104,7 +104,7 @@ export function SignaturePreview({ files, values, onChange, disabled }: ToolPrev
           />
         </div>
         <label className="mt-4 flex items-center gap-3 text-sm">
-          <span className="w-40 text-ink-soft">{t.tools.firmar.preview.widthLabel}</span>
+          <span className="w-40 text-ink-soft">{t.tools.sign.preview.widthLabel}</span>
           <input
             type="range"
             min={MIN_WIDTH}
@@ -149,7 +149,7 @@ function TextSource({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const display = text.trim() || t.tools.firmar.preview.textPlaceholder
+    const display = text.trim() || t.tools.sign.preview.textPlaceholder
     const renderSize = fontSize * 4
     const family = FONT_FAMILIES[style] ?? FONT_FAMILIES.script
     const fontDecl = `bold ${style === 'script' ? 'italic ' : ''}${renderSize}px ${family}`
@@ -174,14 +174,14 @@ function TextSource({
       <input
         type="text"
         value={text}
-        placeholder={t.tools.firmar.preview.textPlaceholder}
+        placeholder={t.tools.sign.preview.textPlaceholder}
         disabled={disabled}
         onChange={(event) => onChange({ text: event.target.value })}
         className="w-full rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink transition placeholder:text-muted focus:border-accent disabled:opacity-50"
       />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <label className="block space-y-1.5">
-          <span className="text-xs text-ink-soft">{t.tools.firmar.preview.textStyle}</span>
+          <span className="text-xs text-ink-soft">{t.tools.sign.preview.textStyle}</span>
           <select
             value={style}
             disabled={disabled}
@@ -190,13 +190,13 @@ function TextSource({
           >
             {(['script', 'serif', 'sans'] as const).map((key) => (
               <option key={key} value={key}>
-                {t.tools.firmar.preview.styles[key]}
+                {t.tools.sign.preview.styles[key]}
               </option>
             ))}
           </select>
         </label>
         <label className="block space-y-1.5">
-          <span className="text-xs text-ink-soft">{t.tools.firmar.preview.textColor}</span>
+          <span className="text-xs text-ink-soft">{t.tools.sign.preview.textColor}</span>
           <select
             value={color}
             disabled={disabled}
@@ -205,13 +205,13 @@ function TextSource({
           >
             {(['black', 'blue', 'gray'] as const).map((key) => (
               <option key={key} value={key}>
-                {t.tools.firmar.preview.colors[key]}
+                {t.tools.sign.preview.colors[key]}
               </option>
             ))}
           </select>
         </label>
         <label className="block space-y-1.5">
-          <span className="text-xs text-ink-soft">{t.tools.firmar.preview.textSize}</span>
+          <span className="text-xs text-ink-soft">{t.tools.sign.preview.textSize}</span>
           <input
             type="number"
             value={fontSize}
@@ -224,7 +224,7 @@ function TextSource({
           />
         </label>
       </div>
-      <p className="text-xs text-muted">{t.tools.firmar.preview.textHint}</p>
+      <p className="text-xs text-muted">{t.tools.sign.preview.textHint}</p>
       <canvas ref={canvasRef} className="hidden" />
     </div>
   )
@@ -339,14 +339,14 @@ function DrawSource({
         style={{ aspectRatio: '3 / 1' }}
       />
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted">{t.tools.firmar.preview.drawHint}</p>
+        <p className="text-xs text-muted">{t.tools.sign.preview.drawHint}</p>
         <button
           type="button"
           onClick={clear}
           disabled={disabled || !hasContent}
           className="rounded-lg border border-line px-3 py-1.5 text-xs text-muted transition hover:border-line-strong hover:text-ink disabled:opacity-40"
         >
-          {t.tools.firmar.preview.drawClear}
+          {t.tools.sign.preview.drawClear}
         </button>
       </div>
     </div>
@@ -404,7 +404,7 @@ function ImageSource({
             disabled={disabled}
             className="rounded-lg border border-line px-3 py-1.5 text-xs text-ink-soft transition hover:border-line-strong disabled:opacity-40"
           >
-            {t.tools.firmar.preview.imageChange}
+            {t.tools.sign.preview.imageChange}
           </button>
         </div>
       ) : (
@@ -414,10 +414,10 @@ function ImageSource({
           disabled={disabled}
           className="w-full rounded-card border border-dashed border-line-strong bg-subtle px-4 py-6 text-sm text-muted transition hover:border-accent hover:text-ink-soft disabled:opacity-40"
         >
-          {t.tools.firmar.preview.noImage}
+          {t.tools.sign.preview.noImage}
         </button>
       )}
-      <p className="text-xs text-muted">{t.tools.firmar.preview.imageHint}</p>
+      <p className="text-xs text-muted">{t.tools.sign.preview.imageHint}</p>
     </div>
   )
 }
@@ -544,14 +544,14 @@ function PositioningPreview({
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs text-muted">
         <span>
-          {fmt(t.tools.firmar.preview.pageOf, { n: page, total: pageCount || '?' })}
+          {fmt(t.tools.sign.preview.pageOf, { n: page, total: pageCount || '?' })}
         </span>
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => onChange({ page: Math.max(1, page - 1) })}
             disabled={page <= 1}
-            aria-label={t.tools.firmar.preview.prevPage}
+            aria-label={t.tools.sign.preview.prevPage}
             className="grid size-7 place-items-center rounded border border-line text-ink-soft transition hover:border-line-strong disabled:opacity-30"
           >
             <Icon name="arrowLeft" className="size-3.5" />
@@ -560,7 +560,7 @@ function PositioningPreview({
             type="button"
             onClick={() => onChange({ page: Math.min(pageCount || 1, page + 1) })}
             disabled={page >= pageCount}
-            aria-label={t.tools.firmar.preview.nextPage}
+            aria-label={t.tools.sign.preview.nextPage}
             className="grid size-7 place-items-center rounded border border-line text-ink-soft transition hover:border-line-strong disabled:opacity-30"
           >
             <Icon name="arrowLeft" className="size-3.5 rotate-180" />
@@ -597,7 +597,7 @@ function PositioningPreview({
         )}
         {!signatureDataUrl && pageSize && (
           <p className="absolute inset-0 grid place-items-center px-4 text-center text-xs text-muted">
-            {t.tools.firmar.preview.empty}
+            {t.tools.sign.preview.empty}
           </p>
         )}
       </div>

@@ -22,6 +22,7 @@ export const es = {
     home: '{app}, inicio',
     badge: 'Se ejecuta en tu dispositivo',
     howItWorks: 'Cómo funciona',
+    tools: 'Herramientas',
   },
 
   kofi: 'Invítame a un café',
@@ -32,11 +33,14 @@ export const es = {
   },
 
   locale: {
+    label: 'Idioma',
     names: { es: 'español', en: 'inglés' },
     switchTo: 'Cambiar a {name}',
   },
 
   theme: {
+    label: 'Tema',
+    options: { light: 'Claro', dark: 'Oscuro' },
     toLight: 'Cambiar a tema claro',
     toDark: 'Cambiar a tema oscuro',
   },
@@ -53,20 +57,22 @@ export const es = {
       body: 'No hay servidor de archivos. El documento se abre con la API File del navegador y vive solo en la memoria de la pestaña.',
     },
     offline: {
-      title: 'Funciona sin conexión',
+      title: 'Funciona sin internet',
       body: 'Corta el WiFi y sigue funcionando. Es la prueba más simple de que el procesamiento es local.',
     },
     noTracking: {
-      title: 'Sin cuentas, rastreo ni publicidad',
+      title: 'Sin cuentas ni rastreo',
       body: 'No hay registro, cookies de sesión, analítica, publicidad ni fuentes o scripts de terceros. Nada que asociar contigo.',
+    },
+    private: {
+      title: '100% privado',
+      body: 'El documento no se copia a ningún disco ni servidor: solo vive en la memoria de la pestaña hasta que la cierras.',
     },
   },
 
   categories: {
-    organizar: { name: 'Organizar', blurb: 'Unir, dividir y reordenar páginas.' },
-    convertir: { name: 'Convertir', blurb: 'Entrar y salir del formato PDF.' },
-    editar: { name: 'Editar', blurb: 'Añadir o quitar cosas sobre el documento.' },
-    optimizar: { name: 'Optimizar', blurb: 'Reducir peso y arreglar ficheros dañados.' },
+    paginas: { name: 'Organizar y gestionar', blurb: 'Reorganiza, anota y ajusta el contenido de las páginas.' },
+    conversiones: { name: 'Conversiones', blurb: 'Cambia de formato, reduce peso o repara el documento.' },
     seguridad: { name: 'Seguridad', blurb: 'Contraseñas, firmas y contenido sensible.' },
   },
 
@@ -228,14 +234,14 @@ export const es = {
   },
 
   tools: {
-    unir: {
+    merge: {
       name: 'Unir PDF',
       short: 'Combina varios documentos en uno solo, en el orden que elijas.',
       description:
         'Junta varios PDF en un único documento. El orden de la lista es el orden final; puedes reordenarla antes de procesar.',
       action: 'Unir PDF',
     },
-    dividir: {
+    split: {
       name: 'Dividir PDF',
       short: 'Sepáralo por rangos o extrae solo las páginas que necesitas.',
       description:
@@ -256,7 +262,7 @@ export const es = {
         },
       },
     },
-    rotar: {
+    rotate: {
       name: 'Rotar PDF',
       short: 'Gira todas las páginas o solo las que indiques.',
       description:
@@ -277,7 +283,7 @@ export const es = {
         },
       },
     },
-    organizar: {
+    organize: {
       name: 'Organizar páginas',
       short: 'Reordena, duplica y elimina páginas con vista previa.',
       description:
@@ -299,7 +305,7 @@ export const es = {
       },
     },
 
-    'jpg-a-pdf': {
+    'jpg-to-pdf': {
       name: 'Imágenes a PDF',
       short: 'Convierte JPG y PNG en un PDF, una imagen por página.',
       description:
@@ -314,7 +320,7 @@ export const es = {
         margin: { label: 'Margen (pt)' },
       },
     },
-    'pdf-a-jpg': {
+    'pdf-to-jpg': {
       name: 'PDF a imágenes',
       short: 'Exporta las páginas como JPG o PNG a la resolución que quieras.',
       description:
@@ -338,7 +344,7 @@ export const es = {
         quality: { label: 'Calidad JPG' },
       },
     },
-    'pdf-a-texto': {
+    'pdf-to-text': {
       name: 'PDF a texto',
       short: 'Extrae el texto ya presente en el documento.',
       description: 'Vuelca a texto plano el contenido textual del PDF, sin OCR.',
@@ -352,14 +358,14 @@ export const es = {
       action: 'Reconocer texto',
       note: 'El modelo de idioma se descarga una vez y se queda en caché. Las páginas nunca salen del navegador.',
     },
-    'html-a-pdf': {
+    'html-to-pdf': {
       name: 'Web a PDF',
       short: 'Guarda una página HTML local como PDF.',
       description: 'Convierte un fichero HTML de tu disco en un PDF paginado.',
       action: 'Convertir',
     },
 
-    numerar: {
+    number: {
       name: 'Numerar páginas',
       short: 'Añade numeración con la posición y el formato que elijas.',
       description:
@@ -384,7 +390,7 @@ export const es = {
         skipFirst: { label: 'No numerar la portada' },
       },
     },
-    'marca-de-agua': {
+    watermark: {
       name: 'Marca de agua',
       short: 'Superpón un texto o un logotipo en todas las páginas.',
       description: 'Añade una marca de agua con control de opacidad, giro y posición.',
@@ -416,20 +422,20 @@ export const es = {
         },
       },
     },
-    recortar: {
+    crop: {
       name: 'Recortar',
       short: 'Ajusta los márgenes visibles de las páginas.',
       description: 'Cambia el área visible del documento sin tocar su contenido.',
       action: 'Recortar',
     },
-    comparar: {
+    compare: {
       name: 'Comparar PDF',
       short: 'Enfrenta dos versiones y resalta lo que cambió.',
       description: 'Compara el texto de dos documentos y marca añadidos y eliminados.',
       action: 'Comparar',
     },
 
-    comprimir: {
+    compress: {
       name: 'Comprimir PDF',
       short: 'Reduce el peso del PDF sin subirlo a ningún servidor.',
       description:
@@ -446,21 +452,21 @@ export const es = {
         },
       },
     },
-    reparar: {
+    repair: {
       name: 'Reparar PDF',
       short: 'Recupera documentos con la estructura dañada.',
       description: 'Reescribe la tabla de referencias del PDF para rescatar ficheros que no abren.',
       action: 'Reparar',
       note: 'Se prueban varias estrategias, de la más fiel a la más agresiva. Lo que se perdió no vuelve: de un fichero truncado se rescata hasta el último objeto completo.',
     },
-    'pdf-a': {
+    pdfa: {
       name: 'Convertir a PDF/A',
       short: 'Formato de archivo a largo plazo.',
       description: 'Convierte el documento al perfil PDF/A para conservación y trámites oficiales.',
       action: 'Convertir',
     },
 
-    proteger: {
+    protect: {
       name: 'Proteger con contraseña',
       short: 'Cifra el documento con AES en tu propio equipo.',
       description:
@@ -471,7 +477,7 @@ export const es = {
         confirm: { label: 'Repite la contraseña' },
       },
     },
-    desbloquear: {
+    unlock: {
       name: 'Quitar contraseña',
       short: 'Elimina el cifrado de un PDF cuya contraseña conoces.',
       description: 'Descifra el documento y guarda una copia sin protección.',
@@ -484,7 +490,7 @@ export const es = {
         },
       },
     },
-    firmar: {
+    sign: {
       name: 'Firmar PDF',
       short: 'Coloca tu firma sobre el documento.',
       description: 'Escribe, dibuja o sube tu firma y colócala donde quieras con una vista previa de la página.',
@@ -520,7 +526,7 @@ export const es = {
         empty: 'Crea o sube una firma para ver la vista previa.',
       },
     },
-    redactar: {
+    redact: {
       name: 'Redactar',
       short: 'Elimina información sensible de verdad, no solo tapada.',
       description:

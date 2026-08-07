@@ -159,25 +159,25 @@ export function OrganizePreview({ files, values, onChange, disabled }: ToolPrevi
     <section className="space-y-4 rounded-card border border-line bg-surface p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-sm font-semibold tracking-tight text-ink">
-          {t.tools.organizar.preview.title}
+          {t.tools.organize.preview.title}
         </h2>
         <div className="flex items-center gap-3 text-xs text-muted">
-          <span>{fmt(t.tools.organizar.preview.count, { n: pages.length })}</span>
+          <span>{fmt(t.tools.organize.preview.count, { n: pages.length })}</span>
           <button
             type="button"
             onClick={reset}
             disabled={disabled || !pageCount}
             className="rounded border border-line px-2 py-1 text-xs text-ink-soft transition hover:border-line-strong disabled:opacity-40"
           >
-            {t.tools.organizar.preview.reset}
+            {t.tools.organize.preview.reset}
           </button>
         </div>
       </div>
-      <p className="text-xs text-muted">{t.tools.organizar.preview.hint}</p>
+      <p className="text-xs text-muted">{t.tools.organize.preview.hint}</p>
 
       {empty ? (
         <p className="rounded-card border border-dashed border-line-strong bg-subtle px-4 py-8 text-center text-sm text-muted">
-          {t.tools.organizar.preview.empty}
+          {t.tools.organize.preview.empty}
         </p>
       ) : (
         <ol className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -291,31 +291,31 @@ function Thumbnail({
       <div className="flex items-baseline justify-between text-xs">
         <span className="font-medium text-ink">{position + 1}</span>
         <span className="text-muted">
-          {t.tools.organizar.preview.original} {source + 1}
+          {t.tools.organize.preview.original} {source + 1}
         </span>
       </div>
       <div className="flex items-center gap-1">
         <ThumbButton
-          label={t.tools.organizar.preview.moveUp}
+          label={t.tools.organize.preview.moveUp}
           icon="up"
           onClick={onMoveUp}
           disabled={disabled || position === 0}
         />
         <ThumbButton
-          label={t.tools.organizar.preview.moveDown}
+          label={t.tools.organize.preview.moveDown}
           icon="down"
           onClick={onMoveDown}
           disabled={disabled || position === total - 1}
         />
         <span className="flex-1" />
         <ThumbButton
-          label={t.tools.organizar.preview.duplicate}
+          label={t.tools.organize.preview.duplicate}
           icon="plus"
           onClick={onDuplicate}
           disabled={disabled}
         />
         <ThumbButton
-          label={t.tools.organizar.preview.remove}
+          label={t.tools.organize.preview.remove}
           icon="trash"
           onClick={onRemove}
           disabled={disabled}

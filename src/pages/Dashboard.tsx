@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { Icon, type IconName } from '@/components/Icon'
 import { KofiBadge } from '@/components/KofiBadge'
 import { ToolCard } from '@/components/ToolCard'
@@ -11,17 +10,22 @@ const POINTS: { key: PointKey; icon: IconName }[] = [
   { key: 'noUpload', icon: 'cpu' },
   { key: 'offline', icon: 'wifiOff' },
   { key: 'noTracking', icon: 'shield' },
+  { key: 'private', icon: 'lock' },
 ]
 
 export function Dashboard() {
   return (
     <>
       <Hero />
-      <PrivacyStrip />
 
-      <div className="mx-auto max-w-6xl space-y-14 px-5 pt-20 pb-20">
+      <div className="mx-auto max-w-6xl space-y-14 px-5 pt-2 pb-20 sm:pt-4">
         {CATEGORY_IDS.map((id) => {
-          const tools = TOOLS.filter((tool) => tool.category === id)
+          // Las disponibles primero: dentro de cada sección, las `ready` se
+          // muestran antes que las `planned`, manteniendo el orden del registro.
+          const tools = TOOLS.filter((tool) => tool.category === id).sort((a, b) => {
+            if (a.status === b.status) return 0
+            return a.status === 'ready' ? -1 : 1
+          })
           if (!tools.length) return null
           const category = t.categories[id]
 
@@ -31,7 +35,7 @@ export function Dashboard() {
                 <h2 className="text-lg font-semibold tracking-tight text-ink">{category.name}</h2>
                 <p className="text-sm text-muted">{category.blurb}</p>
               </div>
-              <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {tools.map((tool) => (
                   <ToolCard key={tool.slug} tool={tool} />
                 ))}
@@ -46,8 +50,8 @@ export function Dashboard() {
 
 function Hero() {
   return (
-    <section className="border-b border-line">
-      <div className="mx-auto max-w-6xl px-5 pt-16 pb-14 sm:pt-24 sm:pb-20">
+    <section>
+      <div className="mx-auto max-w-6xl px-5 pt-16 pb-10 sm:pt-24 sm:pb-12">
         <span className="inline-flex items-center gap-2 rounded-full border border-accent-line bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent">
           <Icon name="shield" className="size-3.5" strokeWidth={1.8} />
           {t.hero.badge}
@@ -61,41 +65,23 @@ function Hero() {
 
         <div className="mt-9 flex flex-wrap items-center gap-3">
           <a
-            href="#organizar"
+            href="#paginas"
             className="rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-canvas transition hover:opacity-90"
           >
             {t.hero.tools}
           </a>
-          <Link
-            to="/privacidad"
-            className="rounded-lg border border-line px-5 py-2.5 text-sm font-medium text-ink-soft transition hover:border-line-strong"
-          >
-            {t.hero.verify}
-          </Link>
           <KofiBadge height="h-11" />
         </div>
-      </div>
-    </section>
-  )
-}
 
-function PrivacyStrip() {
-  return (
-    <section className="border-b border-line bg-subtle">
-      <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-3">
-        {POINTS.map((point) => (
-          <div key={point.key}>
-            <span className="flex items-center gap-2.5 text-ink">
-              <Icon name={point.icon} className="size-[18px] text-accent" />
-              <span className="text-[15px] font-semibold tracking-tight">
-                {t.privacyPoints[point.key].title}
-              </span>
-            </span>
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              {t.privacyPoints[point.key].body}
-            </p>
-          </div>
-        ))}
+        {/* Los tres compromisos, en una sola línea: iconos + etiqueta corta. */}
+        <ul className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted">
+          {POINTS.map((point) => (
+            <li key={point.key} className="flex items-center gap-2">
+              <Icon name={point.icon} className="size-4 text-accent" strokeWidth={1.8} />
+              <span>{t.privacyPoints[point.key].title}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   )

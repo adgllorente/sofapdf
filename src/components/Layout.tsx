@@ -3,9 +3,8 @@ import { APP } from '@/config'
 import { fmt, t } from '@/i18n'
 import { Icon } from './Icon'
 import { KofiBadge } from './KofiBadge'
-import { LocaleToggle } from './LocaleToggle'
 import { Wordmark } from './Logo'
-import { ThemeToggle } from './ThemeToggle'
+import { ToolsMenu } from './ToolsMenu'
 
 export function Layout() {
   return (
@@ -35,14 +34,13 @@ function Header() {
             <Icon name="cpu" className="size-3.5" strokeWidth={1.8} />
             {t.header.badge}
           </span>
+          <ToolsMenu />
           <Link
-            to="/privacidad"
+            to="/privacy"
             className="hidden rounded-md px-2 py-1 text-sm whitespace-nowrap text-muted transition hover:text-ink sm:block"
           >
             {t.header.howItWorks}
           </Link>
-          <LocaleToggle />
-          <ThemeToggle />
           {!onHome && <KofiBadge height="h-9" className="hidden md:block" />}
         </div>
       </div>
@@ -55,7 +53,7 @@ function Footer() {
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
         <p>{fmt(t.footer.line, { year: APP.year, name: APP.legalName })}</p>
-        <Link to="/privacidad" className="text-muted transition hover:text-ink">
+        <Link to="/privacy" className="text-muted transition hover:text-ink">
           {t.footer.link}
         </Link>
       </div>
