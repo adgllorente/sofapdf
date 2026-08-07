@@ -354,6 +354,7 @@ export const es = {
       short: 'Extrae el texto ya presente en el documento.',
       description: 'Vuelca a texto plano el contenido textual del PDF, sin OCR.',
       action: 'Extraer texto',
+      note: 'Solo extrae el texto que ya está embebido en el PDF. Para documentos escaneados usa la herramienta de OCR.',
     },
     ocr: {
       name: 'OCR',

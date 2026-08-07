@@ -348,6 +348,7 @@ export const en: typeof es = {
       short: 'Extract the text already present in the document.',
       description: 'Dumps the textual content of the PDF as plain text, without OCR.',
       action: 'Extract text',
+      note: 'Only extracts text already embedded in the PDF. For scanned documents, use the OCR tool.',
     },
     ocr: {
       name: 'OCR',

@@ -212,10 +212,11 @@ export const TOOLS: Tool[] = [
     slug: 'pdf-to-text',
     icon: 'text',
     category: 'conversiones',
-    status: 'planned',
+    status: 'ready',
     ...PDF,
     multiple: false,
     minFiles: 1,
+    load: () => import('./impl/pdf-to-text').then((m) => m.run),
   },
   {
     slug: 'ocr',

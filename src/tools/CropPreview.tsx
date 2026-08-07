@@ -435,8 +435,15 @@ function EdgeHandle({
         height: `${rect.height * 100}%`,
         transform: 'translateX(-50%)',
       }
-  const cursor = isHorizontal ? 'ns-resize' : 'ew-resize'
+  const cursor = isHorizontal ? 'cursor-ns-resize' : 'cursor-ew-resize'
   return <div onPointerDown={onPointerDown} className={`absolute z-20 ${cursor}`} style={style} />
+}
+
+const CORNER_CURSORS: Record<Corner, string> = {
+  'top-left': 'cursor-nwse-resize',
+  'top-right': 'cursor-nesw-resize',
+  'bottom-left': 'cursor-nesw-resize',
+  'bottom-right': 'cursor-nwse-resize',
 }
 
 function CornerHandle({
@@ -450,8 +457,6 @@ function CornerHandle({
 }) {
   const isLeft = corner === 'top-left' || corner === 'bottom-left'
   const isTop = corner === 'top-left' || corner === 'top-right'
-  const cursor =
-    corner === 'top-left' || corner === 'bottom-right' ? 'nwse-resize' : 'nesw-resize'
   const style: React.CSSProperties = {
     top: isTop ? `${rect.y * 100}%` : 'auto',
     bottom: !isTop ? `${(1 - rect.y - rect.height) * 100}%` : 'auto',
@@ -464,7 +469,7 @@ function CornerHandle({
   return (
     <div
       onPointerDown={onPointerDown}
-      className={`absolute z-30 cursor-${cursor} rounded-sm border-2 border-accent bg-canvas`}
+      className={`absolute z-30 ${CORNER_CURSORS[corner]} rounded-sm border-2 border-accent bg-canvas`}
       style={style}
     />
   )

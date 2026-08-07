@@ -189,14 +189,16 @@ function ToolRunner({ tool }: { tool: Tool }) {
                     <span className="block truncate text-sm text-ink">{output.name}</span>
                     <span className="block text-xs text-muted">{formatBytes(output.blob.size)}</span>
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setPreviewing(output)}
-                    className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft transition hover:border-line-strong"
-                  >
-                    <Icon name="eye" className="size-4" />
-                    {t.run.preview}
-                  </button>
+                  {output.blob.type === 'application/pdf' && (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewing(output)}
+                      className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft transition hover:border-line-strong"
+                    >
+                      <Icon name="eye" className="size-4" />
+                      {t.run.preview}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => saveBlob(output.blob, output.name)}
