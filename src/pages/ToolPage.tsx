@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { Dropzone } from '@/components/Dropzone'
 import { Icon } from '@/components/Icon'
 import { OptionsForm } from '@/components/OptionsForm'
+import { PreviewModal } from '@/components/PreviewModal'
 import { fmt, t } from '@/i18n'
 import { toolText } from '@/i18n/tools'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
@@ -29,6 +30,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
   const [progress, setProgress] = useState({ ratio: 0, label: '' })
   const [outputs, setOutputs] = useState<OutputFile[]>([])
   const [error, setError] = useState('')
+  const [previewing, setPreviewing] = useState<OutputFile | null>(null)
 
   const running = status === 'running'
   const ready = files.length >= tool.minFiles
@@ -189,6 +191,14 @@ function ToolRunner({ tool }: { tool: Tool }) {
                   </span>
                   <button
                     type="button"
+                    onClick={() => setPreviewing(output)}
+                    className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft transition hover:border-line-strong"
+                  >
+                    <Icon name="eye" className="size-4" />
+                    {t.run.preview}
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => saveBlob(output.blob, output.name)}
                     className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft transition hover:border-line-strong"
                   >
@@ -203,6 +213,14 @@ function ToolRunner({ tool }: { tool: Tool }) {
           </section>
         )}
       </div>
+
+      {previewing && (
+        <PreviewModal
+          blob={previewing.blob}
+          name={previewing.name}
+          onClose={() => setPreviewing(null)}
+        />
+      )}
     </div>
   )
 }

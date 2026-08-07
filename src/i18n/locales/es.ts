@@ -111,6 +111,9 @@ export const es = {
     doneMany: 'Listo, {n} archivos',
     zip: 'Descargar todo (.zip)',
     download: 'Descargar',
+    preview: 'Vista previa',
+    close: 'Cerrar',
+    loading: 'Cargando…',
     ephemeral: 'Los resultados están en la memoria de esta pestaña. Al cerrarla desaparecen.',
   },
 

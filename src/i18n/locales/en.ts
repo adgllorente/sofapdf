@@ -107,6 +107,9 @@ export const en: typeof es = {
     doneMany: 'Done, {n} files',
     zip: 'Download all (.zip)',
     download: 'Download',
+    preview: 'Preview',
+    close: 'Close',
+    loading: 'Loading…',
     ephemeral: 'The results live in this tab’s memory. Closing it discards them.',
   },
 
