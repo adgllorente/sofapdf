@@ -13,9 +13,12 @@ export const es = {
   },
 
   brand: {
-    tagline: 'Herramientas PDF que nunca ven tus documentos.',
-    claim:
-      'Todo se ejecuta dentro de tu navegador. Tus archivos no se suben, no se copian y no salen de este dispositivo.',
+    tagline: 'Tus PDF, en el sofá. Sin moverse de tu casa.',
+    claim: [
+      'Las herramientas PDF que se quedan ',
+      { bold: 'en la pestaña de tu navegador' },
+      '. Ni suben, ni viajan, ni hacen cola en un servidor ajeno.',
+    ],
   },
 
   header: {

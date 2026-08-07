@@ -7,11 +7,11 @@
  */
 export const APP = {
   /** Nombre comercial. Cambiar aquí cuando se cierre el dominio. */
-  name: 'Enclave',
+  name: 'SofaPDF',
   /** Se usa en el <title> y en el pie. */
-  legalName: 'Enclave PDF',
+  legalName: 'SofaPDF',
   /** Dominio provisional; solo texto, no se hace ninguna petición a él. */
-  domain: 'enclave.pdf',
+  domain: 'sofapdf.com',
   year: new Date().getFullYear(),
   repoUrl: '',
   /** Enlace externo: no carga nada, solo se navega si el usuario lo pulsa. */

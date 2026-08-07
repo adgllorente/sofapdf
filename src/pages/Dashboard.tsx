@@ -1,7 +1,9 @@
 import { Icon, type IconName } from '@/components/Icon'
 import { KofiBadge } from '@/components/KofiBadge'
+import { SofaMascot } from '@/components/SofaMascot'
 import { ToolCard } from '@/components/ToolCard'
 import { t } from '@/i18n'
+import { renderInline } from '@/i18n/inline'
 import { CATEGORY_IDS, TOOLS } from '@/tools/registry'
 
 type PointKey = keyof typeof t.privacyPoints
@@ -52,29 +54,39 @@ function Hero() {
   return (
     <section>
       <div className="mx-auto max-w-6xl px-5 pt-16 pb-10 sm:pt-24 sm:pb-12">
-        <span className="inline-flex items-center gap-2 rounded-full border border-accent-line bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent">
-          <Icon name="shield" className="size-3.5" strokeWidth={1.8} />
-          {t.hero.badge}
-        </span>
+        <div className="grid items-center gap-10 sm:grid-cols-[1.3fr_1fr] lg:gap-14">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-accent-line bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent">
+              <Icon name="shield" className="size-3.5" strokeWidth={1.8} />
+              {t.hero.badge}
+            </span>
 
-        <h1 className="mt-6 max-w-3xl text-4xl leading-[1.1] font-semibold tracking-tight text-balance text-ink sm:text-6xl">
-          {t.brand.tagline}
-        </h1>
+            <h1 className="mt-6 max-w-3xl text-4xl leading-[1.1] font-semibold tracking-tight text-balance text-ink sm:text-6xl">
+              {t.brand.tagline}
+            </h1>
 
-        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">{t.brand.claim}</p>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+              {renderInline(t.brand.claim)}
+            </p>
 
-        <div className="mt-9 flex flex-wrap items-center gap-3">
-          <a
-            href="#paginas"
-            className="rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-canvas transition hover:opacity-90"
-          >
-            {t.hero.tools}
-          </a>
-          <KofiBadge height="h-11" />
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <a
+                href="#paginas"
+                className="rounded-lg bg-ink px-5 py-2.5 text-sm font-medium text-canvas transition hover:opacity-90"
+              >
+                {t.hero.tools}
+              </a>
+              <KofiBadge height="h-11" />
+            </div>
+          </div>
+
+          <div className="flex justify-center sm:justify-end">
+            <SofaMascot className="w-full max-w-sm sm:max-w-md" />
+          </div>
         </div>
 
-        {/* Los tres compromisos, en una sola línea: iconos + etiqueta corta. */}
-        <ul className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted">
+        {/* Los compromisos, en una sola línea: iconos + etiqueta corta. */}
+        <ul className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted sm:mt-12">
           {POINTS.map((point) => (
             <li key={point.key} className="flex items-center gap-2">
               <Icon name={point.icon} className="size-4 text-accent" strokeWidth={1.8} />

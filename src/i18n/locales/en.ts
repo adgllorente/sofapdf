@@ -9,9 +9,12 @@ export const en: typeof es = {
   },
 
   brand: {
-    tagline: 'PDF tools that never see your documents.',
-    claim:
-      'Everything runs inside your browser. Your files are not uploaded, not copied, and never leave this device.',
+    tagline: 'Your PDFs, on the sofa. Never leaving your home.',
+    claim: [
+      'PDF tools that stay ',
+      { bold: 'in your browser tab' },
+      '. They don’t upload, they don’t travel, they don’t queue at someone else’s server.',
+    ],
   },
 
   header: {
