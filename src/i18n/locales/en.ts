@@ -200,6 +200,7 @@ export const en: typeof es = {
     repaired: 'repaired',
     protected: 'protected',
     unlocked: 'unlocked',
+    watermark: 'watermark',
   },
 
   progress: {
@@ -364,6 +365,32 @@ export const en: typeof es = {
       short: 'Overlay text or a logo on every page.',
       description: 'Adds a watermark with control over opacity, rotation and position.',
       action: 'Apply watermark',
+      options: {
+        text: { label: 'Text' },
+        position: {
+          label: 'Position',
+          choices: {
+            center: 'Centre (diagonal)',
+            'top-left': 'Top left',
+            'top-center': 'Top centre',
+            'top-right': 'Top right',
+            'bottom-left': 'Bottom left',
+            'bottom-center': 'Bottom centre',
+            'bottom-right': 'Bottom right',
+          },
+        },
+        color: {
+          label: 'Color',
+          choices: { gray: 'Grey', red: 'Red', blue: 'Blue', black: 'Black' },
+        },
+        opacity: { label: 'Opacity (%)' },
+        size: { label: 'Size (pt)' },
+        rotation: { label: 'Rotation (°)' },
+        pages: {
+          label: 'Pages',
+          help: 'Leave "1-" to mark the whole document.',
+        },
+      },
     },
     recortar: {
       name: 'Crop',

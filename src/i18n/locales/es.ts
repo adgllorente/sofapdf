@@ -205,6 +205,7 @@ export const es = {
     repaired: 'reparado',
     protected: 'protegido',
     unlocked: 'sin-contraseña',
+    watermark: 'marca-de-agua',
   },
 
   progress: {
@@ -370,6 +371,32 @@ export const es = {
       short: 'Superpón un texto o un logotipo en todas las páginas.',
       description: 'Añade una marca de agua con control de opacidad, giro y posición.',
       action: 'Aplicar marca de agua',
+      options: {
+        text: { label: 'Texto' },
+        position: {
+          label: 'Posición',
+          choices: {
+            center: 'Centro (en diagonal)',
+            'top-left': 'Arriba izquierda',
+            'top-center': 'Arriba centro',
+            'top-right': 'Arriba derecha',
+            'bottom-left': 'Abajo izquierda',
+            'bottom-center': 'Abajo centro',
+            'bottom-right': 'Abajo derecha',
+          },
+        },
+        color: {
+          label: 'Color',
+          choices: { gray: 'Gris', red: 'Rojo', blue: 'Azul', black: 'Negro' },
+        },
+        opacity: { label: 'Opacidad (%)' },
+        size: { label: 'Tamaño (pt)' },
+        rotation: { label: 'Giro (°)' },
+        pages: {
+          label: 'Páginas',
+          help: 'Deja "1-" para marcar el documento entero.',
+        },
+      },
     },
     recortar: {
       name: 'Recortar',
