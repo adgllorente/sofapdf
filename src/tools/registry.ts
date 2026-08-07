@@ -150,10 +150,14 @@ export const TOOLS: Tool[] = [
     slug: 'compare',
     icon: 'diff',
     category: 'paginas',
-    status: 'planned',
+    status: 'ready',
     ...PDF,
     multiple: true,
     minFiles: 2,
+    options: [
+      { key: 'tolerance', type: 'number', default: 30, min: 0, max: 255 },
+    ],
+    load: () => import('./impl/compare').then((m) => m.run),
   },
 
   {

@@ -207,6 +207,8 @@ export const es = {
     redactEmpty: 'Dibuja al menos un rectángulo sobre el texto que quieres censurar.',
     redactFailed: 'No se pudo renderizar la página para censurar.',
     ocrFailed: 'No se pudo reconocer el texto de la página {n}.',
+    compareNeedTwo: 'Sube dos PDFs para comparar.',
+    compareFailed: 'No se pudo comparar las páginas.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
@@ -226,6 +228,7 @@ export const es = {
     cropped: 'recortado',
     redacted: 'censurado',
     ocr: 'ocr',
+    compared: 'comparado',
   },
 
   progress: {
@@ -458,8 +461,15 @@ export const es = {
     compare: {
       name: 'Comparar PDF',
       short: 'Enfrenta dos versiones y resalta lo que cambió.',
-      description: 'Compara el texto de dos documentos y marca añadidos y eliminados.',
+      description: 'Compara dos PDFs página a página: rojo en A = lo que se eliminó, verde en B = lo que se añadió.',
       action: 'Comparar',
+      note: 'Las páginas se emparejan por índice. Si un PDF tiene más páginas que el otro, las sobrantes aparecen tal cual.',
+      options: {
+        tolerance: {
+          label: 'Tolerancia de diferencia',
+          help: 'De 0 (cualquier cambio) a 255 (solo diferencias muy grandes). 30 es un valor razonable para la mayoría de documentos.',
+        },
+      },
     },
 
     compress: {

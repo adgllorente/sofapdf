@@ -203,6 +203,8 @@ export const en: typeof es = {
     redactEmpty: 'Draw at least one rectangle over the text you want to redact.',
     redactFailed: 'Could not render the page for redaction.',
     ocrFailed: 'Could not recognise the text on page {n}.',
+    compareNeedTwo: 'Upload two PDFs to compare.',
+    compareFailed: 'Could not compare the pages.',
   },
 
   filenames: {
@@ -221,6 +223,7 @@ export const en: typeof es = {
     cropped: 'cropped',
     redacted: 'redacted',
     ocr: 'ocr',
+    compared: 'compared',
   },
 
   progress: {
@@ -452,8 +455,15 @@ export const en: typeof es = {
     compare: {
       name: 'Compare PDF',
       short: 'Put two versions side by side and highlight what changed.',
-      description: 'Compares the text of two documents and marks additions and deletions.',
+      description: 'Compares two PDFs page by page: red on A = what was removed, green on B = what was added.',
       action: 'Compare',
+      note: 'Pages are paired by index. If one PDF is longer, the extra pages are added unchanged.',
+      options: {
+        tolerance: {
+          label: 'Difference tolerance',
+          help: 'From 0 (any change) to 255 (only very large differences). 30 is a reasonable default for most documents.',
+        },
+      },
     },
 
     compress: {
