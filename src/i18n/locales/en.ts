@@ -38,7 +38,7 @@ export const en: typeof es = {
   },
 
   hero: {
-    badge: 'Your documents never leave this device',
+    badge: 'Your documents never leave your device',
     tools: 'See the tools',
     verify: 'Check it yourself',
   },

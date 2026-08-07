@@ -42,7 +42,7 @@ export const es = {
   },
 
   hero: {
-    badge: 'Tus documentos no salen de este dispositivo',
+    badge: 'Tus documentos no salen de tu dispositivo',
     tools: 'Ver las herramientas',
     verify: 'Compruébalo tú mismo',
   },
