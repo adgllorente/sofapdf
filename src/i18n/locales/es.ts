@@ -190,6 +190,7 @@ export const es = {
     wrongPassword: 'La contraseña no abre este documento.',
     encryptFailed: 'No se pudo cifrar el documento.',
     repairFailed: 'No se pudo reparar: el daño supera lo que se puede reconstruir.',
+    signatureEmpty: 'Crea una firma antes de firmar el documento.',
     repairEncrypted:
       'El documento está cifrado: quítale la contraseña con Desbloquear PDF y vuelve a intentarlo.',
   },
@@ -206,6 +207,7 @@ export const es = {
     protected: 'protegido',
     unlocked: 'sin-contraseña',
     watermark: 'marca-de-agua',
+    signed: 'firmado',
   },
 
   progress: {
@@ -469,8 +471,38 @@ export const es = {
     firmar: {
       name: 'Firmar PDF',
       short: 'Coloca tu firma sobre el documento.',
-      description: 'Dibuja o sube tu firma y sitúala en la página.',
+      description: 'Escribe, dibuja o sube tu firma y colócala donde quieras con una vista previa de la página.',
       action: 'Firmar',
+      note: 'La firma es visual: se estampa como una imagen. No genera una firma criptográfica.',
+      options: {
+        applyTo: {
+          label: 'Aplicar a',
+          choices: { one: 'Solo esta página', all: 'Todas las páginas' },
+        },
+      },
+      preview: {
+        source: 'Origen de la firma',
+        modes: { text: 'Texto', draw: 'Dibujar', image: 'Imagen' },
+        textPlaceholder: 'Tu nombre',
+        textHint: 'Se redibuja en cada cambio con el estilo elegido.',
+        textStyle: 'Estilo',
+        textColor: 'Color',
+        textSize: 'Tamaño',
+        styles: { script: 'Script', serif: 'Serif', sans: 'Sans' },
+        colors: { black: 'Negro', blue: 'Azul', gray: 'Gris' },
+        drawHint: 'Dibuja con el ratón o el dedo.',
+        drawClear: 'Limpiar',
+        imageHint: 'Sube una imagen. Lo ideal es PNG con fondo transparente.',
+        imageChange: 'Cambiar imagen',
+        noImage: 'Aún no has subido ninguna imagen.',
+        position: 'Posición',
+        positionHint: 'Haz clic o arrastra sobre la página para colocar la firma.',
+        widthLabel: 'Ancho en la página (pt)',
+        pageOf: 'Página {n} de {total}',
+        prevPage: 'Página anterior',
+        nextPage: 'Página siguiente',
+        empty: 'Crea o sube una firma para ver la vista previa.',
+      },
     },
     redactar: {
       name: 'Redactar',

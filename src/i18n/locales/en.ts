@@ -186,6 +186,7 @@ export const en: typeof es = {
     wrongPassword: 'The password does not open this document.',
     encryptFailed: 'The document could not be encrypted.',
     repairFailed: 'Could not repair it: the damage is beyond what can be rebuilt.',
+    signatureEmpty: 'Create a signature before signing the document.',
     repairEncrypted:
       'The document is encrypted: remove the password with Unlock PDF and try again.',
   },
@@ -201,6 +202,7 @@ export const en: typeof es = {
     protected: 'protected',
     unlocked: 'unlocked',
     watermark: 'watermark',
+    signed: 'signed',
   },
 
   progress: {
@@ -464,8 +466,38 @@ export const en: typeof es = {
     firmar: {
       name: 'Sign PDF',
       short: 'Place your signature on the document.',
-      description: 'Draw or upload your signature and position it on the page.',
+      description: 'Type, draw or upload your signature and place it anywhere with a page preview.',
       action: 'Sign',
+      note: 'The signature is visual: it is stamped as an image. It does not produce a cryptographic signature.',
+      options: {
+        applyTo: {
+          label: 'Apply to',
+          choices: { one: 'This page only', all: 'All pages' },
+        },
+      },
+      preview: {
+        source: 'Signature source',
+        modes: { text: 'Text', draw: 'Draw', image: 'Image' },
+        textPlaceholder: 'Your name',
+        textHint: 'Re-renders on every change with the chosen style.',
+        textStyle: 'Style',
+        textColor: 'Color',
+        textSize: 'Size',
+        styles: { script: 'Script', serif: 'Serif', sans: 'Sans' },
+        colors: { black: 'Black', blue: 'Blue', gray: 'Grey' },
+        drawHint: 'Draw with the mouse or your finger.',
+        drawClear: 'Clear',
+        imageHint: 'Upload an image. PNG with a transparent background works best.',
+        imageChange: 'Change image',
+        noImage: 'You have not uploaded an image yet.',
+        position: 'Position',
+        positionHint: 'Click or drag on the page to place the signature.',
+        widthLabel: 'Width on the page (pt)',
+        pageOf: 'Page {n} of {total}',
+        prevPage: 'Previous page',
+        nextPage: 'Next page',
+        empty: 'Create or upload a signature to see the preview.',
+      },
     },
     redactar: {
       name: 'Redact',

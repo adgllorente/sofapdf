@@ -110,6 +110,10 @@ function ToolRunner({ tool }: { tool: Tool }) {
           </section>
         )}
 
+        {tool.Preview && files.length > 0 && (
+          <tool.Preview files={files} values={values} onChange={setValues} disabled={running} />
+        )}
+
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"

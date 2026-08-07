@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react'
 import type { IconName } from '@/components/Icon'
 
 export type OptionValues = Record<string, string | number | boolean>
@@ -28,6 +29,18 @@ export type OutputFile = {
 export type RunContext = {
   /** ratio 0..1; label opcional para el texto de progreso. */
   onProgress: (ratio: number, label?: string) => void
+}
+
+/**
+ * Props que recibe el componente `Preview` opcional de una herramienta. Se
+ * monta entre el formulario de opciones y el botón de acción; vive en el
+ * bundle principal (no en el chunk diferido) porque necesita React.
+ */
+export type ToolPreviewProps = {
+  files: File[]
+  values: OptionValues
+  onChange: (values: OptionValues) => void
+  disabled?: boolean
 }
 
 export type ToolRun = (
@@ -81,6 +94,12 @@ export type Tool = {
   options?: OptionField[]
   /** Carga diferida de la implementación: mantiene el bundle inicial pequeño. */
   load?: () => Promise<ToolRun>
+  /**
+   * Componente React opcional para UI específica de la herramienta (vista
+   * previa interactiva, miniaturas…). Solo lo montan las herramientas que lo
+   * necesitan: el resto usa el formulario de opciones generado desde datos.
+   */
+  Preview?: ComponentType<ToolPreviewProps>
 }
 
 export function defaultValues(tool: Tool): OptionValues {

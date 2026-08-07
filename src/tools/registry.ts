@@ -1,4 +1,5 @@
 import type { Tool, ToolCategoryId } from './types'
+import { SignaturePreview } from './SignaturePreview'
 
 /** Los ids son estables: se usan como ancla en la URL y como clave del diccionario. */
 export const CATEGORY_IDS: ToolCategoryId[] = [
@@ -292,10 +293,15 @@ export const TOOLS: Tool[] = [
     slug: 'firmar',
     icon: 'pen',
     category: 'seguridad',
-    status: 'planned',
+    status: 'ready',
     ...PDF,
     multiple: false,
     minFiles: 1,
+    options: [
+      { key: 'applyTo', type: 'select', default: 'one', choices: ['one', 'all'] },
+    ],
+    load: () => import('./impl/sign').then((m) => m.run),
+    Preview: SignaturePreview,
   },
   {
     slug: 'redactar',
