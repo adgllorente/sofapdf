@@ -14,6 +14,12 @@ export type ToolText = {
   action: string
   note?: string
   options?: Record<string, OptionText>
+  /**
+   * Cadenas opcionales para UIs específicas que viven en el `Preview` de la
+   * herramienta (miniaturas, posición de firma…). La forma es libre: cada
+   * Preview define y consume las claves que necesita.
+   */
+  preview?: Record<string, string | number | boolean | Record<string, string>>
 }
 
 /**

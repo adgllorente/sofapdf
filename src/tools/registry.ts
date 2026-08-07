@@ -1,4 +1,5 @@
 import type { Tool, ToolCategoryId } from './types'
+import { OrganizePreview } from './OrganizePreview'
 import { SignaturePreview } from './SignaturePreview'
 
 /** Los ids son estables: se usan como ancla en la URL y como clave del diccionario. */
@@ -62,10 +63,12 @@ export const TOOLS: Tool[] = [
     slug: 'organizar',
     icon: 'grid',
     category: 'organizar',
-    status: 'planned',
+    status: 'ready',
     ...PDF,
     multiple: false,
     minFiles: 1,
+    load: () => import('./impl/organize').then((m) => m.run),
+    Preview: OrganizePreview,
   },
 
   {

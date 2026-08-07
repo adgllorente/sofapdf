@@ -193,6 +193,7 @@ export const es = {
     signatureEmpty: 'Crea una firma antes de firmar el documento.',
     repairEncrypted:
       'El documento está cifrado: quítale la contraseña con Desbloquear PDF y vuelve a intentarlo.',
+    organizeEmpty: 'No queda ninguna página: añade al menos una antes de exportar.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
@@ -208,6 +209,7 @@ export const es = {
     unlocked: 'sin-contraseña',
     watermark: 'marca-de-agua',
     signed: 'firmado',
+    organized: 'organizado',
   },
 
   progress: {
@@ -281,6 +283,20 @@ export const es = {
       description:
         'Vista de miniaturas para reordenar, duplicar o borrar páginas antes de exportar.',
       action: 'Organizar',
+      note: 'El orden de la lista es el orden final. Arrastra para reordenar o usa los botones.',
+      preview: {
+        title: 'Páginas',
+        hint: 'Arrastra las miniaturas para reordenar. Cada página conserva su número original a la derecha.',
+        position: 'Posición',
+        original: 'Original',
+        moveUp: 'Subir',
+        moveDown: 'Bajar',
+        duplicate: 'Duplicar',
+        remove: 'Quitar',
+        reset: 'Restablecer orden',
+        empty: 'No queda ninguna página. Duplica alguna para empezar.',
+        count: '{n} páginas',
+      },
     },
 
     'jpg-a-pdf': {

@@ -189,6 +189,7 @@ export const en: typeof es = {
     signatureEmpty: 'Create a signature before signing the document.',
     repairEncrypted:
       'The document is encrypted: remove the password with Unlock PDF and try again.',
+    organizeEmpty: 'No pages left: add at least one before exporting.',
   },
 
   filenames: {
@@ -203,6 +204,7 @@ export const en: typeof es = {
     unlocked: 'unlocked',
     watermark: 'watermark',
     signed: 'signed',
+    organized: 'organised',
   },
 
   progress: {
@@ -275,6 +277,20 @@ export const en: typeof es = {
       short: 'Reorder, duplicate and delete pages with a preview.',
       description: 'Thumbnail view to reorder, duplicate or delete pages before exporting.',
       action: 'Organise',
+      note: 'The list order is the final order. Drag to reorder or use the buttons.',
+      preview: {
+        title: 'Pages',
+        hint: 'Drag thumbnails to reorder. Each page keeps its original number on the right.',
+        position: 'Position',
+        original: 'Original',
+        moveUp: 'Move up',
+        moveDown: 'Move down',
+        duplicate: 'Duplicate',
+        remove: 'Remove',
+        reset: 'Reset order',
+        empty: 'No pages left. Duplicate one to get started.',
+        count: '{n} pages',
+      },
     },
 
     'jpg-a-pdf': {
