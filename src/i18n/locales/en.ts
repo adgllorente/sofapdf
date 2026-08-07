@@ -358,12 +358,6 @@ export const en: typeof es = {
       action: 'Recognise text',
       note: 'The language model is downloaded once and cached. The pages never leave the browser.',
     },
-    'html-to-pdf': {
-      name: 'Web to PDF',
-      short: 'Save a local HTML page as a PDF.',
-      description: 'Converts an HTML file from your disk into a paginated PDF.',
-      action: 'Convert',
-    },
 
     number: {
       name: 'Number pages',
@@ -474,13 +468,6 @@ export const en: typeof es = {
       description: 'Rewrites the PDF cross-reference table to rescue files that will not open.',
       action: 'Repair',
       note: 'It tries several strategies, from the most faithful to the most aggressive. What was lost does not come back: from a truncated file it salvages up to the last complete object.',
-    },
-    pdfa: {
-      name: 'Convert to PDF/A',
-      short: 'Long-term archival format.',
-      description:
-        'Converts the document to the PDF/A profile for preservation and official paperwork.',
-      action: 'Convert',
     },
 
     protect: {

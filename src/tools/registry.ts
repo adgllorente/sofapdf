@@ -228,16 +228,6 @@ export const TOOLS: Tool[] = [
     minFiles: 1,
   },
   {
-    slug: 'html-to-pdf',
-    icon: 'code',
-    category: 'conversiones',
-    status: 'planned',
-    accept: 'text/html,.html,.htm',
-    acceptKey: 'html',
-    multiple: false,
-    minFiles: 1,
-  },
-  {
     slug: 'compress',
     icon: 'compress',
     category: 'conversiones',
@@ -260,16 +250,6 @@ export const TOOLS: Tool[] = [
     minFiles: 1,
     load: () => import('./impl/repair').then((m) => m.run),
   },
-  {
-    slug: 'pdfa',
-    icon: 'archive',
-    category: 'conversiones',
-    status: 'planned',
-    ...PDF,
-    multiple: false,
-    minFiles: 1,
-  },
-
   {
     slug: 'protect',
     icon: 'lock',

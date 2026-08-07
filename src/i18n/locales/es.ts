@@ -364,12 +364,6 @@ export const es = {
       action: 'Reconocer texto',
       note: 'El modelo de idioma se descarga una vez y se queda en caché. Las páginas nunca salen del navegador.',
     },
-    'html-to-pdf': {
-      name: 'Web a PDF',
-      short: 'Guarda una página HTML local como PDF.',
-      description: 'Convierte un fichero HTML de tu disco en un PDF paginado.',
-      action: 'Convertir',
-    },
 
     number: {
       name: 'Numerar páginas',
@@ -480,12 +474,6 @@ export const es = {
       description: 'Reescribe la tabla de referencias del PDF para rescatar ficheros que no abren.',
       action: 'Reparar',
       note: 'Se prueban varias estrategias, de la más fiel a la más agresiva. Lo que se perdió no vuelve: de un fichero truncado se rescata hasta el último objeto completo.',
-    },
-    pdfa: {
-      name: 'Convertir a PDF/A',
-      short: 'Formato de archivo a largo plazo.',
-      description: 'Convierte el documento al perfil PDF/A para conservación y trámites oficiales.',
-      action: 'Convertir',
     },
 
     protect: {
