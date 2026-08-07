@@ -1,0 +1,29 @@
+<!doctype html>
+<!-- lang, title y description se reescriben en main.tsx con el idioma detectado. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="PDF tools that run entirely inside your browser. Your documents are never uploaded to any server."
+    />
+    <title>Local PDF tools</title>
+    <script>
+      // Se aplica antes del primer pintado para evitar el parpadeo de tema.
+      try {
+        const stored = localStorage.getItem('theme')
+        document.documentElement.dataset.theme =
+          stored ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      } catch {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
