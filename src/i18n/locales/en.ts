@@ -196,6 +196,7 @@ export const en: typeof es = {
     repairEncrypted:
       'The document is encrypted: remove the password with Unlock PDF and try again.',
     organizeEmpty: 'No pages left: add at least one before exporting.',
+    cropEmpty: 'The crop leaves the page empty: ease one of the margins.',
   },
 
   filenames: {
@@ -211,6 +212,7 @@ export const en: typeof es = {
     watermark: 'watermark',
     signed: 'signed',
     organized: 'organised',
+    cropped: 'cropped',
   },
 
   progress: {
@@ -421,6 +423,22 @@ export const en: typeof es = {
       short: 'Adjust the visible margins of the pages.',
       description: 'Changes the visible area of the document without touching its content.',
       action: 'Crop',
+      note: 'Cropping only changes the visible box: anything outside it is still in the file, just not shown.',
+      options: {
+        applyTo: {
+          label: 'Apply to',
+          choices: { all: 'All pages', one: 'This page only' },
+        },
+      },
+      preview: {
+        title: 'Visible area',
+        hint: 'Click and drag on the page to create the crop. Then move it or resize it from the corners.',
+        reset: 'Reset',
+        newCrop: 'New crop',
+        pageOf: 'Page {n} of {total}',
+        prevPage: 'Previous page',
+        nextPage: 'Next page',
+      },
     },
     compare: {
       name: 'Compare PDF',

@@ -1,4 +1,5 @@
 import type { Tool, ToolCategoryId } from './types'
+import { CropPreview } from './CropPreview'
 import { OrganizePreview } from './OrganizePreview'
 import { SignaturePreview } from './SignaturePreview'
 
@@ -134,10 +135,15 @@ export const TOOLS: Tool[] = [
     slug: 'crop',
     icon: 'crop',
     category: 'paginas',
-    status: 'planned',
+    status: 'ready',
     ...PDF,
     multiple: false,
     minFiles: 1,
+    options: [
+      { key: 'applyTo', type: 'select', default: 'all', choices: ['all', 'one'] },
+    ],
+    load: () => import('./impl/crop').then((m) => m.run),
+    Preview: CropPreview,
   },
   {
     slug: 'compare',

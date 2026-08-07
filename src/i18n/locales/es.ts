@@ -200,6 +200,7 @@ export const es = {
     repairEncrypted:
       'El documento está cifrado: quítale la contraseña con Desbloquear PDF y vuelve a intentarlo.',
     organizeEmpty: 'No queda ninguna página: añade al menos una antes de exportar.',
+    cropEmpty: 'El recorte deja la página vacía: reduce algún margen.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
@@ -216,6 +217,7 @@ export const es = {
     watermark: 'marca-de-agua',
     signed: 'firmado',
     organized: 'organizado',
+    cropped: 'recortado',
   },
 
   progress: {
@@ -427,6 +429,22 @@ export const es = {
       short: 'Ajusta los márgenes visibles de las páginas.',
       description: 'Cambia el área visible del documento sin tocar su contenido.',
       action: 'Recortar',
+      note: 'El recorte solo cambia la caja visible: el contenido fuera de ella sigue ahí, solo no se muestra.',
+      options: {
+        applyTo: {
+          label: 'Aplicar a',
+          choices: { all: 'Todas las páginas', one: 'Solo esta página' },
+        },
+      },
+      preview: {
+        title: 'Área visible',
+        hint: 'Haz clic y arrastra sobre la página para crear el recorte. Después muévelo o redimensiónalo desde las esquinas.',
+        reset: 'Restablecer',
+        newCrop: 'Nuevo recorte',
+        pageOf: 'Página {n} de {total}',
+        prevPage: 'Página anterior',
+        nextPage: 'Página siguiente',
+      },
     },
     compare: {
       name: 'Comparar PDF',
