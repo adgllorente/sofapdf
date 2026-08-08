@@ -14,4 +14,8 @@ export default defineConfig({
     // Nada de este proyecto habla con la red: todo el peso va al bundle.
     chunkSizeWarningLimit: 1500,
   },
+  server: {
+    host: true,
+    port: 5173,
+  },
 })
