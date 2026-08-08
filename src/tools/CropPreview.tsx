@@ -228,7 +228,7 @@ export function CropPreview({ files, values, onChange, disabled }: ToolPreviewPr
 
       <div
         ref={containerRef}
-        className="relative min-h-[200px] rounded-card border border-line bg-subtle"
+        className="relative min-h-[200px] touch-none rounded-card border border-line bg-subtle"
       >
         <canvas ref={canvasRef} className="block w-full h-auto" />
 

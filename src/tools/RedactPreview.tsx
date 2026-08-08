@@ -240,7 +240,7 @@ export function RedactPreview({ files, values, onChange, disabled }: ToolPreview
       <div
         ref={containerRef}
         onPointerDown={onContainerPointerDown}
-        className="relative min-h-[200px] cursor-crosshair select-none rounded-card border border-line bg-subtle"
+        className="relative min-h-[200px] touch-none cursor-crosshair select-none rounded-card border border-line bg-subtle"
       >
         <canvas ref={canvasRef} className="block w-full h-auto" />
 
