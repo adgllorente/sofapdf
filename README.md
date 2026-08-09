@@ -53,9 +53,10 @@ src/
 ## Idiomas
 
 Español e inglés. Se elige leyendo `navigator.languages` al cargar la página y se aplica sin
-preguntar; si el sistema no está en ninguno de los dos, cae a inglés. No hay selector y no se
-guarda nada: es una decisión de cada carga, así que la única preferencia persistida sigue siendo
-el tema.
+preguntar; si el sistema no está en ninguno de los dos, cae a inglés. El idioma elegido y el tema
+se guardan en `localStorage`, junto con el contador de usos y el aplazamiento del aviso de apoyo.
+Solo son preferencias y métricas locales de la interfaz: nunca contienen documentos ni datos
+derivados de ellos.
 
 Todo el texto visible vive en `src/i18n/locales/`. `es.ts` es la referencia y `en.ts` está tipado
 como `typeof es`, así que olvidar una clave rompe el build en lugar de colarse en producción.

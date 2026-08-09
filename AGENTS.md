@@ -25,8 +25,9 @@ Prohibido, aunque parezca cómodo o lo pida una tarea de forma ambigua:
 - Persistir contenido de documentos en `localStorage`, `IndexedDB`, cookies o el sistema de
   ficheros.
 
-Lo único que se persiste hoy es la preferencia de tema (`localStorage.theme`). Si añades cualquier
-otra persistencia, tiene que ser una decisión consciente y documentada en `src/pages/Privacy.tsx`.
+Solo se persisten preferencias y datos de uso de la interfaz (`theme`, `lang`,
+`supportPrompt.usageCount` y `supportPrompt.dismissedAt`). Si añades cualquier otra persistencia,
+tiene que ser una decisión consciente y documentada en `src/pages/Privacy.tsx`.
 
 Cargar recursos desde el **mismo origen** sí vale: es como se sirve el worker de pdf.js y como se
 servirán los módulos WASM. Usa el import de Vite (`import url from 'x?url'`), nunca una URL de CDN.
