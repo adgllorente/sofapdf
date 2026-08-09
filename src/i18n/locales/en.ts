@@ -235,6 +235,7 @@ export const en: typeof es = {
   filenames: {
     merged: 'merged',
     images: 'images',
+    extractedImages: 'extracted-images',
     selection: 'selection',
     numbered: 'numbered',
     compressed: 'compressed',
@@ -257,6 +258,7 @@ export const en: typeof es = {
     reading: 'Reading {name}',
     readingPdf: 'Reading the PDF',
     compressingImages: 'Compressing images',
+    extractingImages: 'Extracting images',
     writingPdf: 'Writing the PDF',
     repairing: 'Rebuilding the structure',
     rebuildingObjects: 'Recovering the objects',
@@ -375,6 +377,14 @@ export const en: typeof es = {
         },
         quality: { label: 'JPG quality' },
       },
+    },
+    'extract-images': {
+      name: 'Extract images',
+      short: 'Take the embedded images out of a PDF as separate files.',
+      description:
+        'Reads the image objects contained in the PDF and exports them as PNG files, without rasterising pages or changing text.',
+      action: 'Extract images',
+      note: 'Images reused on several pages are returned only once. Masks and vector graphics are not treated as embedded images.',
     },
     'pdf-to-text': {
       name: 'PDF to text',

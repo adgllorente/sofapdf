@@ -214,6 +214,16 @@ export const TOOLS: Tool[] = [
     load: () => import('./impl/pdf-to-images').then((m) => m.run),
   },
   {
+    slug: 'extract-images',
+    icon: 'image',
+    category: 'conversiones',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    load: () => import('./impl/extract-images').then((m) => m.run),
+  },
+  {
     slug: 'pdf-to-text',
     icon: 'text',
     category: 'conversiones',

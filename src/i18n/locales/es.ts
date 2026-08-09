@@ -240,6 +240,7 @@ export const es = {
   filenames: {
     merged: 'combinado',
     images: 'imagenes',
+    extractedImages: 'imagenes-extraidas',
     selection: 'seleccion',
     numbered: 'numerado',
     compressed: 'comprimido',
@@ -262,6 +263,7 @@ export const es = {
     reading: 'Leyendo {name}',
     readingPdf: 'Leyendo el PDF',
     compressingImages: 'Comprimiendo imágenes',
+    extractingImages: 'Extrayendo imágenes',
     writingPdf: 'Escribiendo el PDF',
     repairing: 'Reconstruyendo la estructura',
     rebuildingObjects: 'Recuperando los objetos',
@@ -381,6 +383,14 @@ export const es = {
         },
         quality: { label: 'Calidad JPG' },
       },
+    },
+    'extract-images': {
+      name: 'Extraer imágenes',
+      short: 'Saca las imágenes incrustadas del PDF como archivos independientes.',
+      description:
+        'Lee los objetos de imagen que contiene el PDF y los exporta como PNG, sin rasterizar las páginas ni tocar el texto.',
+      action: 'Extraer imágenes',
+      note: 'Las imágenes repetidas en varias páginas se entregan una sola vez. Las máscaras y gráficos vectoriales no se consideran imágenes incrustadas.',
     },
     'pdf-to-text': {
       name: 'PDF a texto',

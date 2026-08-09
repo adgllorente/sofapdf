@@ -59,6 +59,7 @@ export type ToolSlug =
   | 'organize'
   | 'jpg-to-pdf'
   | 'pdf-to-jpg'
+  | 'extract-images'
   | 'pdf-to-text'
   | 'ocr'
   | 'number'
