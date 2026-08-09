@@ -134,6 +134,12 @@ export const es = {
     close: 'Cerrar',
     loading: 'Cargando…',
     ephemeral: 'Los resultados están en la memoria de esta pestaña. Al cerrarla desaparecen.',
+    support: {
+      title: '¿Cuánto dirías que vale esta herramienta para ti?',
+      body: 'Si te ha resultado útil, puedes apoyar su mantenimiento con una donación.',
+      donate: 'Hacer una donación',
+      later: 'Otra vez será',
+    },
   },
 
   card: {
@@ -190,8 +196,8 @@ export const es = {
         body: 'Al cargar la página, el servidor que la aloja ve tu IP y tu navegador, como cualquier otra web. Lo que nunca ve es tu documento.',
       },
       theme: {
-        strong: 'Se guardan dos preferencias.',
-        body: 'El tema y el idioma se recuerdan en el almacenamiento local del navegador, con las claves «theme» y «lang». Nada más: son ajustes de la interfaz y no dicen nada de tus documentos. El idioma, si no lo has elegido, sale del que tenga tu sistema.',
+        strong: 'Se guardan algunos ajustes.',
+        body: 'El tema, el idioma y el número de usos de las herramientas se recuerdan en el almacenamiento local del navegador, con las claves «theme», «lang» y «supportPrompt.usageCount». También se guarda cuándo pospusiste el aviso de donación, con la clave «supportPrompt.dismissedAt», para volver a mostrarlo después de unos usos. Nada de esto contiene documentos ni datos derivados de ellos.',
       },
       power: {
         strong: 'Tu equipo pone la potencia.',

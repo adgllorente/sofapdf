@@ -7,6 +7,12 @@ import { PreviewModal } from '@/components/PreviewModal'
 import { fmt, t } from '@/i18n'
 import { toolText } from '@/i18n/tools'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
+import {
+  dismissSupportPrompt,
+  registerSuccessfulRun,
+  shouldShowSupportPrompt,
+} from '@/lib/usage'
+import { APP } from '@/config'
 import { getTool } from '@/tools/registry'
 import { defaultValues, type OptionValues, type OutputFile, type Tool } from '@/tools/types'
 import { NotFound } from './NotFound'
@@ -31,6 +37,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
   const [outputs, setOutputs] = useState<OutputFile[]>([])
   const [error, setError] = useState('')
   const [previewing, setPreviewing] = useState<OutputFile | null>(null)
+  const [showSupportPrompt, setShowSupportPrompt] = useState(shouldShowSupportPrompt)
 
   const running = status === 'running'
   const ready = files.length >= tool.minFiles
@@ -52,6 +59,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
       })
       setOutputs(result)
       setStatus('done')
+      setShowSupportPrompt(registerSuccessfulRun())
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t.run.failed)
       setStatus('error')
@@ -64,6 +72,11 @@ function ToolRunner({ tool }: { tool: Tool }) {
     setStatus('idle')
     setError('')
     setValues(defaultValues(tool))
+  }
+
+  function dismissSupport() {
+    dismissSupportPrompt()
+    setShowSupportPrompt(false)
   }
 
   return (
@@ -122,6 +135,33 @@ function ToolRunner({ tool }: { tool: Tool }) {
 
         {tool.Preview && files.length > 0 && (
           <tool.Preview files={files} values={values} onChange={setValues} disabled={running} />
+        )}
+
+        {showSupportPrompt && (
+          <aside className="rounded-card border border-accent-line bg-accent-soft p-5">
+            <h2 className="text-base font-semibold tracking-tight text-ink">
+              {t.run.support.title}
+            </h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">{t.run.support.body}</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <a
+                href={APP.kofiUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={dismissSupport}
+                className="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition hover:bg-accent-hover"
+              >
+                {t.run.support.donate}
+              </a>
+              <button
+                type="button"
+                onClick={dismissSupport}
+                className="rounded-lg border border-line px-4 py-2.5 text-sm text-muted transition hover:border-line-strong hover:text-ink"
+              >
+                {t.run.support.later}
+              </button>
+            </div>
+          </aside>
         )}
 
         <div className="flex flex-wrap items-center gap-3">
@@ -222,6 +262,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
             <p className="border-t border-line px-5 py-3 text-xs text-muted">{t.run.ephemeral}</p>
           </section>
         )}
+
       </div>
 
       {previewing && (

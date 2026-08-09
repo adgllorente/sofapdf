@@ -130,6 +130,12 @@ export const en: typeof es = {
     close: 'Close',
     loading: 'Loading…',
     ephemeral: 'The results live in this tab’s memory. Closing it discards them.',
+    support: {
+      title: 'How much is this tool worth to you?',
+      body: 'If it has been useful, you can help keep it running with a donation.',
+      donate: 'Make a donation',
+      later: 'Maybe another time',
+    },
   },
 
   card: {
@@ -186,8 +192,8 @@ export const en: typeof es = {
         body: 'When the page loads, the server that hosts it sees your IP and your browser, like any other website. What it never sees is your document.',
       },
       theme: {
-        strong: 'Two preferences are stored.',
-        body: 'The theme and the language are remembered in the browser’s local storage, under the keys “theme” and “lang”. Nothing else: they are interface settings and say nothing about your documents. If you never picked a language, it comes from your system.',
+        strong: 'Some settings are stored.',
+        body: 'The theme, language and number of tool uses are remembered in the browser’s local storage, under the keys “theme”, “lang” and “supportPrompt.usageCount”. When you postponed the donation prompt is also stored under “supportPrompt.dismissedAt”, so it can appear again after a few uses. None of this contains documents or data derived from them.',
       },
       power: {
         strong: 'Your machine does the work.',
