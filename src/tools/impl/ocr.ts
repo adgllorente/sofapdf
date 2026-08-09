@@ -78,7 +78,7 @@ export const run: ToolRun = async (files, values, ctx) => {
         let recognized: Awaited<ReturnType<typeof worker.recognize>>
         try {
           recognized = await worker.recognize(canvas)
-        } catch (cause) {
+        } catch {
           throw new Error(t.errors.ocrFailed.replace('{n}', String(i)))
         }
 
