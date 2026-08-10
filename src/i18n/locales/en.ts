@@ -29,6 +29,7 @@ export const en: typeof es = {
   footer: {
     line: '© {year} {name}. No servers, no accounts, no analytics.',
     link: 'How to check that we upload nothing',
+    contact: 'Contact me or report a problem',
   },
 
   locale: {

@@ -49,9 +49,19 @@ function Footer() {
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
         <p>{fmt(t.footer.line, { year: APP.year, name: APP.legalName })}</p>
-        <Link to="/privacy" className="text-muted transition hover:text-ink">
-          {t.footer.link}
-        </Link>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <Link to="/privacy" className="text-muted transition hover:text-ink">
+            {t.footer.link}
+          </Link>
+          <a
+            href={APP.contactUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted transition hover:text-ink"
+          >
+            {t.footer.contact}
+          </a>
+        </div>
       </div>
     </footer>
   )

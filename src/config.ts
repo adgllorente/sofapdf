@@ -16,4 +16,6 @@ export const APP = {
   repoUrl: '',
   /** Enlace externo: no carga nada, solo se navega si el usuario lo pulsa. */
   kofiUrl: 'https://ko-fi.com/adgllorente',
+  /** Formulario externo para avisos y comentarios; solo se abre si el usuario lo pulsa. */
+  contactUrl: 'https://tally.so/r/A7zKV0',
 } as const

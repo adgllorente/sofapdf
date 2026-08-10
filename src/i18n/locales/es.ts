@@ -33,6 +33,7 @@ export const es = {
   footer: {
     line: '© {year} {name}. Sin servidores, sin cuentas, sin analítica.',
     link: 'Cómo comprobar que no subimos nada',
+    contact: 'Contactar o reportar un problema',
   },
 
   locale: {
