@@ -74,6 +74,21 @@ export function Privacy() {
         </ul>
       </section>
 
+      <section className="mt-14 rounded-card border border-line bg-accent-soft p-6">
+        <h2 className="text-xl font-semibold tracking-tight text-ink">
+          {t.privacy.analytics.title}
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted">{t.privacy.analytics.body}</p>
+        <a
+          href="https://developers.cloudflare.com/web-analytics/about/"
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 inline-block text-sm font-medium text-accent underline decoration-accent-line underline-offset-4"
+        >
+          {t.privacy.analytics.link}
+        </a>
+      </section>
+
       <section className="mt-14 rounded-card border border-line bg-subtle p-6">
         <h2 className="text-xl font-semibold tracking-tight text-ink">{t.privacy.limitsTitle}</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">{t.privacy.limitsIntro}</p>

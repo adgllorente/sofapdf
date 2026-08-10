@@ -27,7 +27,7 @@ export const en: typeof es = {
   kofi: 'Buy me a coffee',
 
   footer: {
-    line: '© {year} {name}. No servers, no accounts, no analytics.',
+    line: '© {year} {name}. No file servers, no accounts, no individual tracking.',
     link: 'How to check that we upload nothing',
     contact: 'Contact me or report a problem',
   },
@@ -61,8 +61,8 @@ export const en: typeof es = {
       body: 'Cut the WiFi and it keeps working. That is the simplest proof that the processing is local.',
     },
     noTracking: {
-      title: 'No accounts, no tracking',
-      body: 'No sign-up, no session cookies, no analytics, no ads, no third-party fonts or scripts. Nothing to tie back to you.',
+      title: 'No accounts, no individual tracking',
+      body: 'No sign-up, session cookies, advertising or individual tracking. We use Cloudflare Web Analytics to measure performance in aggregate, not to sell you anything.',
     },
     private: {
       title: '100% private',
@@ -204,7 +204,7 @@ export const en: typeof es = {
       },
       devtools: {
         title: 'Watch the Network tab in DevTools',
-        body: 'Open the developer tools (F12), go to Network and process a document. You will see requests that load the app itself and none afterwards. There is no POST carrying your file.',
+        body: 'Open the developer tools (F12), go to Network and process a document. A Cloudflare Web Analytics request with technical metrics may appear, but there is no POST carrying your file or data derived from it.',
       },
       source: {
         title: 'Read the code',
@@ -216,16 +216,21 @@ export const en: typeof es = {
     limits: {
       ip: {
         strong: 'Serving the site leaves a trace.',
-        body: 'When the page loads, the server that hosts it sees your IP and your browser, like any other website. What it never sees is your document.',
+        body: 'When the page loads, the server that hosts it sees your IP and your browser, like any other website. Cloudflare Web Analytics receives only technical performance metrics and does not use cookies, local storage or fingerprints to follow you. What it never sees is your document.',
       },
       theme: {
         strong: 'Some settings are stored.',
-        body: 'The theme, language and number of tool uses are remembered in the browser’s local storage, under the keys “theme”, “lang” and “supportPrompt.usageCount”. When you postponed the donation prompt is also stored under “supportPrompt.dismissedAt”, so it can appear again after a few uses. None of this contains documents or data derived from them.',
+        body: 'Your browser may remember the theme, language, tool usage and whether you postponed the donation prompt. None of this contains documents or data derived from them.',
       },
       power: {
         strong: 'Your machine does the work.',
         body: 'A very large document may be slow or exhaust the tab’s memory. That is the price of not handing the job to someone else’s server.',
       },
+    },
+    analytics: {
+      title: 'Ethical analytics, nothing to sell you',
+      body: 'We will use Cloudflare Web Analytics to understand which pages work and find performance problems. It does not create profiles, use cookies, or track people across visits or sites. It only collects technical page-load metrics; it never receives your documents or data derived from them.',
+      link: 'Learn more about Cloudflare Web Analytics privacy',
     },
   },
 

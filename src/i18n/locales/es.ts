@@ -31,7 +31,7 @@ export const es = {
   kofi: 'Invítame a un café',
 
   footer: {
-    line: '© {year} {name}. Sin servidores, sin cuentas, sin analítica.',
+    line: '© {year} {name}. Sin servidores de archivos, sin cuentas, sin rastreo individual.',
     link: 'Cómo comprobar que no subimos nada',
     contact: 'Contactar o reportar un problema',
   },
@@ -65,8 +65,8 @@ export const es = {
       body: 'Corta el WiFi y sigue funcionando. Es la prueba más simple de que el procesamiento es local.',
     },
     noTracking: {
-      title: 'Sin cuentas ni rastreo',
-      body: 'No hay registro, cookies de sesión, analítica, publicidad ni fuentes o scripts de terceros. Nada que asociar contigo.',
+      title: 'Sin cuentas ni rastreo individual',
+      body: 'No hay registro, cookies de sesión, publicidad ni rastreo individual. Usamos Cloudflare Web Analytics para medir el rendimiento de forma agregada y sin venderte nada.',
     },
     private: {
       title: '100% privado',
@@ -208,7 +208,7 @@ export const es = {
       },
       devtools: {
         title: 'Mira la pestaña Red de las DevTools',
-        body: 'Abre las herramientas de desarrollo (F12), ve a Red y procesa un documento. Verás peticiones para cargar la propia aplicación y ninguna después. No hay ningún POST con tu archivo.',
+        body: 'Abre las herramientas de desarrollo (F12), ve a Red y procesa un documento. Puede aparecer una petición de Cloudflare Web Analytics con métricas técnicas, pero no hay ningún POST con tu archivo ni con datos derivados de él.',
       },
       source: {
         title: 'Lee el código',
@@ -220,16 +220,21 @@ export const es = {
     limits: {
       ip: {
         strong: 'Servir la web deja huella.',
-        body: 'Al cargar la página, el servidor que la aloja ve tu IP y tu navegador, como cualquier otra web. Lo que nunca ve es tu documento.',
+        body: 'Al cargar la página, el servidor que la aloja ve tu IP y tu navegador, como cualquier otra web. Cloudflare Web Analytics recibe únicamente métricas técnicas de rendimiento y no usa cookies, almacenamiento local ni huellas digitales para seguirte. Lo que nunca ve es tu documento.',
       },
       theme: {
         strong: 'Se guardan algunos ajustes.',
-        body: 'El tema, el idioma y el número de usos de las herramientas se recuerdan en el almacenamiento local del navegador, con las claves «theme», «lang» y «supportPrompt.usageCount». También se guarda cuándo pospusiste el aviso de donación, con la clave «supportPrompt.dismissedAt», para volver a mostrarlo después de unos usos. Nada de esto contiene documentos ni datos derivados de ellos.',
+        body: 'El navegador puede recordar el tema, el idioma, el uso de las herramientas y si has pospuesto el aviso de donación. Nada de esto contiene documentos ni datos derivados de ellos.',
       },
       power: {
         strong: 'Tu equipo pone la potencia.',
         body: 'Un documento muy grande puede tardar o agotar la memoria de la pestaña. Ese es el precio de no delegar el trabajo en un servidor ajeno.',
       },
+    },
+    analytics: {
+      title: 'Analítica ética, sin venderte nada',
+      body: 'Usaremos Cloudflare Web Analytics para saber qué páginas funcionan y detectar problemas de rendimiento. No crea perfiles, no usa cookies ni rastrea a las personas entre visitas o sitios. Solo recoge métricas técnicas de la carga de la página; nunca recibe tus documentos ni datos derivados de ellos.',
+      link: 'Más información sobre la privacidad de Cloudflare Web Analytics',
     },
   },
 
