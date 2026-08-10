@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import clsx from "clsx";
 import { Icon, type IconName } from "@/components/Icon";
 import { SofaMascot } from "@/components/SofaMascot";
@@ -55,6 +56,18 @@ function ToolsSection() {
       id="tools"
       className="mx-auto max-w-6xl space-y-5 px-5 pb-20 sm:scroll-mt-24"
     >
+      <Link
+        to="/workflow"
+        className="flex items-center gap-3 rounded-card border border-accent-line bg-accent-soft px-4 py-3 text-accent transition hover:border-accent"
+      >
+        <Icon name="workflow" className="size-5 shrink-0" />
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold">{t.workflow.badge}</span>
+          <span className="block text-xs text-muted">{t.workflow.badgeBody}</span>
+        </span>
+        <Icon name="arrowLeft" className="size-4 rotate-180" />
+      </Link>
+
       <div role="tablist" className="flex flex-wrap gap-2">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;

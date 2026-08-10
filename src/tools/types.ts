@@ -92,6 +92,8 @@ export type Tool = {
   acceptKey: AcceptKey
   multiple: boolean
   minFiles: number
+  /** Puede formar parte de una cadena PDF -> un PDF sin interacción adicional. */
+  workflow?: boolean
   options?: OptionField[]
   /** Carga diferida de la implementación: mantiene el bundle inicial pequeño. */
   load?: () => Promise<ToolRun>

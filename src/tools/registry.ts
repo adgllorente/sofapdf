@@ -53,6 +53,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
+    workflow: true,
     options: [
       { key: 'angle', type: 'select', default: '90', choices: ['90', '180', '270'] },
       { key: 'pages', type: 'text', default: '1-', placeholder: '1-3, 5' },
@@ -78,6 +79,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
+    workflow: true,
     options: [
       {
         key: 'position',
@@ -108,6 +110,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
+    workflow: true,
     options: [
       { key: 'text', type: 'text', default: 'CONFIDENCIAL' },
       {
@@ -241,6 +244,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
+    workflow: true,
     options: [
       { key: 'language', type: 'select', default: 'spa', choices: ['spa', 'eng'] },
     ],
@@ -254,6 +258,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
+    workflow: true,
     options: [
       { key: 'level', type: 'select', default: 'balanced', choices: ['light', 'balanced', 'max'] },
     ],
@@ -267,6 +272,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
+    workflow: true,
     load: () => import('./impl/flatten').then((m) => m.run),
   },
   {
@@ -277,6 +283,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
+    workflow: true,
     load: () => import('./impl/repair').then((m) => m.run),
   },
   {
@@ -287,6 +294,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
+    workflow: true,
     options: [
       { key: 'password', type: 'password', default: '' },
       { key: 'confirm', type: 'password', default: '' },
@@ -301,6 +309,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
+    workflow: true,
     options: [{ key: 'password', type: 'password', default: '' }],
     load: () => import('./impl/unlock').then((m) => m.run),
   },
