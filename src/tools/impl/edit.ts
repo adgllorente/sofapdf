@@ -64,7 +64,7 @@ export const run: ToolRun = async (files, values, ctx) => {
       const size = Math.max(4, item.fontSize || 18)
       const textWidth = font.widthOfTextAtSize(item.text || ' ', size)
       const textX = item.align === 'center' ? x + (item.width * width - textWidth) / 2 : item.align === 'right' ? x + item.width * width - textWidth : x
-      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: color(item.bgColor), opacity: opacity * 0.25, borderColor: color(item.borderColor), borderWidth: 0, rotate: degrees(item.rotation ?? 0) })
+      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: color(item.bgColor), opacity, borderColor: color(item.borderColor), borderWidth: 0, rotate: degrees(item.rotation ?? 0) })
       page.drawText(item.text.replace(/\r\n/g, '\n'), { x: textX, y: y + item.height * height - size - 3, size, font, color: color(item.color), opacity, lineHeight: size, rotate: degrees(item.rotation ?? 0) })
       if (item.underline) page.drawLine({ start: { x: textX, y: y + item.height * height - size - 5 }, end: { x: textX + textWidth, y: y + item.height * height - size - 5 }, thickness: Math.max(1, item.borderWidth), color: color(item.color), opacity, lineCap: LineCapStyle.Round })
     } else if (item.type === 'image' && item.imageData) {

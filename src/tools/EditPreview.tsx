@@ -175,13 +175,17 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
       setDraft({ start, current: state.current, points: [...state.points] })
     }
     const onUp = () => {
-      document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp)
+      document.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerup', onUp)
+      document.removeEventListener('pointercancel', onUp)
       const x = Math.min(start.x, state.current.x), y = Math.min(start.y, state.current.y)
       if (mode === 'pencil' && state.points.length > 1) addObject({ type: 'pencil', x, y, width: Math.abs(state.current.x - start.x), height: Math.abs(state.current.y - start.y), points: state.points })
       if (mode === 'text' || mode === 'shape') addObject({ type: mode === 'text' ? 'text' : style.shape as EditObject['type'], x, y, width: Math.max(MIN_SIZE, Math.abs(state.current.x - start.x)), height: Math.max(MIN_SIZE, Math.abs(state.current.y - start.y)), text: style.text })
       setDraft(null)
     }
-    document.addEventListener('pointermove', onMove); document.addEventListener('pointerup', onUp)
+    document.addEventListener('pointermove', onMove)
+    document.addEventListener('pointerup', onUp)
+    document.addEventListener('pointercancel', onUp)
   }
   function selectAndMove(event: ReactPointerEvent<Element>, item: EditObject) {
     event.stopPropagation(); setSelected(item.id); syncStyle(item); setMode('hand')
@@ -196,8 +200,14 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
       if (item.type === 'pencil') update(objects.map((candidate) => candidate.id === item.id ? { ...candidate, points: (candidate.points ?? []).map((p) => ({ x: clamp(p.x + dx), y: clamp(p.y + dy) })) } : candidate))
       else update(objects.map((candidate) => candidate.id === item.id ? { ...candidate, x: clamp(item.x + dx, 0, 1 - bounds.width), y: clamp(item.y + dy, 0, 1 - bounds.height) } : candidate))
     }
-    const onUp = () => { document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp) }
-    document.addEventListener('pointermove', onMove); document.addEventListener('pointerup', onUp)
+    const onUp = () => {
+      document.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerup', onUp)
+      document.removeEventListener('pointercancel', onUp)
+    }
+    document.addEventListener('pointermove', onMove)
+    document.addEventListener('pointerup', onUp)
+    document.addEventListener('pointercancel', onUp)
   }
   function startResize(event: ReactPointerEvent<Element>, item: EditObject, handle: ResizeHandle) {
     event.stopPropagation(); event.preventDefault()
@@ -213,8 +223,14 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
       else height = clamp(item.height + dy, MIN_SIZE, 1 - item.y)
       update(objects.map((candidate) => candidate.id === item.id ? { ...candidate, x, y, width, height } : candidate))
     }
-    const onUp = () => { document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp) }
-    document.addEventListener('pointermove', onMove); document.addEventListener('pointerup', onUp)
+    const onUp = () => {
+      document.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerup', onUp)
+      document.removeEventListener('pointercancel', onUp)
+    }
+    document.addEventListener('pointermove', onMove)
+    document.addEventListener('pointerup', onUp)
+    document.addEventListener('pointercancel', onUp)
   }
   function editText(item: EditObject) { setSelected(item.id); syncStyle(item); setTextDraft(item.text); setEditingText(item.id); setMode('hand') }
   function finishTextEdit() { if (editingText) { update(objects.map((item) => item.id === editingText ? { ...item, text: textDraft } : item)); setStyle({ ...style, text: textDraft }) }; setEditingText(null) }
@@ -256,24 +272,31 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
 
   return <section className="space-y-4 rounded-card border border-line bg-surface p-5">
     <div className="flex flex-wrap items-center justify-between gap-2"><div><h2 className="text-sm font-semibold text-ink">{t.tools.edit.preview.title}</h2><p className="mt-1 text-xs text-muted">{t.tools.edit.preview.hint}</p></div></div>
-    <div className="h-52 sm:h-44">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
-      {toolButton('text', 'text', t.tools.edit.preview.text)}{toolButton('pencil', 'pen', t.tools.edit.preview.pencil)}{toolButton('shape', 'shapes', t.tools.edit.preview.shape)}
-      <button type="button" onClick={() => imageInputRef.current?.click()} disabled={disabled} title={t.tools.edit.preview.image} aria-label={t.tools.edit.preview.image} className="grid size-9 place-items-center rounded-lg border border-line text-muted disabled:opacity-40"><Icon name="image" className="size-4" /></button>
-      <input ref={imageInputRef} type="file" accept="image/png,image/jpeg" onChange={addImage} className="hidden" />
+    <div className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-line bg-subtle px-2 py-1.5 text-xs text-muted">
+      <span className="shrink-0">{t.tools.edit.preview.pageNumber}</span>
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={() => { setPage(Math.max(1, page - 1)); setSelected(null); setEditingText(null) }} disabled={page <= 1} aria-label={t.tools.edit.preview.prevPage} className="grid size-7 place-items-center rounded border border-line bg-surface disabled:opacity-30"><Icon name="arrowLeft" className="size-3.5" /></button>
+        <label className="flex items-center gap-1"><span className="sr-only">{t.tools.edit.preview.pageNumber}</span><input type="number" min="1" max={pageCount || 1} value={page} onChange={(event) => { const next = Number(event.target.value); if (Number.isFinite(next)) { setPage(Math.max(1, Math.min(pageCount || 1, next))); setSelected(null); setEditingText(null) } }} className="w-14 rounded border border-line bg-surface px-2 py-1 text-center text-sm text-ink" /></label><span>/ {pageCount || '?'}</span>
+        <button type="button" onClick={() => { setPage(Math.min(pageCount, page + 1)); setSelected(null); setEditingText(null) }} disabled={page >= pageCount} aria-label={t.tools.edit.preview.nextPage} className="grid size-7 place-items-center rounded border border-line bg-surface disabled:opacity-30"><Icon name="arrowLeft" className="size-3.5 rotate-180" /></button>
       </div>
-      <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-subtle p-2">
+    </div>
+    <div className="min-w-0 space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        {toolButton('text', 'text', t.tools.edit.preview.text)}{toolButton('pencil', 'pen', t.tools.edit.preview.pencil)}{toolButton('shape', 'shapes', t.tools.edit.preview.shape)}
+        <button type="button" onClick={() => imageInputRef.current?.click()} disabled={disabled} title={t.tools.edit.preview.image} aria-label={t.tools.edit.preview.image} className="grid size-9 place-items-center rounded-lg border border-line text-muted disabled:opacity-40"><Icon name="image" className="size-4" /></button>
+        <input ref={imageInputRef} type="file" accept="image/png,image/jpeg" onChange={addImage} className="hidden" />
+      </div>
+      <div className="flex min-w-0 flex-wrap items-center gap-2 rounded-lg bg-subtle p-2">
         <span className="mr-1 text-xs text-muted">{t.tools.edit.preview.organizeLabel}</span>
         <button type="button" onClick={() => moveLayer(1)} disabled={disabled || !active || !objects.some((item, index) => index > objects.findIndex((candidate) => candidate.id === active?.id) && item.page === active?.page)} title={t.tools.edit.preview.bringForward} aria-label={t.tools.edit.preview.bringForward} className="grid size-8 place-items-center rounded border border-line text-muted disabled:opacity-30"><Icon name="up" className="size-4" /></button>
         <button type="button" onClick={() => moveLayer(-1)} disabled={disabled || !active || !objects.some((item, index) => index < objects.findIndex((candidate) => candidate.id === active?.id) && item.page === active?.page)} title={t.tools.edit.preview.sendBackward} aria-label={t.tools.edit.preview.sendBackward} className="grid size-8 place-items-center rounded border border-line text-muted disabled:opacity-30"><Icon name="down" className="size-4" /></button>
         <button type="button" onClick={() => alignObject('horizontal')} disabled={disabled || !active} title={t.tools.edit.preview.alignHorizontal} aria-label={t.tools.edit.preview.alignHorizontal} className="grid size-8 place-items-center rounded border border-line text-muted disabled:opacity-30"><Icon name="alignHorizontal" className="size-4" /></button>
         <button type="button" onClick={() => alignObject('vertical')} disabled={disabled || !active} title={t.tools.edit.preview.alignVertical} aria-label={t.tools.edit.preview.alignVertical} className="grid size-8 place-items-center rounded border border-line text-muted disabled:opacity-30"><Icon name="alignVertical" className="size-4" /></button>
       </div>
-      {optionType && <div className="mt-2 w-full"><EditorOptions type={optionType} style={style} setStyle={setStyle} patchActive={patchActive} /></div>}
+      {optionType && <EditorOptions type={optionType} style={style} setStyle={setStyle} patchActive={patchActive} />}
     </div>
-    <div className="flex items-center justify-end gap-2 text-xs text-muted"><button type="button" onClick={() => { setPage(Math.max(1, page - 1)); setSelected(null); setEditingText(null) }} disabled={page <= 1} aria-label={t.tools.edit.preview.prevPage} className="grid size-7 place-items-center rounded border border-line disabled:opacity-30"><Icon name="arrowLeft" className="size-3.5" /></button><label className="flex items-center gap-1"><span className="sr-only">{t.tools.edit.preview.pageNumber}</span><input type="number" min="1" max={pageCount || 1} value={page} onChange={(event) => { const next = Number(event.target.value); if (Number.isFinite(next)) { setPage(Math.max(1, Math.min(pageCount || 1, next))); setSelected(null); setEditingText(null) } }} className="w-14 rounded border border-line bg-surface px-2 py-1 text-center text-sm text-ink" /></label><span>/ {pageCount || '?'}</span><button type="button" onClick={() => { setPage(Math.min(pageCount, page + 1)); setSelected(null); setEditingText(null) }} disabled={page >= pageCount} aria-label={t.tools.edit.preview.nextPage} className="grid size-7 place-items-center rounded border border-line disabled:opacity-30"><Icon name="arrowLeft" className="size-3.5 rotate-180" /></button></div>
     <div className="min-h-[200px] rounded-card border border-line bg-subtle">
-      <div ref={containerRef} onPointerDown={startCreate} className={`relative min-h-[200px] select-none overflow-visible ${mode === 'hand' ? 'cursor-default' : 'cursor-crosshair'}`}>
+      <div ref={containerRef} onPointerDown={startCreate} className={`relative min-h-[200px] touch-none select-none overflow-visible ${mode === 'hand' ? 'cursor-default' : 'cursor-crosshair'}`}>
         <canvas ref={canvasRef} className="block h-auto w-full" />
         {error && <p className="absolute inset-0 grid place-items-center text-sm text-danger">{error}</p>}
         {current.map((item) => <EditorObject key={item.id} item={item} selected={item.id === selected} editing={item.id === editingText} onSelect={(event) => selectAndMove(event, item)} onResize={(event, handle) => startResize(event, item, handle)} onDelete={() => deleteObject(item.id)} onRotateStart={(event) => startRotate(event, item)} onEdit={() => editText(item)} textDraft={textDraft} onTextChange={setTextDraft} onTextCommit={finishTextEdit} />)}
@@ -334,4 +357,4 @@ function EditorObject({ item, selected, editing, onSelect, onResize, onDelete, o
 function SelectableBox({ rotation, common, selected, onSelect, onResize, onDelete, onRotateStart, children }: { rotation: number; common: Record<string, string | number>; selected: boolean; onSelect: (event: ReactPointerEvent<Element>) => void; onResize: (event: ReactPointerEvent<Element>, handle: ResizeHandle) => void; onDelete: () => void; onRotateStart: (event: ReactPointerEvent<HTMLButtonElement>) => void; children: React.ReactNode }) { return <div onPointerDown={onSelect} className={`absolute cursor-move ${selected ? 'ring-2 ring-accent' : ''}`} style={common}>{children}{selected && <><RotateControl rotation={rotation} onRotateStart={onRotateStart} /><DeleteControl rotation={rotation} onDelete={onDelete} /><ResizeHandles onResize={onResize} /></>}</div> }
 function DeleteControl({ rotation, onDelete }: { rotation: number; onDelete: () => void }) { return <span className="absolute -right-2 -top-9 z-20 pb-3" style={{ transform: `rotate(${-rotation}deg)` }}><button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={onDelete} aria-label={t.tools.edit.preview.delete} title={t.tools.edit.preview.delete} className="grid size-6 place-items-center rounded-full bg-danger text-on-accent shadow"><Icon name="trash" className="size-3.5" /></button></span> }
 function RotateControl({ rotation, onRotateStart }: { rotation: number; onRotateStart: (event: ReactPointerEvent<HTMLButtonElement>) => void }) { return <span className="absolute -left-2 -top-9 z-20 pb-3" style={{ transform: `rotate(${-rotation}deg)` }}><button type="button" onPointerDown={onRotateStart} aria-label={t.tools.edit.preview.rotate} title={t.tools.edit.preview.rotate} className="grid size-6 touch-none place-items-center rounded-full border border-line bg-surface text-ink shadow"><Icon name="rotate" className="size-3.5" /></button></span> }
-function ResizeHandles({ onResize }: { onResize: (event: ReactPointerEvent<Element>, handle: ResizeHandle) => void }) { return <>{(['top-left', 'top-right', 'bottom-left', 'bottom-right'] as ResizeHandle[]).map((handle) => <button key={handle} type="button" onPointerDown={(event) => onResize(event, handle)} aria-label={t.tools.edit.preview.resize} className={`absolute z-10 size-3 rounded-sm border border-surface bg-accent ${handle.includes('top') ? '-top-1.5' : '-bottom-1.5'} ${handle.includes('left') ? '-left-1.5 cursor-nwse-resize' : '-right-1.5 cursor-nesw-resize'}`} />)}</> }
+function ResizeHandles({ onResize }: { onResize: (event: ReactPointerEvent<Element>, handle: ResizeHandle) => void }) { return <>{(['top-left', 'top-right', 'bottom-left', 'bottom-right'] as ResizeHandle[]).map((handle) => <button key={handle} type="button" onPointerDown={(event) => onResize(event, handle)} aria-label={t.tools.edit.preview.resize} className={`absolute z-10 size-3 touch-none rounded-sm border border-surface bg-accent ${handle.includes('top') ? '-top-1.5' : '-bottom-1.5'} ${handle.includes('left') ? '-left-1.5 cursor-nwse-resize' : '-right-1.5 cursor-nesw-resize'}`} />)}</> }
