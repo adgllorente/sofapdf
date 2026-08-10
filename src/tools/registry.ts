@@ -260,6 +260,16 @@ export const TOOLS: Tool[] = [
     load: () => import('./impl/compress').then((m) => m.run),
   },
   {
+    slug: 'flatten',
+    icon: 'archive',
+    category: 'conversiones',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    load: () => import('./impl/flatten').then((m) => m.run),
+  },
+  {
     slug: 'repair',
     icon: 'wrench',
     category: 'conversiones',

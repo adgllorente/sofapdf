@@ -230,6 +230,7 @@ export const en: typeof es = {
     ocrFailed: 'Could not recognise the text on page {n}.',
     compareNeedTwo: 'Upload two PDFs to compare.',
     compareFailed: 'Could not compare the pages.',
+    flattenFailed: 'The form fields could not be flattened.',
   },
 
   filenames: {
@@ -239,6 +240,7 @@ export const en: typeof es = {
     selection: 'selection',
     numbered: 'numbered',
     compressed: 'compressed',
+    flattened: 'flattened',
     rotated: 'rotated',
     repaired: 'repaired',
     protected: 'protected',
@@ -265,6 +267,7 @@ export const en: typeof es = {
     salvaging: 'Salvaging what is left',
     encrypting: 'Encrypting the document',
     decrypting: 'Decrypting the document',
+    flattening: 'Flattening the form fields',
     done: 'Done',
   },
 
@@ -517,6 +520,14 @@ export const en: typeof es = {
           },
         },
       },
+    },
+    flatten: {
+      name: 'Flatten PDF',
+      short: 'Turn fillable fields into fixed page content.',
+      description:
+        'Integrates the visible form values into the pages and removes their editable fields, without rasterising text or graphics.',
+      action: 'Flatten PDF',
+      note: 'Flattens AcroForm fields. They cannot be edited or filled in afterwards.',
     },
     repair: {
       name: 'Repair PDF',

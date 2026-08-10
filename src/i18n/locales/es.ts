@@ -234,6 +234,7 @@ export const es = {
     ocrFailed: 'No se pudo reconocer el texto de la página {n}.',
     compareNeedTwo: 'Sube dos PDFs para comparar.',
     compareFailed: 'No se pudo comparar las páginas.',
+    flattenFailed: 'No se pudieron aplanar los campos del formulario.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
@@ -244,6 +245,7 @@ export const es = {
     selection: 'seleccion',
     numbered: 'numerado',
     compressed: 'comprimido',
+    flattened: 'aplanado',
     rotated: 'rotado',
     repaired: 'reparado',
     protected: 'protegido',
@@ -270,6 +272,7 @@ export const es = {
     salvaging: 'Rescatando lo que queda',
     encrypting: 'Cifrando el documento',
     decrypting: 'Descifrando el documento',
+    flattening: 'Aplanando los campos del formulario',
     done: 'Listo',
   },
 
@@ -523,6 +526,14 @@ export const es = {
           },
         },
       },
+    },
+    flatten: {
+      name: 'Aplanar PDF',
+      short: 'Convierte los campos rellenables en contenido fijo.',
+      description:
+        'Integra los valores visibles de los formularios en las páginas y elimina sus campos editables, sin rasterizar el texto ni los gráficos.',
+      action: 'Aplanar PDF',
+      note: 'Aplana los campos de formulario AcroForm. Después no se podrán editar ni rellenar.',
     },
     repair: {
       name: 'Reparar PDF',
