@@ -115,28 +115,6 @@ function ToolRunner({ tool }: { tool: Tool }) {
       )}
 
       <div className="mt-8 space-y-6">
-        <Dropzone
-          accept={tool.accept}
-          acceptLabel={t.accept[tool.acceptKey]}
-          multiple={tool.multiple}
-          files={files}
-          onChange={setFiles}
-          sortable={tool.multiple}
-        />
-
-        {tool.options && files.length > 0 && (
-          <section className="rounded-card border border-line bg-surface p-5">
-            <h2 className="mb-4 text-sm font-semibold tracking-tight text-ink">
-              {t.options.title}
-            </h2>
-            <OptionsForm tool={tool} values={values} onChange={setValues} disabled={running} />
-          </section>
-        )}
-
-        {tool.Preview && files.length > 0 && (
-          <tool.Preview files={files} values={values} onChange={setValues} disabled={running} />
-        )}
-
         {showSupportPrompt && (
           <aside className="rounded-card border border-accent-line bg-accent-soft p-5">
             <h2 className="text-base font-semibold tracking-tight text-ink">
@@ -162,6 +140,28 @@ function ToolRunner({ tool }: { tool: Tool }) {
               </button>
             </div>
           </aside>
+        )}
+
+        <Dropzone
+          accept={tool.accept}
+          acceptLabel={t.accept[tool.acceptKey]}
+          multiple={tool.multiple}
+          files={files}
+          onChange={setFiles}
+          sortable={tool.multiple}
+        />
+
+        {tool.options && files.length > 0 && (
+          <section className="rounded-card border border-line bg-surface p-5">
+            <h2 className="mb-4 text-sm font-semibold tracking-tight text-ink">
+              {t.options.title}
+            </h2>
+            <OptionsForm tool={tool} values={values} onChange={setValues} disabled={running} />
+          </section>
+        )}
+
+        {tool.Preview && files.length > 0 && (
+          <tool.Preview files={files} values={values} onChange={setValues} disabled={running} />
         )}
 
         <div className="flex flex-wrap items-center gap-3">

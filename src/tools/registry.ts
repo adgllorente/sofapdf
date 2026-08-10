@@ -3,6 +3,7 @@ import { CropPreview } from './CropPreview'
 import { OrganizePreview } from './OrganizePreview'
 import { RedactPreview } from './RedactPreview'
 import { SignaturePreview } from './SignaturePreview'
+import { EditPreview } from './EditPreview'
 
 /** Los ids son estables: se usan como ancla en la URL y como clave del diccionario. */
 export const CATEGORY_IDS: ToolCategoryId[] = [
@@ -326,6 +327,17 @@ export const TOOLS: Tool[] = [
     ],
     load: () => import('./impl/sign').then((m) => m.run),
     Preview: SignaturePreview,
+  },
+  {
+    slug: 'edit',
+    icon: 'edit',
+    category: 'paginas',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    load: () => import('./impl/edit').then((m) => m.run),
+    Preview: EditPreview,
   },
   {
     slug: 'redact',

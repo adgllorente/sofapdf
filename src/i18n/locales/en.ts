@@ -263,6 +263,7 @@ export const en: typeof es = {
     compareNeedTwo: 'Upload two PDFs to compare.',
     compareFailed: 'Could not compare the pages.',
     flattenFailed: 'The form fields could not be flattened.',
+    editEmpty: 'Add at least one element before exporting.',
   },
 
   filenames: {
@@ -284,6 +285,7 @@ export const en: typeof es = {
     redacted: 'redacted',
     ocr: 'ocr',
     compared: 'compared',
+    edited: 'edited',
   },
 
   progress: {
@@ -627,6 +629,20 @@ export const en: typeof es = {
         prevPage: 'Previous page',
         nextPage: 'Next page',
         empty: 'Create or upload a signature to see the preview.',
+      },
+    },
+    edit: {
+      name: 'Edit PDF',
+      short: 'Add text, images, drawings and shapes to your pages.',
+      description: 'Visually edit a PDF in your browser with text, image, pencil and shape tools.',
+      action: 'Export edited PDF',
+      note: 'Elements are placed as new content over the page. The original PDF text is not modified.',
+      preview: {
+        title: 'PDF editor', hint: 'Choose a tool and draw on the page. Use the hand to select and move elements.',
+        hand: 'Select and move', organizeLabel: 'Arrange', bringForward: 'Bring forward', sendBackward: 'Send backward', alignHorizontal: 'Center horizontally', alignVertical: 'Center vertically', text: 'Add text', image: 'Add image', pencil: 'Draw with pencil', shape: 'Add shape',
+        color: 'Text / stroke', borderColor: 'Border color', strokeWidth: 'Width', alignment: 'Alignment', background: 'Background', transparent: 'Transparent', opacity: 'Opacity', style: 'Style', content: 'Text', font: 'Font', size: 'Size',
+        rectangle: 'Rectangle', ellipse: 'Ellipse', triangle: 'Triangle', alignLeft: 'Left', alignCenter: 'Center', alignRight: 'Right',
+        delete: 'Delete', rotate: 'Rotate', resize: 'Resize', pageNumber: 'Page number', boldMark: 'B', italicMark: 'I', underlineMark: 'U', defaultText: 'Write here', pageOf: 'Page {n} of {total}', prevPage: 'Previous page', nextPage: 'Next page',
       },
     },
     redact: {

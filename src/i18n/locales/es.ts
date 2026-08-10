@@ -267,6 +267,7 @@ export const es = {
     compareNeedTwo: 'Sube dos PDFs para comparar.',
     compareFailed: 'No se pudo comparar las páginas.',
     flattenFailed: 'No se pudieron aplanar los campos del formulario.',
+    editEmpty: 'Añade al menos un elemento antes de exportar.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
@@ -289,6 +290,7 @@ export const es = {
     redacted: 'censurado',
     ocr: 'ocr',
     compared: 'comparado',
+    edited: 'editado',
   },
 
   progress: {
@@ -633,6 +635,20 @@ export const es = {
         prevPage: 'Página anterior',
         nextPage: 'Página siguiente',
         empty: 'Crea o sube una firma para ver la vista previa.',
+      },
+    },
+    edit: {
+      name: 'Editar PDF',
+      short: 'Añade texto, imágenes, dibujos y formas sobre tus páginas.',
+      description: 'Edita visualmente un PDF en el navegador con herramientas para texto, imágenes, lápiz y formas.',
+      action: 'Exportar PDF editado',
+      note: 'Los elementos se colocan como contenido nuevo sobre la página. El texto original del PDF no se modifica.',
+      preview: {
+        title: 'Editor PDF', hint: 'Elige una herramienta y dibuja sobre la página. Usa la mano para seleccionar y mover elementos.',
+        hand: 'Seleccionar y mover', organizeLabel: 'Organizar', bringForward: 'Traer adelante', sendBackward: 'Enviar atrás', alignHorizontal: 'Centrar horizontalmente', alignVertical: 'Centrar verticalmente', text: 'Añadir texto', image: 'Añadir imagen', pencil: 'Dibujar con lápiz', shape: 'Añadir forma',
+        color: 'Texto / trazo', borderColor: 'Color del borde', strokeWidth: 'Grosor', alignment: 'Alineación', background: 'Fondo', transparent: 'Transparente', opacity: 'Opacidad', style: 'Estilo', content: 'Texto', font: 'Fuente', size: 'Tamaño',
+        rectangle: 'Rectángulo', ellipse: 'Elipse', triangle: 'Triángulo', alignLeft: 'Izquierda', alignCenter: 'Centro', alignRight: 'Derecha',
+        delete: 'Eliminar', rotate: 'Rotar', resize: 'Cambiar tamaño', pageNumber: 'Número de página', boldMark: 'B', italicMark: 'I', underlineMark: 'U', defaultText: 'Escribe aquí', pageOf: 'Página {n} de {total}', prevPage: 'Página anterior', nextPage: 'Página siguiente',
       },
     },
     redact: {

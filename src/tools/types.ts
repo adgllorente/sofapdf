@@ -74,6 +74,7 @@ export type ToolSlug =
   | 'unlock'
   | 'sign'
   | 'redact'
+  | 'edit'
 
 /** Familia de formatos aceptados; su etiqueta visible está en el diccionario. */
 export type AcceptKey = 'pdf' | 'image' | 'html'
