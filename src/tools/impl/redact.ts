@@ -40,8 +40,8 @@ export const run: ToolRun = async (files, values, ctx) => {
 
   // pdfjs se usa dentro de un try/finally para destruir el worker al final,
   // aunque haya error a mitad del proceso.
-  const { pdfjs } = await import('@/lib/pdfjs')
-  const task = pdfjs.getDocument({ data })
+  const { getPdfDocument } = await import('@/lib/pdfjs')
+  const task = getPdfDocument(data)
   const rendered = new Map<number, Uint8Array>()
 
   try {

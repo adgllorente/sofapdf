@@ -1,12 +1,12 @@
 import { fmt, t } from '@/i18n'
-import { pdfjs } from '@/lib/pdfjs'
+import { getPdfDocument } from '@/lib/pdfjs'
 import { baseName, padIndex, parsePageList } from '@/lib/pages'
 import type { OutputFile, ToolRun } from '@/tools/types'
 
 export const run: ToolRun = async (files, values, ctx) => {
   const [file] = files
   const data = new Uint8Array(await file.arrayBuffer())
-  const task = pdfjs.getDocument({ data })
+  const task = getPdfDocument(data)
   const document_ = await task.promise
 
   try {

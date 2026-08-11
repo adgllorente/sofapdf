@@ -45,7 +45,19 @@ import * as pdfjs from 'pdfjs-dist'
 // ?url deja que Vite copie el worker al bundle: se sirve desde el mismo origen,
 // nunca desde un CDN.
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
+import openjpegWasmUrl from 'pdfjs-dist/wasm/openjpeg.wasm?url'
+import jbig2WasmUrl from 'pdfjs-dist/wasm/jbig2.wasm?url'
+import qcmsWasmUrl from 'pdfjs-dist/wasm/qcms_bg.wasm?url'
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl
+
+// pdf.js resuelve los decodificadores por nombre dentro de esta carpeta. Los
+// imports mantienen todos los binarios de imagen en el bundle de Vite.
+const wasmUrls = [openjpegWasmUrl, jbig2WasmUrl, qcmsWasmUrl]
+const wasmUrl = new URL('.', new URL(wasmUrls[0], import.meta.url)).href
+
+export function getPdfDocument(data: Uint8Array) {
+  return pdfjs.getDocument({ data, wasmUrl, useWorkerFetch: false })
+}
 
 export { pdfjs }

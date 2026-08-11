@@ -64,9 +64,9 @@ export function RedactPreview({ files, values, onChange, disabled }: ToolPreview
     let cancelled = false
     let task: PDFDocumentLoadingTask | null = null
     void (async () => {
-      const { pdfjs } = await import('@/lib/pdfjs')
+      const { getPdfDocument } = await import('@/lib/pdfjs')
       const data = new Uint8Array(await file.arrayBuffer())
-      task = pdfjs.getDocument({ data })
+      task = getPdfDocument(data)
       try {
         const next = await task.promise
         if (cancelled) {

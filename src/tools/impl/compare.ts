@@ -26,13 +26,13 @@ export const run: ToolRun = async (files, values, ctx) => {
     Math.min(255, Number(values.tolerance) || DEFAULT_TOLERANCE),
   )
 
-  const { pdfjs } = await import('@/lib/pdfjs')
+  const { getPdfDocument } = await import('@/lib/pdfjs')
   const dataA = new Uint8Array(await fileA.arrayBuffer())
   const dataB = new Uint8Array(await fileB.arrayBuffer())
   const outputDoc = await PDFDocument.create()
 
-  const taskA = pdfjs.getDocument({ data: dataA })
-  const taskB = pdfjs.getDocument({ data: dataB })
+  const taskA = getPdfDocument(dataA)
+  const taskB = getPdfDocument(dataB)
 
   try {
     const docA = await taskA.promise

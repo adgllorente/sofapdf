@@ -55,11 +55,11 @@ export function OrganizePreview({ files, onChange, disabled }: ToolPreviewProps)
     let cancelled = false
     const tasks: (PDFDocumentLoadingTask | null)[] = new Array(files.length).fill(null)
     void (async () => {
-      const { pdfjs } = await import('@/lib/pdfjs')
+      const { getPdfDocument } = await import('@/lib/pdfjs')
       const loading = await Promise.all(
         files.map(async (file, i) => {
           const data = new Uint8Array(await file.arrayBuffer())
-          tasks[i] = pdfjs.getDocument({ data })
+          tasks[i] = getPdfDocument(data)
           return tasks[i]
         }),
       )

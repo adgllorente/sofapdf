@@ -33,9 +33,9 @@ export function PreviewModal({ blob, name, onClose }: Props) {
     let task: import('pdfjs-dist').PDFDocumentLoadingTask | null = null
 
     void (async () => {
-      const { pdfjs } = await import('@/lib/pdfjs')
+      const { getPdfDocument } = await import('@/lib/pdfjs')
       const data = new Uint8Array(await blob.arrayBuffer())
-      task = pdfjs.getDocument({ data })
+      task = getPdfDocument(data)
       try {
         const doc = await task.promise
         if (cancelled) return

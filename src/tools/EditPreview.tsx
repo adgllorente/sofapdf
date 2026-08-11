@@ -69,8 +69,8 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
     let cancelled = false
     let task: PDFDocumentLoadingTask | null = null
     void (async () => {
-      const { pdfjs } = await import('@/lib/pdfjs')
-      task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) })
+      const { getPdfDocument } = await import('@/lib/pdfjs')
+      task = getPdfDocument(new Uint8Array(await file.arrayBuffer()))
       try {
         const next = await task.promise
         if (cancelled) { await (next as PDFDocumentProxy & { destroy: () => Promise<void> }).destroy(); return }

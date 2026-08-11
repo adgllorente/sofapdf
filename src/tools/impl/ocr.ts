@@ -42,14 +42,14 @@ export const run: ToolRun = async (files, values, ctx) => {
 
   // Carga perezosa: tesseract.js pesa y solo lo necesitamos al ejecutar.
   const { createWorker } = await import('tesseract.js')
-  const { pdfjs } = await import('@/lib/pdfjs')
+  const { getPdfDocument } = await import('@/lib/pdfjs')
 
   const data = new Uint8Array(await file.arrayBuffer())
   const sourceDoc = await PDFDocument.load(data, { ignoreEncryption: true })
   const outputDoc = await PDFDocument.create()
   const font = await outputDoc.embedFont(StandardFonts.Helvetica)
 
-  const task = pdfjs.getDocument({ data })
+  const task = getPdfDocument(data)
   try {
     const pdfDoc = await task.promise
       const worker = await createWorker(language, 1, {

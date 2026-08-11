@@ -1,5 +1,5 @@
 import { fmt, t } from '@/i18n'
-import { pdfjs } from '@/lib/pdfjs'
+import { getPdfDocument, pdfjs } from '@/lib/pdfjs'
 import { baseName, padIndex } from '@/lib/pages'
 import type { OutputFile, ToolRun } from '@/tools/types'
 
@@ -94,7 +94,7 @@ async function imageToPng(image: ImageObject): Promise<Blob | null> {
 
 export const run: ToolRun = async (files, _values, ctx) => {
   const [file] = files
-  const task = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) })
+  const task = getPdfDocument(new Uint8Array(await file.arrayBuffer()))
   const document_ = await task.promise
   const outputs: OutputFile[] = []
   const seen = new Set<string>()
