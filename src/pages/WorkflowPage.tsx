@@ -6,6 +6,7 @@ import { OptionsForm } from '@/components/OptionsForm'
 import { PreviewModal } from '@/components/PreviewModal'
 import { fmt, t } from '@/i18n'
 import { formatBytes, saveBlob } from '@/lib/files'
+import { loadMetadataFromFile } from '@/tools/metadata-loader'
 import { getTool, TOOLS } from '@/tools/registry'
 import { defaultValues, type OptionValues, type OutputFile, type Tool } from '@/tools/types'
 
@@ -32,11 +33,49 @@ function WorkflowRunner() {
   const ready = files.length === 1 && steps.length > 0
   const totalOut = useMemo(() => output?.blob.size ?? 0, [output])
 
+  // Algunas herramientas saben inicializar sus valores a partir del PDF de
+  // entrada (metadata lee la info dict actual). En el resto, caemos al
+  // defaultValues del registro.
+  async function initialValues(tool: Tool, input: File | undefined): Promise<OptionValues> {
+    if (tool.slug === 'metadata' && input) {
+      try {
+        return await loadMetadataFromFile(input)
+      } catch {
+        // Si falla la lectura, dejamos los campos vacíos: el usuario puede
+        // escribirlos a mano sin que la herramienta entera quede inutilizada.
+        return defaultValues(tool)
+      }
+    }
+    return defaultValues(tool)
+  }
+
+  function applyInitialValues(id: number, tool: Tool, input: File | undefined) {
+    void initialValues(tool, input).then((values) => {
+      setSteps((current) =>
+        current.map((step) => (step.id === id ? { ...step, values } : step)),
+      )
+    })
+  }
+
   function addStep(slug: string) {
     const tool = getTool(slug)
     if (!tool || !tool.workflow) return
-    setSteps((current) => [...current, { id: nextId, tool, values: defaultValues(tool) }])
+    const id = nextId
     setNextId((current) => current + 1)
+    // Insertamos primero con valores por defecto para que el paso aparezca
+    // visible al instante; si la herramienta sabe leer del PDF de entrada,
+    // sobreescribimos en cuanto tengamos la respuesta.
+    setSteps((current) => [...current, { id, tool, values: defaultValues(tool) }])
+    applyInitialValues(id, tool, files[0])
+  }
+
+  function changeStepTool(id: number, slug: string) {
+    const next = getTool(slug)
+    if (!next) return
+    setSteps((current) =>
+      current.map((step) => (step.id === id ? { ...step, tool: next, values: defaultValues(next) } : step)),
+    )
+    applyInitialValues(id, next, files[0])
   }
 
   function updateStep(id: number, values: OptionValues) {
@@ -159,11 +198,7 @@ function WorkflowRunner() {
                       aria-label={t.workflow.chooseStep}
                       value={slug}
                       disabled={running}
-                      onChange={(event) => {
-                        const next = getTool(event.target.value)
-                        if (next) updateStep(step.id, defaultValues(next))
-                        if (next) setSteps((current) => current.map((item) => item.id === step.id ? { ...item, tool: next, values: defaultValues(next) } : item))
-                      }}
+                      onChange={(event) => changeStepTool(step.id, event.target.value)}
                       className="min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink"
                     >
                       {WORKFLOW_TOOLS.map((option) => <option key={option.slug} value={option.slug}>{t.tools[option.slug].name}</option>)}

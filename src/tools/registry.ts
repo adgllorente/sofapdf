@@ -359,6 +359,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
+    workflow: true,
     options: [
       { key: 'title', type: 'text', default: '' },
       { key: 'author', type: 'text', default: '' },
