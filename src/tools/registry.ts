@@ -4,6 +4,7 @@ import { OrganizePreview } from './OrganizePreview'
 import { RedactPreview } from './RedactPreview'
 import { SignaturePreview } from './SignaturePreview'
 import { EditPreview } from './EditPreview'
+import { MetadataPreview } from './MetadataPreview'
 
 /** Los ids son estables: se usan como ancla en la URL y como clave del diccionario. */
 export const CATEGORY_IDS: ToolCategoryId[] = [
@@ -349,6 +350,23 @@ export const TOOLS: Tool[] = [
     minFiles: 1,
     load: () => import('./impl/redact').then((m) => m.run),
     Preview: RedactPreview,
+  },
+  {
+    slug: 'metadata',
+    icon: 'tag',
+    category: 'conversiones',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    options: [
+      { key: 'title', type: 'text', default: '' },
+      { key: 'author', type: 'text', default: '' },
+      { key: 'subject', type: 'text', default: '' },
+      { key: 'keywords', type: 'text', default: '' },
+    ],
+    load: () => import('./impl/metadata').then((m) => m.run),
+    Preview: MetadataPreview,
   },
 ]
 

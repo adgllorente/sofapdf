@@ -286,6 +286,7 @@ export const en: typeof es = {
     ocr: 'ocr',
     compared: 'compared',
     edited: 'edited',
+    metadata: 'metadata',
   },
 
   progress: {
@@ -659,6 +660,30 @@ export const en: typeof es = {
         pageOf: 'Page {n} of {total}',
         prevPage: 'Previous page',
         nextPage: 'Next page',
+      },
+    },
+    metadata: {
+      name: 'Edit metadata',
+      short: 'Change the PDF title, author, subject and keywords.',
+      description:
+        'Edit the PDF information dictionary fields (Title, Author, Subject, Keywords). They are pre-filled with the document’s current values on load.',
+      action: 'Apply metadata',
+      note: 'To share the file without leaving a trail, leave every field blank. The modification date is updated by the library itself on save.',
+      options: {
+        title: { label: 'Title' },
+        author: { label: 'Author' },
+        subject: { label: 'Subject' },
+        keywords: {
+          label: 'Keywords',
+          placeholder: 'report, 2026, invoicing',
+        },
+      },
+      preview: {
+        statusLoading: 'Reading the PDF metadata…',
+        statusLoaded: 'Current PDF values loaded.',
+        statusEmpty: 'The PDF has no metadata.',
+        statusError: 'Could not read the metadata.',
+        clearAll: 'Clear all fields',
       },
     },
   },

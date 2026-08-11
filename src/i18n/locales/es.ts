@@ -291,6 +291,7 @@ export const es = {
     ocr: 'ocr',
     compared: 'comparado',
     edited: 'editado',
+    metadata: 'metadatos',
   },
 
   progress: {
@@ -665,6 +666,30 @@ export const es = {
         pageOf: 'Página {n} de {total}',
         prevPage: 'Página anterior',
         nextPage: 'Página siguiente',
+      },
+    },
+    metadata: {
+      name: 'Editar metadatos',
+      short: 'Cambia el título, autor, asunto y palabras clave del PDF.',
+      description:
+        'Edita los campos del diccionario de información del PDF (Título, Autor, Asunto, Palabras clave). Se rellenan con los valores actuales al cargar el documento.',
+      action: 'Aplicar metadatos',
+      note: 'Para compartir sin dejar rastro, deja todos los campos vacíos. La fecha de modificación la actualiza la propia librería al guardar.',
+      options: {
+        title: { label: 'Título' },
+        author: { label: 'Autor' },
+        subject: { label: 'Asunto' },
+        keywords: {
+          label: 'Palabras clave',
+          placeholder: 'informe, 2026, facturación',
+        },
+      },
+      preview: {
+        statusLoading: 'Leyendo los metadatos del PDF…',
+        statusLoaded: 'Valores actuales del PDF cargados.',
+        statusEmpty: 'El PDF no tiene metadatos.',
+        statusError: 'No se pudieron leer los metadatos.',
+        clearAll: 'Limpiar todos los campos',
       },
     },
   },
