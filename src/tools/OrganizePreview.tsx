@@ -2,87 +2,111 @@ import { useEffect, useRef, useState, type DragEvent as ReactDragEvent } from 'r
 import clsx from 'clsx'
 import { fmt, t } from '@/i18n'
 import { Icon } from '@/components/Icon'
-import type { OptionValues, ToolPreviewProps } from '@/tools/types'
+import type { ToolPreviewProps } from '@/tools/types'
 import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist'
 
 const THUMB_SCALE = 0.3
 const STORAGE_KEY = 'pages'
 
-type PageEntry = { id: string; source: number }
+type PageEntry = { id: string; file: number; source: number }
 
-function loadPages(values: OptionValues): PageEntry[] | null {
-  const raw = values[STORAGE_KEY]
-  if (typeof raw !== 'string' || !raw) return null
-  try {
-    const parsed = JSON.parse(raw) as PageEntry[]
-    if (!Array.isArray(parsed)) return null
-    return parsed.filter((p): p is PageEntry => typeof p?.source === 'number' && typeof p?.id === 'string')
-  } catch {
-    return null
-  }
+function buildInitial(pageCounts: number[]): PageEntry[] {
+  const initial: PageEntry[] = []
+  pageCounts.forEach((count, fileIdx) => {
+    for (let i = 0; i < count; i++) {
+      initial.push({ id: '', file: fileIdx, source: i })
+    }
+  })
+  return initial
 }
 
-export function OrganizePreview({ files, values, onChange, disabled }: ToolPreviewProps) {
-  const [file] = files
-  const [doc, setDoc] = useState<PDFDocumentProxy | null>(null)
-  const [pageCount, setPageCount] = useState(0)
+export function OrganizePreview({ files, onChange, disabled }: ToolPreviewProps) {
+  const [docs, setDocs] = useState<(PDFDocumentProxy | null)[]>([])
+  const [pageCounts, setPageCounts] = useState<number[]>([])
   const [pages, setPages] = useState<PageEntry[]>([])
   const idRef = useRef(0)
   const dragIndexRef = useRef<number | null>(null)
+  // Recuerda con qué lista de ficheros se construyó `pages`. Cuando cambia la
+  // referencia, los IDs guardados pueden cubrir un conjunto distinto y hay
+  // que reconstruir desde cero.
+  const initializedForRef = useRef<File[] | null>(null)
+
+  const multiFile = files.length > 1
 
   function nextId(): string {
     idRef.current += 1
     return `p${idRef.current}`
   }
 
-  // Carga el PDF una sola vez. pdfjs entra por dynamic import para no inflar
-  // el bundle principal. `doc` se lee solo para liberar el anterior al
-  // cambiar de fichero; no es una dependencia real.
+  // Carga cada PDF una sola vez. pdfjs entra por dynamic import para no inflar
+  // el bundle principal. Se cancela al cambiar la lista para no acumular
+  // documentos en memoria.
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
-    if (!file) return
+    if (files.length === 0) {
+      setDocs([])
+      setPageCounts([])
+      return
+    }
+    const slots = new Array<(PDFDocumentProxy | null)>(files.length).fill(null)
+    setDocs(slots)
+    setPageCounts(new Array<number>(files.length).fill(0))
+
     let cancelled = false
-    let task: PDFDocumentLoadingTask | null = null
+    const tasks: (PDFDocumentLoadingTask | null)[] = new Array(files.length).fill(null)
     void (async () => {
       const { pdfjs } = await import('@/lib/pdfjs')
-      const data = new Uint8Array(await file.arrayBuffer())
-      task = pdfjs.getDocument({ data })
+      const loading = await Promise.all(
+        files.map(async (file, i) => {
+          const data = new Uint8Array(await file.arrayBuffer())
+          tasks[i] = pdfjs.getDocument({ data })
+          return tasks[i]
+        }),
+      )
       try {
-        const next = await task.promise
+        const loaded = await Promise.all(loading.map((task) => task.promise))
         if (cancelled) {
-          await (next as PDFDocumentProxy & { destroy: () => Promise<void> }).destroy()
+          await Promise.all(
+            loaded.map((d) => (d as PDFDocumentProxy & { destroy: () => Promise<void> }).destroy?.()),
+          )
           return
         }
-        const previous = doc as (PDFDocumentProxy & { destroy?: () => Promise<void> }) | null
-        await previous?.destroy?.()
-        setDoc(next)
-        setPageCount(next.numPages)
+        const previous = docs as (PDFDocumentProxy & { destroy?: () => Promise<void> })[]
+        await Promise.all(previous.map((d) => d?.destroy?.()))
+        setDocs(loaded)
+        setPageCounts(loaded.map((d) => d.numPages))
       } catch {
-        // Si el PDF está cifrado o roto, el run fallará; aquí no hacemos nada.
+        // Si algún PDF está cifrado o roto, el run fallará; aquí no hacemos nada.
       }
     })()
     return () => {
       cancelled = true
-      void task?.destroy()
+      tasks.forEach((task) => void task?.destroy())
     }
-  }, [file])
+  }, [files])
   /* eslint-enable react-hooks/exhaustive-deps */
 
-  // Inicializa la lista cuando llega un PDF nuevo o cuando el usuario lo cambia.
-  // `values` y `onChange` se leen pero no son dependencias: solo debe
-  // dispararse al cambiar el fichero o al conocer el número de páginas.
+  // Inicializa la lista cuando llega un conjunto de PDFs nuevo o cuando se
+  // conoce el número de páginas de todos. `values` y `onChange` se leen pero no
+  // son dependencias: solo debe dispararse al cambiar los ficheros o al
+  // terminar de cargarlos.
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
-    if (!file || !pageCount) return
-    const stored = loadPages(values)
-    if (stored && stored.length > 0) return
-    const initial: PageEntry[] = Array.from({ length: pageCount }, (_, i) => ({
-      id: nextId(),
-      source: i,
-    }))
+    if (files.length === 0) return
+    // Si el tamaño de `pageCounts` no coincide con el de `files`, todavía no
+    // hemos cargado el último cambio y rehacer `buildInitial` con datos
+    // viejos pisaría las páginas que faltan.
+    if (pageCounts.length !== files.length) return
+    const total = pageCounts.reduce((a, b) => a + b, 0)
+    if (total === 0) return
+    // Si ya inicializamos para estos ficheros, las reordenaciones del usuario
+    // viven en `pages` y se persisten en `values`; no hay que tocar nada.
+    if (initializedForRef.current === files) return
+    const initial: PageEntry[] = buildInitial(pageCounts).map((entry) => ({ ...entry, id: nextId() }))
     setPages(initial)
     onChange({ [STORAGE_KEY]: JSON.stringify(initial) })
-  }, [file, pageCount])
+    initializedForRef.current = files
+  }, [files, pageCounts])
   /* eslint-enable react-hooks/exhaustive-deps */
 
   // Sincroniza la lista a `values` para que el `run` la lea.
@@ -106,7 +130,7 @@ export function OrganizePreview({ files, values, onChange, disabled }: ToolPrevi
   function duplicate(index: number) {
     setPages((prev) => {
       const next = [...prev]
-      const copy: PageEntry = { id: nextId(), source: prev[index].source }
+      const copy: PageEntry = { id: nextId(), file: prev[index].file, source: prev[index].source }
       next.splice(index + 1, 0, copy)
       return next
     })
@@ -117,11 +141,9 @@ export function OrganizePreview({ files, values, onChange, disabled }: ToolPrevi
   }
 
   function reset() {
-    if (!pageCount) return
-    const initial: PageEntry[] = Array.from({ length: pageCount }, (_, i) => ({
-      id: nextId(),
-      source: i,
-    }))
+    const total = pageCounts.reduce((a, b) => a + b, 0)
+    if (total === 0) return
+    const initial: PageEntry[] = buildInitial(pageCounts).map((entry) => ({ ...entry, id: nextId() }))
     setPages(initial)
   }
 
@@ -166,7 +188,7 @@ export function OrganizePreview({ files, values, onChange, disabled }: ToolPrevi
           <button
             type="button"
             onClick={reset}
-            disabled={disabled || !pageCount}
+            disabled={disabled || pages.length === 0}
             className="rounded border border-line px-2 py-1 text-xs text-ink-soft transition hover:border-line-strong disabled:opacity-40"
           >
             {t.tools.organize.preview.reset}
@@ -181,23 +203,32 @@ export function OrganizePreview({ files, values, onChange, disabled }: ToolPrevi
         </p>
       ) : (
         <ol className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {pages.map((page, index) => (
-            <Thumbnail
-              key={page.id}
-              doc={doc}
-              source={page.source}
-              position={index}
-              total={pages.length}
-              disabled={disabled}
-              onMoveUp={() => move(index, index - 1)}
-              onMoveDown={() => move(index, index + 1)}
-              onDuplicate={() => duplicate(index)}
-              onRemove={() => remove(index)}
-              onDragStart={onDragStart(index)}
-              onDragOver={onDragOver}
-              onDrop={onDrop(index)}
-            />
-          ))}
+          {pages.map((page, index) => {
+            const firstIndex = pages.findIndex(
+              (p) => p.file === page.file && p.source === page.source,
+            )
+            const isDuplicate = firstIndex !== -1 && firstIndex !== index
+            return (
+              <Thumbnail
+                key={page.id}
+                doc={docs[page.file] ?? null}
+                file={page.file}
+                source={page.source}
+                position={index}
+                total={pages.length}
+                multiFile={multiFile}
+                isDuplicate={isDuplicate}
+                disabled={disabled}
+                onMoveUp={() => move(index, index - 1)}
+                onMoveDown={() => move(index, index + 1)}
+                onDuplicate={() => duplicate(index)}
+                onRemove={() => remove(index)}
+                onDragStart={onDragStart(index)}
+                onDragOver={onDragOver}
+                onDrop={onDrop(index)}
+              />
+            )
+          })}
         </ol>
       )}
     </section>
@@ -206,9 +237,12 @@ export function OrganizePreview({ files, values, onChange, disabled }: ToolPrevi
 
 function Thumbnail({
   doc,
+  file,
   source,
   position,
   total,
+  multiFile,
+  isDuplicate,
   disabled,
   onMoveUp,
   onMoveDown,
@@ -219,9 +253,12 @@ function Thumbnail({
   onDrop,
 }: {
   doc: PDFDocumentProxy | null
+  file: number
   source: number
   position: number
   total: number
+  multiFile: boolean
+  isDuplicate: boolean
   disabled?: boolean
   onMoveUp: () => void
   onMoveDown: () => void
@@ -262,7 +299,9 @@ function Thumbnail({
     }
   }, [doc, source])
 
-  const isDuplicate = position !== source
+  const sourceLabel = multiFile
+    ? fmt(t.tools.organize.preview.docAndPage, { file: file + 1, page: source + 1 })
+    : fmt(t.tools.organize.preview.original, { n: source + 1 })
 
   return (
     <li
@@ -280,7 +319,7 @@ function Thumbnail({
       <div className="grid place-items-center rounded border border-line bg-white">
         {!rendered && (
           <div className="absolute inset-2 grid place-items-center text-xs text-muted">
-            {source + 1}
+            {multiFile ? `${file + 1}.${source + 1}` : source + 1}
           </div>
         )}
         <canvas
@@ -288,10 +327,10 @@ function Thumbnail({
           className={clsx('block h-auto w-full', !rendered && 'invisible')}
         />
       </div>
-      <div className="flex items-baseline justify-between text-xs">
+      <div className="flex items-baseline justify-between gap-2 text-xs">
         <span className="font-medium text-ink">{position + 1}</span>
-        <span className="text-muted">
-          {t.tools.organize.preview.original} {source + 1}
+        <span className="truncate text-muted" title={sourceLabel}>
+          {sourceLabel}
         </span>
       </div>
       <div className="flex items-center gap-1">

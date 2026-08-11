@@ -6,7 +6,7 @@ import { SofaMascot } from "@/components/SofaMascot";
 import { ToolCard } from "@/components/ToolCard";
 import { t } from "@/i18n";
 import { renderInline } from "@/i18n/inline";
-import { CATEGORY_IDS, TOOLS } from "@/tools/registry";
+import { CATEGORY_IDS, sortTools, TOOLS } from "@/tools/registry";
 
 type PointKey = keyof typeof t.privacyPoints;
 
@@ -40,16 +40,12 @@ function ToolsSection() {
     })),
   ];
 
-  const visibleTools = (
+  const visibleTools = sortTools(
     activeTab === "all"
       ? TOOLS
-      : TOOLS.filter((tool) => tool.category === activeTab)
-  )
-    .slice()
-    .sort((a, b) => {
-      if (a.status === b.status) return 0;
-      return a.status === "ready" ? -1 : 1;
-    });
+      : TOOLS.filter((tool) => tool.category === activeTab),
+    (tool) => t.tools[tool.slug].name,
+  );
 
   return (
     <div

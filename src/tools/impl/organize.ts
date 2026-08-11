@@ -4,35 +4,50 @@ import { toBlob } from '@/lib/files'
 import { baseName } from '@/lib/pages'
 import type { ToolRun } from '@/tools/types'
 
-type PageEntry = { id: string; source: number }
+type PageEntry = { id: string; file: number; source: number }
 
 export const run: ToolRun = async (files, values, ctx) => {
-  const [file] = files
   const raw = String(values.pages ?? '')
   if (!raw) throw new Error(t.errors.organizeEmpty)
 
   let entries: PageEntry[]
   try {
     const parsed = JSON.parse(raw) as PageEntry[]
-    entries = parsed.filter((p): p is PageEntry => typeof p?.source === 'number' && typeof p?.id === 'string')
+    entries = parsed.filter(
+      (p): p is PageEntry =>
+        typeof p?.file === 'number' &&
+        typeof p?.source === 'number' &&
+        typeof p?.id === 'string',
+    )
   } catch {
     throw new Error(t.errors.organizeEmpty)
   }
   if (entries.length === 0) throw new Error(t.errors.organizeEmpty)
 
-  const sourceDoc = await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true })
-  const targetDoc = await PDFDocument.create()
+  const docs: (PDFDocument | null)[] = await Promise.all(
+    files.map(async (file) => {
+      try {
+        return await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true })
+      } catch {
+        return null
+      }
+    }),
+  )
 
+  const target = await PDFDocument.create()
   for (const [index, entry] of entries.entries()) {
-    const [copied] = await targetDoc.copyPages(sourceDoc, [entry.source])
-    targetDoc.addPage(copied)
-    ctx.onProgress((index + 1) / entries.length, fmt(t.progress.page, { n: entry.source + 1 }))
+    const doc = docs[entry.file]
+    if (!doc) throw new Error(fmt(t.errors.exportPage, { page: entry.source + 1 }))
+    const [copied] = await target.copyPages(doc, [entry.source])
+    target.addPage(copied)
+    ctx.onProgress((index + 1) / entries.length, fmt(t.progress.page, { n: index + 1 }))
   }
 
+  const stem = files.length === 1 ? baseName(files[0].name) : `${baseName(files[0].name)}+${files.length - 1}`
   return [
     {
-      name: `${baseName(file.name)}-${t.filenames.organized}.pdf`,
-      blob: toBlob(await targetDoc.save()),
+      name: `${stem}-${t.filenames.organized}.pdf`,
+      blob: toBlob(await target.save()),
     },
   ]
 }

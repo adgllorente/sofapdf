@@ -220,7 +220,11 @@ export const en: typeof es = {
       },
       theme: {
         strong: 'Some settings are stored.',
-        body: 'Your browser may remember the theme, language, tool usage and whether you postponed the donation prompt. None of this contains documents or data derived from them.',
+        body: 'Your browser may remember the theme, language and whether you postponed the donation prompt. None of this contains documents or data derived from them.',
+      },
+      order: {
+        strong: 'Which tools you use is remembered.',
+        body: 'The browser keeps an anonymous counter of how many times you have finished each tool, so the dashboard can reorder the list to put the ones you use most first. It does not contain documents, file names or anything that could be tied back to you outside this tab.',
       },
       power: {
         strong: 'Your machine does the work.',
@@ -358,15 +362,17 @@ export const en: typeof es = {
     },
     organize: {
       name: 'Organise pages',
-      short: 'Reorder, duplicate and delete pages with a preview.',
-      description: 'Thumbnail view to reorder, duplicate or delete pages before exporting.',
+      short: 'Reorder, duplicate and delete pages from one or more PDFs using thumbnails.',
+      description:
+        'Thumbnail view to reorder, duplicate or delete pages from one or more PDFs before exporting. Documents are concatenated in the order they appear in the list.',
       action: 'Organise',
-      note: 'The list order is the final order. Drag to reorder or use the buttons.',
+      note: 'The list order is the final order. Drag to reorder or use the buttons. With several PDFs they are concatenated in the list order.',
       preview: {
         title: 'Pages',
-        hint: 'Drag thumbnails to reorder. Each page keeps its original number on the right.',
+        hint: 'Drag thumbnails to reorder. Each page keeps its source document and original page number on the right.',
         position: 'Position',
-        original: 'Original',
+        original: 'Original {n}',
+        docAndPage: 'Doc {file} · p. {page}',
         moveUp: 'Move up',
         moveDown: 'Move down',
         duplicate: 'Duplicate',

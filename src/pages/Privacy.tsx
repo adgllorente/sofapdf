@@ -11,7 +11,7 @@ const STEPS: { key: keyof typeof t.privacy.steps; icon: IconName }[] = [
 
 const CHECKS: (keyof typeof t.privacy.checks)[] = ['offline', 'devtools', 'source']
 
-const LIMITS: (keyof typeof t.privacy.limits)[] = ['ip', 'theme', 'power']
+const LIMITS: (keyof typeof t.privacy.limits)[] = ['ip', 'theme', 'order', 'power']
 
 export function Privacy() {
   return (

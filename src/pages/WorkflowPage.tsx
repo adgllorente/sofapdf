@@ -6,6 +6,7 @@ import { OptionsForm } from '@/components/OptionsForm'
 import { PreviewModal } from '@/components/PreviewModal'
 import { fmt, t } from '@/i18n'
 import { formatBytes, saveBlob } from '@/lib/files'
+import { bumpToolUsage } from '@/lib/usage'
 import { loadMetadataFromFile } from '@/tools/metadata-loader'
 import { getTool, TOOLS } from '@/tools/registry'
 import { defaultValues, type OptionValues, type OutputFile, type Tool } from '@/tools/types'
@@ -132,6 +133,7 @@ function WorkflowRunner() {
         }
         current = new File([result[0].blob], result[0].name, { type: 'application/pdf' })
       }
+      for (const step of steps) bumpToolUsage(step.tool.slug)
       setProgress({ ratio: 1, label: t.progress.done })
       setOutput({ name: current.name, blob: current })
       setStatus('done')

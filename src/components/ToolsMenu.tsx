@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 import { LOCALES, setLocale, t, type Locale } from '@/i18n'
 import { useLocale } from '@/i18n/react'
-import { CATEGORY_IDS, TOOLS } from '@/tools/registry'
+import { CATEGORY_IDS, sortTools, TOOLS } from '@/tools/registry'
 import { toolText } from '@/i18n/tools'
 import { Icon } from './Icon'
 
@@ -82,10 +82,10 @@ export function ToolsMenu() {
           className="fixed inset-x-4 top-20 z-30 max-h-[calc(100vh-6rem)] overflow-y-auto rounded-card border border-line bg-surface p-3 shadow-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:max-h-[80vh] sm:w-[min(520px,calc(100vw-2rem))]"
         >
           {CATEGORY_IDS.map((categoryId, index) => {
-            const tools = TOOLS.filter((tool) => tool.category === categoryId).sort((a, b) => {
-              if (a.status === b.status) return 0
-              return a.status === 'ready' ? -1 : 1
-            })
+            const tools = sortTools(
+              TOOLS.filter((tool) => tool.category === categoryId),
+              (tool) => t.tools[tool.slug].name,
+            )
             const category = t.categories[categoryId]
             return (
               <div key={categoryId} className={index > 0 ? 'mt-3 border-t border-line pt-3' : ''}>

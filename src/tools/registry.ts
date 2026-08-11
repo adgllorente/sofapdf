@@ -1,4 +1,5 @@
 import type { Tool, ToolCategoryId } from './types'
+import { getToolUsage } from '@/lib/usage'
 import { CropPreview } from './CropPreview'
 import { OrganizePreview } from './OrganizePreview'
 import { RedactPreview } from './RedactPreview'
@@ -68,7 +69,7 @@ export const TOOLS: Tool[] = [
     category: 'paginas',
     status: 'ready',
     ...PDF,
-    multiple: false,
+    multiple: true,
     minFiles: 1,
     load: () => import('./impl/organize').then((m) => m.run),
     Preview: OrganizePreview,
@@ -373,4 +374,21 @@ export const TOOLS: Tool[] = [
 
 export function getTool(slug: string | undefined): Tool | undefined {
   return TOOLS.find((tool) => tool.slug === slug)
+}
+
+/**
+ * Ordena las herramientas por uso (desc) y, como desempate, por el nombre
+ * local que devuelve `nameOf`. Las `planned` siempre van al final: no se
+ * pueden ejecutar y no tiene sentido medirlas. Las nunca usadas (contador 0)
+ * se agrupan al final en orden alfabético.
+ */
+export function sortTools(tools: Tool[], nameOf: (tool: Tool) => string): Tool[] {
+  const usage = getToolUsage()
+  return tools.slice().sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'ready' ? -1 : 1
+    const countA = usage[a.slug] ?? 0
+    const countB = usage[b.slug] ?? 0
+    if (countA !== countB) return countB - countA
+    return nameOf(a).localeCompare(nameOf(b))
+  })
 }

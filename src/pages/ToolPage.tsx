@@ -8,6 +8,7 @@ import { fmt, t } from '@/i18n'
 import { toolText } from '@/i18n/tools'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
 import {
+  bumpToolUsage,
   dismissSupportPrompt,
   registerSuccessfulRun,
   shouldShowSupportPrompt,
@@ -59,6 +60,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
       })
       setOutputs(result)
       setStatus('done')
+      bumpToolUsage(tool.slug)
       setShowSupportPrompt(registerSuccessfulRun())
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t.run.failed)

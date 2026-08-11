@@ -224,7 +224,11 @@ export const es = {
       },
       theme: {
         strong: 'Se guardan algunos ajustes.',
-        body: 'El navegador puede recordar el tema, el idioma, el uso de las herramientas y si has pospuesto el aviso de donación. Nada de esto contiene documentos ni datos derivados de ellos.',
+        body: 'El navegador puede recordar el tema, el idioma y si has pospuesto el aviso de donación. Nada de esto contiene documentos ni datos derivados de ellos.',
+      },
+      order: {
+        strong: 'Se recuerda qué herramientas usas.',
+        body: 'El navegador guarda un contador anónimo de cuántas veces has terminado cada herramienta, para reordenar el listado por las que más usas. No contiene documentos, ni nombres de archivo, ni nada que se pueda asociar contigo fuera de esta pestaña.',
       },
       power: {
         strong: 'Tu equipo pone la potencia.',
@@ -363,16 +367,17 @@ export const es = {
     },
     organize: {
       name: 'Organizar páginas',
-      short: 'Reordena, duplica y elimina páginas con vista previa.',
+      short: 'Reordena, duplica y elimina páginas de uno o varios PDF con vista previa.',
       description:
-        'Vista de miniaturas para reordenar, duplicar o borrar páginas antes de exportar.',
+        'Vista de miniaturas para reordenar, duplicar o borrar páginas de uno o varios PDF antes de exportar. Los documentos se concatenan en el orden de la lista.',
       action: 'Organizar',
-      note: 'El orden de la lista es el orden final. Arrastra para reordenar o usa los botones.',
+      note: 'El orden de la lista es el orden final. Arrastra para reordenar o usa los botones. Con varios PDF se concatenan en el orden en que aparecen.',
       preview: {
         title: 'Páginas',
-        hint: 'Arrastra las miniaturas para reordenar. Cada página conserva su número original a la derecha.',
+        hint: 'Arrastra las miniaturas para reordenar. Cada página conserva su documento y número original a la derecha.',
         position: 'Posición',
-        original: 'Original',
+        original: 'Original {n}',
+        docAndPage: 'Doc {file} · p. {page}',
         moveUp: 'Subir',
         moveDown: 'Bajar',
         duplicate: 'Duplicar',
