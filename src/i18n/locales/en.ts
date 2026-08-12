@@ -273,6 +273,8 @@ export const en: typeof es = {
     ocrFailed: 'Could not recognise the text on page {n}.',
     compareNeedTwo: 'Upload two PDFs to compare.',
     compareFailed: 'Could not compare the pages.',
+    blankPagesAll: 'The document contains only blank pages.',
+    blankPagesFailed: 'The blank pages could not be detected.',
     flattenFailed: 'The form fields could not be flattened.',
     editEmpty: 'Add at least one element before exporting.',
   },
@@ -295,6 +297,7 @@ export const en: typeof es = {
     watermark: 'watermark',
     signed: 'signed',
     organized: 'organised',
+    blankPagesRemoved: 'without-blank-pages',
     cropped: 'cropped',
     redacted: 'redacted',
     ocr: 'ocr',
@@ -319,6 +322,7 @@ export const en: typeof es = {
     encrypting: 'Encrypting the document',
     decrypting: 'Decrypting the document',
     flattening: 'Flattening the form fields',
+    removingBlankPages: 'Removing blank pages',
     done: 'Done',
   },
 
@@ -465,6 +469,14 @@ export const en: typeof es = {
         empty: 'No pages left. Duplicate one to get started.',
         count: '{n} pages',
       },
+    },
+    'remove-blank-pages': {
+      name: 'Remove blank pages',
+      short: 'Detect and remove visually empty pages from a PDF.',
+      description:
+        'Analyses every page in the browser and removes pages containing only a white background. All other content stays intact and is not rasterised.',
+      action: 'Remove blank pages',
+      note: 'Detection is based on visible appearance: marks that are almost white may be treated as blank.',
     },
 
     'jpg-to-pdf': {

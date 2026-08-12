@@ -277,6 +277,8 @@ export const es = {
     ocrFailed: 'No se pudo reconocer el texto de la página {n}.',
     compareNeedTwo: 'Sube dos PDFs para comparar.',
     compareFailed: 'No se pudo comparar las páginas.',
+    blankPagesAll: 'El documento solo contiene páginas en blanco.',
+    blankPagesFailed: 'No se pudieron detectar las páginas en blanco.',
     flattenFailed: 'No se pudieron aplanar los campos del formulario.',
     editEmpty: 'Añade al menos un elemento antes de exportar.',
   },
@@ -300,6 +302,7 @@ export const es = {
     watermark: 'marca-de-agua',
     signed: 'firmado',
     organized: 'organizado',
+    blankPagesRemoved: 'sin-paginas-en-blanco',
     cropped: 'recortado',
     redacted: 'censurado',
     ocr: 'ocr',
@@ -324,6 +327,7 @@ export const es = {
     encrypting: 'Cifrando el documento',
     decrypting: 'Descifrando el documento',
     flattening: 'Aplanando los campos del formulario',
+    removingBlankPages: 'Eliminando páginas en blanco',
     done: 'Listo',
   },
 
@@ -470,6 +474,14 @@ export const es = {
         empty: 'No queda ninguna página. Duplica alguna para empezar.',
         count: '{n} páginas',
       },
+    },
+    'remove-blank-pages': {
+      name: 'Eliminar páginas en blanco',
+      short: 'Detecta y elimina las páginas visualmente vacías del PDF.',
+      description:
+        'Analiza cada página en el navegador y elimina las que solo contienen fondo blanco. El resto del contenido se conserva sin rasterizarlo.',
+      action: 'Eliminar páginas en blanco',
+      note: 'La detección se basa en el aspecto visible: páginas con marcas casi blancas pueden considerarse en blanco.',
     },
 
     'jpg-to-pdf': {

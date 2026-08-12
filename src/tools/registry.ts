@@ -108,6 +108,17 @@ export const TOOLS: Tool[] = [
     Preview: OrganizePreview,
   },
   {
+    slug: 'remove-blank-pages',
+    icon: 'trash',
+    category: 'paginas',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    workflow: true,
+    load: () => import('./impl/remove-blank-pages').then((m) => m.run),
+  },
+  {
     slug: 'number',
     icon: 'hash',
     category: 'edicion',
