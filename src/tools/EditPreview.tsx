@@ -7,11 +7,12 @@ import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy } from 'pdf
 const KEY = 'editor'
 const SCALE = 1.5
 const MIN_SIZE = 0.025
-type Mode = 'hand' | 'text' | 'image' | 'pencil' | 'shape'
+const MAX_HISTORY = 100
+type Mode = 'hand' | 'text' | 'image' | 'pencil' | 'shape' | 'highlight' | 'underlineText' | 'strikeText'
 type Point = { x: number; y: number }
 type ResizeHandle = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
 type EditObject = {
-  id: string; type: 'text' | 'image' | 'pencil' | 'rect' | 'ellipse' | 'triangle'; page: number
+  id: string; type: 'text' | 'image' | 'pencil' | 'rect' | 'ellipse' | 'triangle' | 'highlight' | 'underlineText' | 'strikeText'; page: number
   x: number; y: number; width: number; height: number; color: string; bgColor: string
   borderColor: string; borderWidth: number; opacity: number; font: string; fontSize: number
   bold: boolean; italic: boolean; underline: boolean; align: string; text: string
@@ -22,6 +23,7 @@ type EditorStyle = {
   borderColor: string; borderWidth: number; opacity: number; bold: boolean
   italic: boolean; underline: boolean; align: string; shape: string
 }
+type EditorHistory = { past: EditObject[][]; future: EditObject[][] }
 
 function clamp(value: number, min = 0, max = 1) { return Math.max(min, Math.min(max, value)) }
 
@@ -54,6 +56,7 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
   const idRef = useRef(0)
+  const historyRef = useRef<EditorHistory>({ past: [], future: [] })
   const [style, setStyle] = useState<EditorStyle>({ text: t.tools.edit.preview.defaultText, font: 'Helvetica', fontSize: 18, color: '#111827', bgColor: '#ffffff', borderColor: '#111827', borderWidth: 1, opacity: 100, bold: false, italic: false, underline: false, align: 'left', shape: 'rect' })
   const objects = readObjects(values)
   const current = objects.filter((item) => item.page === page)
@@ -81,6 +84,10 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
   }, [file])
 
   useEffect(() => {
+    historyRef.current = { past: [], future: [] }
+  }, [file])
+
+  useEffect(() => {
     const canvas = canvasRef.current
     if (!doc || !canvas || !pageCount) return
     let cancelled = false
@@ -97,7 +104,27 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
     return () => { cancelled = true; pdfPage?.cleanup() }
   }, [doc, page, pageCount])
 
-  function update(next: EditObject[]) { onChange({ ...values, [KEY]: JSON.stringify(next) }) }
+  function update(next: EditObject[]) {
+    const current = readObjects(values)
+    if (JSON.stringify(current) === JSON.stringify(next)) return
+    historyRef.current.past = [...historyRef.current.past, current].slice(-MAX_HISTORY)
+    historyRef.current.future = []
+    onChange({ ...values, [KEY]: JSON.stringify(next) })
+  }
+  function undo() {
+    const { past, future } = historyRef.current
+    const previous = past.at(-1)
+    if (!previous) return
+    historyRef.current = { past: past.slice(0, -1), future: [readObjects(values), ...future].slice(0, MAX_HISTORY) }
+    onChange({ ...values, [KEY]: JSON.stringify(previous) })
+  }
+  function redo() {
+    const { past, future } = historyRef.current
+    const next = future[0]
+    if (!next) return
+    historyRef.current = { past: [...past, readObjects(values)].slice(-MAX_HISTORY), future: future.slice(1) }
+    onChange({ ...values, [KEY]: JSON.stringify(next) })
+  }
   function nextId() { idRef.current += 1; return `edit-${idRef.current}` }
   function point(event: PointerEvent | ReactPointerEvent, rect: DOMRect): Point {
     return { x: clamp((event.clientX - rect.left) / rect.width), y: clamp((event.clientY - rect.top) / rect.height) }
@@ -106,7 +133,8 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
     setStyle((previous) => ({ ...previous, text: item.text, font: item.font, fontSize: item.fontSize, color: item.color, bgColor: item.bgColor, borderColor: item.borderColor, borderWidth: item.borderWidth, opacity: Math.round(item.opacity * 100), bold: item.bold, italic: item.italic, underline: item.underline, align: item.align, shape: item.type === 'rect' || item.type === 'ellipse' || item.type === 'triangle' ? item.type : previous.shape }))
   }
   function addObject(partial: Partial<EditObject>) {
-    const item = { id: nextId(), page, type: partial.type ?? 'text', x: partial.x ?? .2, y: partial.y ?? .2, width: partial.width ?? .3, height: partial.height ?? .1, color: style.color, bgColor: style.bgColor, borderColor: style.borderColor, borderWidth: style.borderWidth, opacity: style.opacity / 100, font: style.font, fontSize: style.fontSize, bold: style.bold, italic: style.italic, underline: style.underline, align: style.align, text: partial.text ?? '', rotation: partial.rotation ?? 0, ...partial } as EditObject
+    const annotation = partial.type === 'highlight' || partial.type === 'underlineText' || partial.type === 'strikeText'
+    const item = { id: nextId(), page, type: partial.type ?? 'text', x: partial.x ?? .2, y: partial.y ?? .2, width: partial.width ?? .3, height: partial.height ?? .1, color: partial.type === 'highlight' ? '#facc15' : style.color, bgColor: style.bgColor, borderColor: style.borderColor, borderWidth: style.borderWidth, opacity: annotation ? (partial.type === 'highlight' ? .35 : 1) : style.opacity / 100, font: style.font, fontSize: style.fontSize, bold: style.bold, italic: style.italic, underline: style.underline, align: style.align, text: partial.text ?? '', rotation: partial.rotation ?? 0, ...partial } as EditObject
     update([...objects, item]); setSelected(item.id); setMode('hand'); syncStyle(item)
   }
   function patchActive(patch: Partial<EditObject>) {
@@ -151,9 +179,18 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
     function onKeyDown(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null
       const typing = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement || target?.isContentEditable
-      if (!selected || editingText || typing || (event.key !== 'Delete' && event.key !== 'Backspace')) return
-      event.preventDefault()
-      deleteObject(selected)
+      if (typing) return
+      const modifier = event.ctrlKey || event.metaKey
+      if (modifier && event.key.toLowerCase() === 'z') {
+        event.preventDefault()
+        if (event.shiftKey) redo(); else undo()
+        return
+      }
+      if (modifier && event.key.toLowerCase() === 'y') {
+        event.preventDefault(); redo(); return
+      }
+      if (!selected || editingText || (event.key !== 'Delete' && event.key !== 'Backspace')) return
+      event.preventDefault(); deleteObject(selected)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -180,7 +217,7 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
       document.removeEventListener('pointercancel', onUp)
       const x = Math.min(start.x, state.current.x), y = Math.min(start.y, state.current.y)
       if (mode === 'pencil' && state.points.length > 1) addObject({ type: 'pencil', x, y, width: Math.abs(state.current.x - start.x), height: Math.abs(state.current.y - start.y), points: state.points })
-      if (mode === 'text' || mode === 'shape') addObject({ type: mode === 'text' ? 'text' : style.shape as EditObject['type'], x, y, width: Math.max(MIN_SIZE, Math.abs(state.current.x - start.x)), height: Math.max(MIN_SIZE, Math.abs(state.current.y - start.y)), text: style.text })
+      if (mode === 'text' || mode === 'shape' || mode === 'highlight' || mode === 'underlineText' || mode === 'strikeText') addObject({ type: mode === 'text' ? 'text' : mode === 'shape' ? style.shape as EditObject['type'] : mode, x, y, width: Math.max(MIN_SIZE, Math.abs(state.current.x - start.x)), height: Math.max(MIN_SIZE, Math.abs(state.current.y - start.y)), text: style.text })
       setDraft(null)
     }
     document.addEventListener('pointermove', onMove)
@@ -266,7 +303,7 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
     reader.onload = () => addObject({ type: 'image', width: .45, height: .3, imageData: String(reader.result), text: image.name })
     reader.readAsDataURL(image); event.target.value = ''
   }
-  function toolButton(next: Exclude<Mode, 'image' | 'hand'>, icon: 'pen' | 'text' | 'shapes', label: string) {
+  function toolButton(next: Exclude<Mode, 'image' | 'hand' | 'highlight' | 'underlineText' | 'strikeText'>, icon: 'pen' | 'text' | 'shapes', label: string) {
     return <button type="button" onClick={() => { setMode(next); setSelected(null); setEditingText(null); if (next === 'text') setStyle((previous) => ({ ...previous, text: t.tools.edit.preview.defaultText })) }} disabled={disabled} title={label} aria-label={label} className={`grid size-9 place-items-center rounded-lg border ${mode === next ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted'} disabled:opacity-40`}><Icon name={icon} className="size-4" /></button>
   }
 
@@ -283,10 +320,13 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
     <div className="min-w-0 space-y-2">
       <div className="flex flex-wrap items-center gap-2">
         {toolButton('text', 'text', t.tools.edit.preview.text)}{toolButton('pencil', 'pen', t.tools.edit.preview.pencil)}{toolButton('shape', 'shapes', t.tools.edit.preview.shape)}
+        {(['highlight', 'underlineText', 'strikeText'] as const).map((next) => <button key={next} type="button" onClick={() => { setMode(next); setSelected(null); setEditingText(null) }} disabled={disabled} title={t.tools.edit.preview[next]} aria-label={t.tools.edit.preview[next]} className={`grid size-9 place-items-center rounded-lg border ${mode === next ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted'} disabled:opacity-40`}><Icon name={next === 'highlight' ? 'highlight' : next === 'underlineText' ? 'underline' : 'strikethrough'} className="size-4" /></button>)}
         <button type="button" onClick={() => imageInputRef.current?.click()} disabled={disabled} title={t.tools.edit.preview.image} aria-label={t.tools.edit.preview.image} className="grid size-9 place-items-center rounded-lg border border-line text-muted disabled:opacity-40"><Icon name="image" className="size-4" /></button>
         <input ref={imageInputRef} type="file" accept="image/png,image/jpeg" onChange={addImage} className="hidden" />
       </div>
       <div className="flex min-w-0 flex-wrap items-center gap-2 rounded-lg bg-subtle p-2">
+        <button type="button" onClick={undo} disabled={disabled || !historyRef.current.past.length} title={t.tools.edit.preview.undo} aria-label={t.tools.edit.preview.undo} className="grid size-8 place-items-center rounded border border-line text-muted disabled:opacity-30"><Icon name="undo" className="size-4" /></button>
+        <button type="button" onClick={redo} disabled={disabled || !historyRef.current.future.length} title={t.tools.edit.preview.redo} aria-label={t.tools.edit.preview.redo} className="grid size-8 place-items-center rounded border border-line text-muted disabled:opacity-30"><Icon name="redo" className="size-4" /></button>
         <span className="mr-1 text-xs text-muted">{t.tools.edit.preview.organizeLabel}</span>
         <button type="button" onClick={() => moveLayer(1)} disabled={disabled || !active || !objects.some((item, index) => index > objects.findIndex((candidate) => candidate.id === active?.id) && item.page === active?.page)} title={t.tools.edit.preview.bringForward} aria-label={t.tools.edit.preview.bringForward} className="grid size-8 place-items-center rounded border border-line text-muted disabled:opacity-30"><Icon name="up" className="size-4" /></button>
         <button type="button" onClick={() => moveLayer(-1)} disabled={disabled || !active || !objects.some((item, index) => index < objects.findIndex((candidate) => candidate.id === active?.id) && item.page === active?.page)} title={t.tools.edit.preview.sendBackward} aria-label={t.tools.edit.preview.sendBackward} className="grid size-8 place-items-center rounded border border-line text-muted disabled:opacity-30"><Icon name="down" className="size-4" /></button>
@@ -350,6 +390,8 @@ function EditorObject({ item, selected, editing, onSelect, onResize, onDelete, o
   if (item.type === 'pencil') return <><svg viewBox="0 0 1 1" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 size-full overflow-visible" style={{ transform: `rotate(${item.rotation ?? 0}deg)`, transformOrigin: 'center' }}><polyline points={(item.points ?? []).map((point) => `${point.x},${point.y}`).join(' ')} fill="none" stroke={item.color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={item.borderWidth} vectorEffect="non-scaling-stroke" /></svg><div onPointerDown={onSelect} className={`absolute ${selected ? 'ring-2 ring-accent' : ''}`} style={common}>{selected && <><RotateControl rotation={item.rotation ?? 0} onRotateStart={onRotateStart} /><DeleteControl rotation={item.rotation ?? 0} onDelete={onDelete} /></>}</div></>
   if (item.type === 'image' && item.imageData) return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><img src={item.imageData} alt="" className="h-full w-full object-contain" /></SelectableBox>
   if (item.type === 'text') return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><div onDoubleClick={(event) => { event.stopPropagation(); onEdit() }} className="flex size-full overflow-hidden whitespace-pre-wrap p-1" style={{ color: item.color, backgroundColor: item.bgColor, border: 'none', fontFamily: item.font, fontSize: `${item.fontSize * .75}px`, fontWeight: item.bold ? 700 : 400, fontStyle: item.italic ? 'italic' : 'normal', textDecoration: item.underline ? 'underline' : 'none', textAlign: item.align as 'left' | 'center' | 'right', justifyContent: item.align === 'center' ? 'center' : item.align === 'right' ? 'flex-end' : 'flex-start' }}>{editing ? <textarea autoFocus value={textDraft} onPointerDown={(event) => event.stopPropagation()} onChange={(event) => onTextChange(event.target.value)} onBlur={onTextCommit} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); onTextCommit() } if (event.key === 'Escape') { event.preventDefault(); onTextCommit() } }} className="size-full resize-none border-0 bg-transparent p-0 text-inherit outline-none" /> : item.text}</div></SelectableBox>
+  if (item.type === 'highlight') return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><div className="size-full" style={{ backgroundColor: item.color }} /></SelectableBox>
+  if (item.type === 'underlineText' || item.type === 'strikeText') return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><div className="relative size-full"><span className="absolute inset-x-0 h-0.5" style={{ backgroundColor: item.color, top: item.type === 'strikeText' ? '50%' : 'calc(100% - 2px)' }} /></div></SelectableBox>
   if (item.type === 'triangle') return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><svg viewBox="0 0 100 100" preserveAspectRatio="none" className="size-full overflow-visible"><polygon points="50,0 100,100 0,100" fill={item.bgColor} stroke={item.borderColor} strokeWidth={item.borderWidth * 2} vectorEffect="non-scaling-stroke" strokeLinejoin="round" /></svg></SelectableBox>
   return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><div className="size-full" style={{ backgroundColor: item.bgColor, borderRadius: item.type === 'ellipse' ? '50%' : 0, border: border }} /></SelectableBox>
 }

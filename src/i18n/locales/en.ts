@@ -728,10 +728,10 @@ export const en: typeof es = {
       note: 'Elements are placed as new content over the page. The original PDF text is not modified.',
       preview: {
         title: 'PDF editor', hint: 'Choose a tool and draw on the page. Use the hand to select and move elements.',
-        hand: 'Select and move', organizeLabel: 'Arrange', bringForward: 'Bring forward', sendBackward: 'Send backward', alignHorizontal: 'Center horizontally', alignVertical: 'Center vertically', text: 'Add text', image: 'Add image', pencil: 'Draw with pencil', shape: 'Add shape',
+        hand: 'Select and move', organizeLabel: 'Arrange', bringForward: 'Bring forward', sendBackward: 'Send backward', alignHorizontal: 'Center horizontally', alignVertical: 'Center vertically', text: 'Add text', image: 'Add image', pencil: 'Draw with pencil', shape: 'Add shape', highlight: 'Highlight text', underlineText: 'Underline text', strikeText: 'Strike through text',
         color: 'Text / stroke', borderColor: 'Border color', strokeWidth: 'Width', alignment: 'Alignment', background: 'Background', transparent: 'Transparent', opacity: 'Opacity', style: 'Style', content: 'Text', font: 'Font', size: 'Size',
         rectangle: 'Rectangle', ellipse: 'Ellipse', triangle: 'Triangle', alignLeft: 'Left', alignCenter: 'Center', alignRight: 'Right',
-        delete: 'Delete', rotate: 'Rotate', resize: 'Resize', pageNumber: 'Page number', boldMark: 'B', italicMark: 'I', underlineMark: 'U', defaultText: 'Write here', pageOf: 'Page {n} of {total}', prevPage: 'Previous page', nextPage: 'Next page',
+        delete: 'Delete', rotate: 'Rotate', resize: 'Resize', undo: 'Undo', redo: 'Redo', pageNumber: 'Page number', boldMark: 'B', italicMark: 'I', underlineMark: 'U', defaultText: 'Write here', pageOf: 'Page {n} of {total}', prevPage: 'Previous page', nextPage: 'Next page',
       },
     },
     redact: {

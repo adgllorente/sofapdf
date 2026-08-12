@@ -6,7 +6,7 @@ import type { ToolRun } from '@/tools/types'
 
 type Point = { x: number; y: number }
 type EditObject = {
-  type: 'text' | 'image' | 'pencil' | 'rect' | 'ellipse' | 'triangle'; page: number; x: number; y: number
+  type: 'text' | 'image' | 'pencil' | 'rect' | 'ellipse' | 'triangle' | 'highlight' | 'underlineText' | 'strikeText'; page: number; x: number; y: number
   width: number; height: number; color: string; bgColor: string; borderColor: string
   borderWidth: number; opacity: number; font: string; fontSize: number; bold: boolean
   italic: boolean; underline: boolean; align: string; text: string; points?: Point[]; imageData?: string
@@ -57,7 +57,12 @@ export const run: ToolRun = async (files, values, ctx) => {
     const { width, height } = page.getSize()
     const x = item.x * width, y = height - (item.y + item.height) * height
     const opacity = Math.max(0.05, Math.min(1, item.opacity || 1))
-    if (item.type === 'text') {
+    if (item.type === 'highlight') {
+      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: color(item.color), opacity, rotate: degrees(item.rotation ?? 0) })
+    } else if (item.type === 'underlineText' || item.type === 'strikeText') {
+      const lineY = item.type === 'strikeText' ? y + item.height * height / 2 : y + item.borderWidth
+      page.drawLine({ start: { x, y: lineY }, end: { x: x + item.width * width, y: lineY }, thickness: Math.max(1, item.borderWidth), color: color(item.color), opacity })
+    } else if (item.type === 'text') {
       const key = fontName(item)
       let font = fonts.get(key)
       if (!font) { font = await document_.embedFont(key); fonts.set(key, font) }

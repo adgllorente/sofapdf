@@ -733,10 +733,10 @@ export const es = {
       note: 'Los elementos se colocan como contenido nuevo sobre la página. El texto original del PDF no se modifica.',
       preview: {
         title: 'Editor PDF', hint: 'Elige una herramienta y dibuja sobre la página. Usa la mano para seleccionar y mover elementos.',
-        hand: 'Seleccionar y mover', organizeLabel: 'Organizar', bringForward: 'Traer adelante', sendBackward: 'Enviar atrás', alignHorizontal: 'Centrar horizontalmente', alignVertical: 'Centrar verticalmente', text: 'Añadir texto', image: 'Añadir imagen', pencil: 'Dibujar con lápiz', shape: 'Añadir forma',
+        hand: 'Seleccionar y mover', organizeLabel: 'Organizar', bringForward: 'Traer adelante', sendBackward: 'Enviar atrás', alignHorizontal: 'Centrar horizontalmente', alignVertical: 'Centrar verticalmente', text: 'Añadir texto', image: 'Añadir imagen', pencil: 'Dibujar con lápiz', shape: 'Añadir forma', highlight: 'Resaltar texto', underlineText: 'Subrayar texto', strikeText: 'Tachar texto',
         color: 'Texto / trazo', borderColor: 'Color del borde', strokeWidth: 'Grosor', alignment: 'Alineación', background: 'Fondo', transparent: 'Transparente', opacity: 'Opacidad', style: 'Estilo', content: 'Texto', font: 'Fuente', size: 'Tamaño',
         rectangle: 'Rectángulo', ellipse: 'Elipse', triangle: 'Triángulo', alignLeft: 'Izquierda', alignCenter: 'Centro', alignRight: 'Derecha',
-        delete: 'Eliminar', rotate: 'Rotar', resize: 'Cambiar tamaño', pageNumber: 'Número de página', boldMark: 'B', italicMark: 'I', underlineMark: 'U', defaultText: 'Escribe aquí', pageOf: 'Página {n} de {total}', prevPage: 'Página anterior', nextPage: 'Página siguiente',
+        delete: 'Eliminar', rotate: 'Rotar', resize: 'Cambiar tamaño', undo: 'Deshacer', redo: 'Rehacer', pageNumber: 'Número de página', boldMark: 'B', italicMark: 'I', underlineMark: 'U', defaultText: 'Escribe aquí', pageOf: 'Página {n} de {total}', prevPage: 'Página anterior', nextPage: 'Página siguiente',
       },
     },
     redact: {
