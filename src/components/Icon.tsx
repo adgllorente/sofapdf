@@ -6,6 +6,7 @@ const PATHS = {
   merge: 'M8 3v5a4 4 0 0 0 4 4h8m0 0-3-3m3 3-3 3M4 21h4M4 17h4M4 13h2',
   split: 'M20 3h-4a4 4 0 0 0-4 4v10a4 4 0 0 0 4 4h4M12 12H3m0 0 3-3m-3 3 3 3',
   filePlus: 'M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zm0 0v5h5M12 15v5m-2.5-2.5h5',
+  copy: 'M8 8h11v13H8zM5 16H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1',
   compress: 'M4 9h16M4 15h16M9 4l3 3 3-3M9 20l3-3 3 3',
   rotate: 'M21 12a9 9 0 1 1-3-6.7M21 4v5h-5',
   image: 'M3 5h18v14H3zM3 16l5-5 4 4 3-3 6 6',

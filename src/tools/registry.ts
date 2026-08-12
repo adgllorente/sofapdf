@@ -66,6 +66,21 @@ export const TOOLS: Tool[] = [
     load: () => import('./impl/insert').then((m) => m.run),
   },
   {
+    slug: 'duplicate',
+    icon: 'copy',
+    category: 'paginas',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    workflow: true,
+    options: [
+      { key: 'pages', type: 'text', default: '1-', placeholder: '1-3, 5, 9-' },
+      { key: 'copies', type: 'number', default: 2, min: 2, max: 100 },
+    ],
+    load: () => import('./impl/duplicate').then((m) => m.run),
+  },
+  {
     slug: 'rotate',
     icon: 'rotate',
     category: 'paginas',

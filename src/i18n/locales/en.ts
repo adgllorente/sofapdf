@@ -244,6 +244,7 @@ export const en: typeof es = {
     emptySelection: 'The page selection is empty.',
     noPage: 'Page {page} does not exist.',
     noPageOf: 'Page {page} does not exist: the document has {total}.',
+    invalidCopies: 'The number of copies must be an integer between 2 and 100.',
     exportPage: 'Page {page} could not be exported.',
     noImages: 'No image could be read.',
     emptyPassword: 'Enter a password.',
@@ -280,6 +281,7 @@ export const en: typeof es = {
     flattened: 'flattened',
     rotated: 'rotated',
     inserted: 'inserted',
+    duplicated: 'duplicated',
     repaired: 'repaired',
     protected: 'protected',
     unlocked: 'unlocked',
@@ -363,6 +365,20 @@ export const en: typeof es = {
           label: 'Orientation',
           choices: { portrait: 'Portrait', landscape: 'Landscape' },
         },
+      },
+    },
+    duplicate: {
+      name: 'Duplicate pages',
+      short: 'Repeat the pages you choose within the same PDF.',
+      description:
+        'Duplicates a page selection as many times as you specify. The rest of the document keeps its order, size and orientation.',
+      action: 'Duplicate pages',
+      options: {
+        pages: {
+          label: 'Pages',
+          help: 'Use comma-separated ranges, for example: 1-3, 5, 9-.',
+        },
+        copies: { label: 'Number of copies' },
       },
     },
     rotate: {

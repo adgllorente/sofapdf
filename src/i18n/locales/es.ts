@@ -248,6 +248,7 @@ export const es = {
     emptySelection: 'La selección de páginas está vacía.',
     noPage: 'La página {page} no existe.',
     noPageOf: 'La página {page} no existe: el documento tiene {total}.',
+    invalidCopies: 'El número de copias debe ser un entero entre 2 y 100.',
     exportPage: 'No se pudo exportar la página {page}.',
     noImages: 'No se pudo leer ninguna imagen.',
     emptyPassword: 'Escribe una contraseña.',
@@ -285,6 +286,7 @@ export const es = {
     flattened: 'aplanado',
     rotated: 'rotado',
     inserted: 'insertado',
+    duplicated: 'duplicado',
     repaired: 'reparado',
     protected: 'protegido',
     unlocked: 'sin-contraseña',
@@ -368,6 +370,20 @@ export const es = {
           label: 'Orientación',
           choices: { portrait: 'Vertical', landscape: 'Horizontal' },
         },
+      },
+    },
+    duplicate: {
+      name: 'Duplicar páginas',
+      short: 'Repite las páginas que elijas dentro del mismo PDF.',
+      description:
+        'Duplica una selección de páginas tantas veces como indiques. El resto del documento conserva su orden, tamaño y orientación.',
+      action: 'Duplicar páginas',
+      options: {
+        pages: {
+          label: 'Páginas',
+          help: 'Usa rangos separados por comas, por ejemplo: 1-3, 5, 9-.',
+        },
+        copies: { label: 'Número de copias' },
       },
     },
     rotate: {

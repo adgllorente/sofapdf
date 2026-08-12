@@ -56,6 +56,7 @@ export type ToolSlug =
   | 'merge'
   | 'split'
   | 'insert'
+  | 'duplicate'
   | 'rotate'
   | 'organize'
   | 'jpg-to-pdf'
