@@ -54,14 +54,37 @@ function ToolsSection() {
     >
       <Link
         to="/workflow"
-        className="flex items-center gap-3 rounded-card border border-accent-line bg-accent-soft px-4 py-3 text-accent transition hover:border-accent"
+        className="group relative block overflow-hidden rounded-card border border-accent-line bg-accent-soft px-6 py-7 transition hover:border-accent sm:px-8 sm:py-9"
       >
-        <Icon name="workflow" className="size-5 shrink-0" />
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold">{t.workflow.badge}</span>
-          <span className="block text-xs text-muted">{t.workflow.badgeBody}</span>
-        </span>
-        <Icon name="arrowLeft" className="size-4 rotate-180" />
+        <div className="pointer-events-none absolute -top-20 -right-16 size-56 rounded-full bg-accent/10 blur-2xl" />
+        <div className="relative grid items-center gap-8 sm:grid-cols-[1fr_auto]">
+          <span className="min-w-0">
+            <span className="inline-flex items-center gap-2 rounded-full border border-accent-line bg-surface/70 px-3 py-1 text-xs font-semibold tracking-wide text-accent uppercase">
+              <Icon name="workflow" className="size-3.5" strokeWidth={2} />
+              {t.workflow.badge}
+            </span>
+            <span className="mt-4 block max-w-xl text-2xl leading-tight font-semibold tracking-tight text-ink sm:text-3xl">
+              {t.workflow.badge}
+            </span>
+            <span className="mt-2 block max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg">
+              {t.workflow.badgeBody}
+            </span>
+          </span>
+
+          <span aria-hidden="true" className="hidden items-center gap-2 sm:flex">
+            <span className="grid size-14 place-items-center rounded-2xl border border-accent-line bg-surface text-accent shadow-sm">
+              <Icon name="file" className="size-6" />
+            </span>
+            <Icon name="arrowLeft" className="size-5 rotate-180 text-accent/70" />
+            <span className="grid size-16 place-items-center rounded-2xl bg-accent text-on-accent shadow-lg shadow-accent/20 transition group-hover:scale-105">
+              <Icon name="workflow" className="size-8" strokeWidth={1.5} />
+            </span>
+            <Icon name="arrowLeft" className="size-5 rotate-180 text-accent/70" />
+            <span className="grid size-14 place-items-center rounded-2xl border border-accent-line bg-surface text-accent shadow-sm">
+              <Icon name="check" className="size-6" strokeWidth={2} />
+            </span>
+          </span>
+        </div>
       </Link>
 
       <div role="tablist" className="flex flex-wrap gap-2">

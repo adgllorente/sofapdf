@@ -159,15 +159,37 @@ function WorkflowRunner() {
         {t.run.back}
       </Link>
 
-      <header className="mt-6 flex gap-4">
-        <span className="grid size-11 shrink-0 place-items-center rounded-lg border border-accent-line bg-accent-soft text-accent">
-          <Icon name="workflow" />
-        </span>
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">{t.workflow.title}</h1>
-          <p className="mt-1.5 text-[15px] leading-relaxed text-muted">{t.workflow.description}</p>
+      <section className="relative mt-6 overflow-hidden rounded-card border border-accent-line bg-accent-soft px-6 py-7 sm:px-8 sm:py-9">
+        <div className="pointer-events-none absolute -top-20 -right-16 size-56 rounded-full bg-accent/10 blur-2xl" />
+        <div className="relative grid items-center gap-8 sm:grid-cols-[1fr_auto]">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-accent-line bg-surface/70 px-3 py-1 text-xs font-semibold tracking-wide text-accent uppercase">
+              <Icon name="workflow" className="size-3.5" strokeWidth={2} />
+              {t.workflow.badge}
+            </span>
+            <h1 className="mt-4 max-w-xl text-3xl leading-tight font-semibold tracking-tight text-ink text-balance sm:text-4xl">
+              {t.workflow.title}
+            </h1>
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg">
+              {t.workflow.description}
+            </p>
+          </div>
+
+          <div aria-hidden="true" className="hidden items-center gap-2 sm:flex">
+            <span className="grid size-14 place-items-center rounded-2xl border border-accent-line bg-surface text-accent shadow-sm">
+              <Icon name="file" className="size-6" />
+            </span>
+            <Icon name="arrowLeft" className="size-5 rotate-180 text-accent/70" />
+            <span className="grid size-16 place-items-center rounded-2xl bg-accent text-on-accent shadow-lg shadow-accent/20">
+              <Icon name="workflow" className="size-8" strokeWidth={1.5} />
+            </span>
+            <Icon name="arrowLeft" className="size-5 rotate-180 text-accent/70" />
+            <span className="grid size-14 place-items-center rounded-2xl border border-accent-line bg-surface text-accent shadow-sm">
+              <Icon name="check" className="size-6" strokeWidth={2} />
+            </span>
+          </div>
         </div>
-      </header>
+      </section>
 
       <aside className="mt-5 rounded-card border border-line bg-subtle px-4 py-3 text-sm text-ink-soft">
         <p className="font-semibold text-ink">{t.workflow.limitationTitle}</p>
