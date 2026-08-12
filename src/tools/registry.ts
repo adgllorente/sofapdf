@@ -403,6 +403,16 @@ export const TOOLS: Tool[] = [
     load: () => import('./impl/metadata').then((m) => m.run),
     Preview: MetadataPreview,
   },
+  {
+    slug: 'report',
+    icon: 'code',
+    category: 'conversiones',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    load: () => import('./impl/report').then((m) => m.run),
+  },
 ]
 
 export function getTool(slug: string | undefined): Tool | undefined {

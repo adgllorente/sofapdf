@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Dropzone } from '@/components/Dropzone'
 import { Icon } from '@/components/Icon'
@@ -261,6 +261,12 @@ function ToolRunner({ tool }: { tool: Tool }) {
               ))}
             </ul>
 
+            {outputs
+              .filter((output) => output.blob.type.startsWith('text/plain'))
+              .map((output) => (
+                <TextOutputPreview key={output.name} output={output} />
+              ))}
+
             <p className="border-t border-line px-5 py-3 text-xs text-muted">{t.run.ephemeral}</p>
           </section>
         )}
@@ -275,5 +281,31 @@ function ToolRunner({ tool }: { tool: Tool }) {
         />
       )}
     </div>
+  )
+}
+
+function TextOutputPreview({ output }: { output: OutputFile }) {
+  const [content, setContent] = useState('')
+
+  useEffect(() => {
+    let active = true
+    void output.blob.text().then((value) => {
+      if (active) setContent(value)
+    })
+    return () => {
+      active = false
+    }
+  }, [output])
+
+  return (
+    <section className="border-t border-line px-5 py-4">
+      <h3 className="flex items-center gap-2 text-sm font-semibold text-ink">
+        <Icon name="eye" className="size-4 text-accent" />
+        {t.run.textPreview}
+      </h3>
+      <pre className="mt-3 max-h-96 overflow-auto whitespace-pre-wrap rounded-lg border border-line bg-subtle p-4 font-mono text-xs leading-relaxed text-ink-soft">
+        {content}
+      </pre>
+    </section>
   )
 }

@@ -78,6 +78,7 @@ export type ToolSlug =
   | 'redact'
   | 'edit'
   | 'metadata'
+  | 'report'
 
 /** Familia de formatos aceptados; su etiqueta visible está en el diccionario. */
 export type AcceptKey = 'pdf' | 'image' | 'html'
