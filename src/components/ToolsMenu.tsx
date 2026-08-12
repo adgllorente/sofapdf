@@ -7,9 +7,6 @@ import { CATEGORY_IDS, sortTools, TOOLS } from '@/tools/registry'
 import { toolText } from '@/i18n/tools'
 import { Icon } from './Icon'
 
-/** Banderas como emoji: cero peticiones y cero SVG que mantener. */
-const FLAGS: Record<Locale, string> = { es: '🇪🇸', en: '🇬🇧' }
-
 type Theme = 'light' | 'dark'
 const THEME_KEY = 'theme'
 
@@ -129,7 +126,7 @@ export function ToolsMenu() {
             {LOCALES.map((option) => (
               <Choice
                 key={option}
-                icon={<span aria-hidden="true">{FLAGS[option]}</span>}
+                icon={<Icon name="languages" className="size-4" />}
                 label={t.locale.names[option]}
                 active={locale === option}
                 onClick={() => setLocaleAndClose(option)}
