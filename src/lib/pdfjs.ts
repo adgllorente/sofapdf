@@ -61,3 +61,4 @@ export function getPdfDocument(data: Uint8Array) {
 }
 
 export { pdfjs }
+export { wasmUrl }

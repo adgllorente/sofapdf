@@ -301,6 +301,17 @@ export const TOOLS: Tool[] = [
     load: () => import('./impl/compress').then((m) => m.run),
   },
   {
+    slug: 'grayscale',
+    icon: 'contrast',
+    category: 'conversiones',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    workflow: true,
+    load: () => import('./impl/grayscale').then((m) => m.run),
+  },
+  {
     slug: 'flatten',
     icon: 'archive',
     category: 'conversiones',

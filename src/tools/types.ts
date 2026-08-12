@@ -69,6 +69,7 @@ export type ToolSlug =
   | 'crop'
   | 'compare'
   | 'compress'
+  | 'grayscale'
   | 'flatten'
   | 'repair'
   | 'ocr'

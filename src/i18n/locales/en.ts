@@ -284,6 +284,7 @@ export const en: typeof es = {
     selection: 'selection',
     numbered: 'numbered',
     compressed: 'compressed',
+    grayscale: 'grayscale',
     flattened: 'flattened',
     rotated: 'rotated',
     inserted: 'inserted',
@@ -309,6 +310,7 @@ export const en: typeof es = {
     reading: 'Reading {name}',
     readingPdf: 'Reading the PDF',
     compressingImages: 'Compressing images',
+    grayscalingImages: 'Converting images to grayscale',
     extractingImages: 'Extracting images',
     writingPdf: 'Writing the PDF',
     repairing: 'Rebuilding the structure',
@@ -643,6 +645,14 @@ export const en: typeof es = {
           },
         },
       },
+    },
+    grayscale: {
+      name: 'Grayscale PDF',
+      short: 'Convert a PDF to black and white for printing or a smaller file.',
+      description:
+        'Converts text and graphics colours to luminance and re-encodes JPEG images as grayscale. Text remains text and is not rasterised.',
+      action: 'Convert to grayscale',
+      note: 'Transparency, colour profiles, and image formats other than JPEG may retain some of their original behaviour or colour.',
     },
     flatten: {
       name: 'Flatten PDF',

@@ -289,6 +289,7 @@ export const es = {
     selection: 'seleccion',
     numbered: 'numerado',
     compressed: 'comprimido',
+    grayscale: 'escala-grises',
     flattened: 'aplanado',
     rotated: 'rotado',
     inserted: 'insertado',
@@ -314,6 +315,7 @@ export const es = {
     reading: 'Leyendo {name}',
     readingPdf: 'Leyendo el PDF',
     compressingImages: 'Comprimiendo imágenes',
+    grayscalingImages: 'Convirtiendo imágenes a escala de grises',
     extractingImages: 'Extrayendo imágenes',
     writingPdf: 'Escribiendo el PDF',
     repairing: 'Reconstruyendo la estructura',
@@ -648,6 +650,14 @@ export const es = {
           },
         },
       },
+    },
+    grayscale: {
+      name: 'Escala de grises',
+      short: 'Convierte el PDF a blanco y negro para imprimir o reducir su peso.',
+      description:
+        'Convierte los colores de texto y gráficos a luminancia y re-encodea las imágenes JPEG en escala de grises. El texto sigue siendo texto y no se rasteriza.',
+      action: 'Convertir a escala de grises',
+      note: 'Las transparencias, perfiles de color y formatos de imagen distintos de JPEG pueden conservar parte de su comportamiento o color original.',
     },
     flatten: {
       name: 'Aplanar PDF',
