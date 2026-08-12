@@ -80,6 +80,11 @@ export const es = {
       short: 'Organizar',
       blurb: 'Reordena, anota y ajusta el contenido de las páginas.',
     },
+    edicion: {
+      name: 'Edición',
+      short: 'Editar',
+      blurb: 'Modifica las páginas y añade contenido al PDF.',
+    },
     conversiones: {
       name: 'Conversiones',
       short: 'Convertir',

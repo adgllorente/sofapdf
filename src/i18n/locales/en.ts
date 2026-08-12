@@ -76,6 +76,11 @@ export const en: typeof es = {
       short: 'Organise',
       blurb: 'Reorder, annotate and adjust the contents of your pages.',
     },
+    edicion: {
+      name: 'Editing',
+      short: 'Edit',
+      blurb: 'Modify pages and add content to the PDF.',
+    },
     conversiones: {
       name: 'Conversions',
       short: 'Convert',

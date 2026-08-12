@@ -10,6 +10,7 @@ import { MetadataPreview } from './MetadataPreview'
 /** Los ids son estables: se usan como ancla en la URL y como clave del diccionario. */
 export const CATEGORY_IDS: ToolCategoryId[] = [
   'paginas',
+  'edicion',
   'conversiones',
   'seguridad',
 ]
@@ -51,7 +52,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'insert',
     icon: 'filePlus',
-    category: 'paginas',
+    category: 'edicion',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -68,7 +69,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'duplicate',
     icon: 'copy',
-    category: 'paginas',
+    category: 'edicion',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -83,7 +84,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'rotate',
     icon: 'rotate',
-    category: 'paginas',
+    category: 'edicion',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -109,7 +110,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'number',
     icon: 'hash',
-    category: 'paginas',
+    category: 'edicion',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -140,7 +141,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'watermark',
     icon: 'droplet',
-    category: 'paginas',
+    category: 'edicion',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -173,7 +174,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'crop',
     icon: 'crop',
-    category: 'paginas',
+    category: 'edicion',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -365,7 +366,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'edit',
     icon: 'edit',
-    category: 'paginas',
+    category: 'edicion',
     status: 'ready',
     ...PDF,
     multiple: false,
