@@ -110,7 +110,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'remove-blank-pages',
     icon: 'trash',
-    category: 'paginas',
+    category: 'edicion',
     status: 'ready',
     ...PDF,
     multiple: false,
