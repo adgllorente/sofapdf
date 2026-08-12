@@ -297,6 +297,7 @@ export const en: typeof es = {
     watermark: 'watermark',
     signed: 'signed',
     organized: 'organised',
+    nUp: 'n-up',
     blankPagesRemoved: 'without-blank-pages',
     cropped: 'cropped',
     redacted: 'redacted',
@@ -323,6 +324,7 @@ export const en: typeof es = {
     decrypting: 'Decrypting the document',
     flattening: 'Flattening the form fields',
     removingBlankPages: 'Removing blank pages',
+    sheet: 'Composing sheet {n} of {total}',
     done: 'Done',
   },
 
@@ -468,6 +470,19 @@ export const en: typeof es = {
         reset: 'Reset order',
         empty: 'No pages left. Duplicate one to get started.',
         count: '{n} pages',
+      },
+    },
+    'n-up': {
+      name: 'Multiple pages per sheet',
+      short: 'Place 2, 4, 6, or 8 pages on each sheet.',
+      description: 'Creates a print-ready PDF with multiple pages per sheet, scaled without distortion and processed entirely in the browser.',
+      action: 'Compose sheets',
+      options: {
+        pagesPerSheet: { label: 'Pages per sheet', choices: { '2': '2 pages', '4': '4 pages', '6': '6 pages', '8': '8 pages' } },
+        orientation: { label: 'Orientation', choices: { portrait: 'Portrait', landscape: 'Landscape' } },
+        margin: { label: 'Margin (pt)' },
+        order: { label: 'Reading order', choices: { rows: 'Rows first', columns: 'Columns first' } },
+        lines: { label: 'Separator lines' },
       },
     },
     'remove-blank-pages': {

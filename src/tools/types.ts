@@ -59,6 +59,7 @@ export type ToolSlug =
   | 'duplicate'
   | 'rotate'
   | 'organize'
+  | 'n-up'
   | 'remove-blank-pages'
   | 'jpg-to-pdf'
   | 'pdf-to-jpg'

@@ -302,6 +302,7 @@ export const es = {
     watermark: 'marca-de-agua',
     signed: 'firmado',
     organized: 'organizado',
+    nUp: 'varias-por-hoja',
     blankPagesRemoved: 'sin-paginas-en-blanco',
     cropped: 'recortado',
     redacted: 'censurado',
@@ -328,6 +329,7 @@ export const es = {
     decrypting: 'Descifrando el documento',
     flattening: 'Aplanando los campos del formulario',
     removingBlankPages: 'Eliminando páginas en blanco',
+    sheet: 'Componiendo hoja {n} de {total}',
     done: 'Listo',
   },
 
@@ -473,6 +475,19 @@ export const es = {
         reset: 'Restablecer orden',
         empty: 'No queda ninguna página. Duplica alguna para empezar.',
         count: '{n} páginas',
+      },
+    },
+    'n-up': {
+      name: 'Varias páginas por hoja',
+      short: 'Coloca 2, 4, 6 u 8 páginas en cada hoja.',
+      description: 'Crea un PDF listo para imprimir con varias páginas por hoja, ajustadas sin deformarlas y procesadas por completo en el navegador.',
+      action: 'Componer hojas',
+      options: {
+        pagesPerSheet: { label: 'Páginas por hoja', choices: { '2': '2 páginas', '4': '4 páginas', '6': '6 páginas', '8': '8 páginas' } },
+        orientation: { label: 'Orientación', choices: { portrait: 'Vertical', landscape: 'Horizontal' } },
+        margin: { label: 'Margen (pt)' },
+        order: { label: 'Orden de lectura', choices: { rows: 'Por filas', columns: 'Por columnas' } },
+        lines: { label: 'Líneas de separación' },
       },
     },
     'remove-blank-pages': {
