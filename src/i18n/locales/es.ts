@@ -284,6 +284,7 @@ export const es = {
     compressed: 'comprimido',
     flattened: 'aplanado',
     rotated: 'rotado',
+    inserted: 'insertado',
     repaired: 'reparado',
     protected: 'protegido',
     unlocked: 'sin-contraseña',
@@ -315,7 +316,7 @@ export const es = {
     done: 'Listo',
   },
 
-  tools: {
+    tools: {
     merge: {
       name: 'Unir PDF',
       short: 'Combina varios documentos en uno solo, en el orden que elijas.',
@@ -341,6 +342,31 @@ export const es = {
         ranges: {
           label: 'Páginas',
           help: 'Rangos separados por comas. Deja "1-" para todo el documento.',
+        },
+      },
+    },
+    insert: {
+      name: 'Añadir páginas en blanco',
+      short: 'Inserta una o varias páginas en blanco donde quieras.',
+      description:
+        'Añade páginas nuevas antes o después de las páginas que indiques, con el tamaño y la orientación que elijas.',
+      action: 'Añadir páginas',
+      options: {
+        pages: {
+          label: 'Páginas de referencia',
+          help: 'Escribe una o varias páginas separadas por comas, por ejemplo: 2, 5, 8.',
+        },
+        position: {
+          label: 'Insertar',
+          choices: { before: 'Antes de cada página', after: 'Después de cada página' },
+        },
+        pageSize: {
+          label: 'Tamaño de la página',
+          choices: { a4: 'A4', letter: 'Carta' },
+        },
+        orientation: {
+          label: 'Orientación',
+          choices: { portrait: 'Vertical', landscape: 'Horizontal' },
         },
       },
     },

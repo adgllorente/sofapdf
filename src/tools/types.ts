@@ -55,6 +55,7 @@ export type ToolCategoryId = 'paginas' | 'conversiones' | 'seguridad'
 export type ToolSlug =
   | 'merge'
   | 'split'
+  | 'insert'
   | 'rotate'
   | 'organize'
   | 'jpg-to-pdf'

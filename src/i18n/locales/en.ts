@@ -279,6 +279,7 @@ export const en: typeof es = {
     compressed: 'compressed',
     flattened: 'flattened',
     rotated: 'rotated',
+    inserted: 'inserted',
     repaired: 'repaired',
     protected: 'protected',
     unlocked: 'unlocked',
@@ -336,6 +337,31 @@ export const en: typeof es = {
         ranges: {
           label: 'Pages',
           help: 'Comma-separated ranges. Leave "1-" for the whole document.',
+        },
+      },
+    },
+    insert: {
+      name: 'Add blank pages',
+      short: 'Insert one or more blank pages wherever you need them.',
+      description:
+        'Adds new pages before or after the pages you choose, using the size and orientation you select.',
+      action: 'Add pages',
+      options: {
+        pages: {
+          label: 'Reference pages',
+          help: 'Enter one or more pages separated by commas, for example: 2, 5, 8.',
+        },
+        position: {
+          label: 'Insert',
+          choices: { before: 'Before each page', after: 'After each page' },
+        },
+        pageSize: {
+          label: 'Page size',
+          choices: { a4: 'A4', letter: 'Letter' },
+        },
+        orientation: {
+          label: 'Orientation',
+          choices: { portrait: 'Portrait', landscape: 'Landscape' },
         },
       },
     },

@@ -49,6 +49,23 @@ export const TOOLS: Tool[] = [
     load: () => import('./impl/split').then((m) => m.run),
   },
   {
+    slug: 'insert',
+    icon: 'filePlus',
+    category: 'paginas',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    workflow: true,
+    options: [
+      { key: 'pages', type: 'text', default: '1', placeholder: '2, 5, 8' },
+      { key: 'position', type: 'select', default: 'before', choices: ['before', 'after'] },
+      { key: 'pageSize', type: 'select', default: 'a4', choices: ['a4', 'letter'] },
+      { key: 'orientation', type: 'select', default: 'portrait', choices: ['portrait', 'landscape'] },
+    ],
+    load: () => import('./impl/insert').then((m) => m.run),
+  },
+  {
     slug: 'rotate',
     icon: 'rotate',
     category: 'paginas',
