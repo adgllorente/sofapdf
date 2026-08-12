@@ -13,7 +13,7 @@ export const run: ToolRun = async (files, values, ctx) => {
 
   const groups =
     mode === 'each'
-      ? source.getPageIndices().map((index) => [index])
+      ? expandRanges(parseRanges(String(values.ranges), pageCount)).map((index) => [index])
       : mode === 'extract'
         ? [expandRanges(parseRanges(String(values.ranges), pageCount))]
         : parseRanges(String(values.ranges), pageCount).map(({ from, to }) =>
