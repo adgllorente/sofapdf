@@ -96,6 +96,7 @@ export type ToolSlug =
   | 'edit'
   | 'metadata'
   | 'report'
+  | 'accessibility'
   | 'bookmarks'
 
 /** Familia de formatos aceptados; su etiqueta visible está en el diccionario. */

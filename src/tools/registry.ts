@@ -495,6 +495,16 @@ export const TOOLS: Tool[] = [
     minFiles: 1,
     load: () => import('./impl/report').then((m) => m.run),
   },
+  {
+    slug: 'accessibility',
+    icon: 'accessibility',
+    category: 'metadatos',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    load: () => import('./impl/accessibility').then((m) => m.run),
+  },
 ]
 
 export function getTool(slug: string | undefined): Tool | undefined {
