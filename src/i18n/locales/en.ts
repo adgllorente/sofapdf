@@ -72,29 +72,34 @@ export const en: typeof es = {
 
   categories: {
     paginas: {
-      name: 'Organise and manage',
+      name: 'Organise pages',
       short: 'Organise',
-      blurb: 'Reorder, annotate and adjust the contents of your pages.',
+      blurb: 'Reorder, insert, remove and adjust PDF pages.',
     },
     edicion: {
-      name: 'Editing',
+      name: 'Edit and annotate',
       short: 'Edit',
-      blurb: 'Modify pages and add content to the PDF.',
+      blurb: 'Add content, annotations and signatures to the PDF.',
     },
     conversiones: {
-      name: 'Conversions',
+      name: 'Convert and extract',
       short: 'Convert',
-      blurb: 'Switch formats, shrink the file, or repair it.',
+      blurb: 'Switch formats or extract content from the document.',
+    },
+    optimizacion: {
+      name: 'Optimise and repair',
+      short: 'Optimise',
+      blurb: 'Reduce, flatten, transform or repair the PDF.',
     },
     metadatos: {
-      name: 'Metadata',
-      short: 'Metadata',
-      blurb: 'View and edit the PDF’s internal information.',
+      name: 'Document information',
+      short: 'Information',
+      blurb: 'Compare, inspect and edit PDF information.',
     },
     seguridad: {
-      name: 'Security',
+      name: 'Security and privacy',
       short: 'Security',
-      blurb: 'Passwords, signatures and sensitive content.',
+      blurb: 'Passwords and sensitive content.',
     },
   },
 

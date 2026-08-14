@@ -53,6 +53,7 @@ export type ToolCategoryId =
   | 'paginas'
   | 'edicion'
   | 'conversiones'
+  | 'optimizacion'
   | 'metadatos'
   | 'seguridad'
 

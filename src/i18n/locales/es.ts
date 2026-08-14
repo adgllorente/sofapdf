@@ -76,29 +76,34 @@ export const es = {
 
   categories: {
     paginas: {
-      name: 'Organizar y gestionar',
+      name: 'Organizar páginas',
       short: 'Organizar',
-      blurb: 'Reordena, anota y ajusta el contenido de las páginas.',
+      blurb: 'Reordena, inserta, elimina y ajusta páginas del PDF.',
     },
     edicion: {
-      name: 'Edición',
+      name: 'Editar y anotar',
       short: 'Editar',
-      blurb: 'Modifica las páginas y añade contenido al PDF.',
+      blurb: 'Añade contenido, anotaciones y firmas al PDF.',
     },
     conversiones: {
-      name: 'Conversiones',
+      name: 'Convertir y extraer',
       short: 'Convertir',
-      blurb: 'Cambia de formato, reduce peso o repara el documento.',
+      blurb: 'Cambia de formato o extrae contenido del documento.',
+    },
+    optimizacion: {
+      name: 'Optimizar y reparar',
+      short: 'Optimizar',
+      blurb: 'Reduce, aplana, transforma o repara el PDF.',
     },
     metadatos: {
-      name: 'Metadatos',
-      short: 'Metadatos',
-      blurb: 'Consulta y edita la información interna del PDF.',
+      name: 'Información del documento',
+      short: 'Información',
+      blurb: 'Compara, consulta y edita la información del PDF.',
     },
     seguridad: {
-      name: 'Seguridad',
+      name: 'Seguridad y privacidad',
       short: 'Seguridad',
-      blurb: 'Contraseñas, firmas y contenido sensible.',
+      blurb: 'Contraseñas y contenido sensible.',
     },
   },
 

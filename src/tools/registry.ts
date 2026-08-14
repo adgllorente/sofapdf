@@ -12,8 +12,9 @@ export const CATEGORY_IDS: ToolCategoryId[] = [
   'paginas',
   'edicion',
   'conversiones',
-  'metadatos',
+  'optimizacion',
   'seguridad',
+  'metadatos',
 ]
 
 const PDF = { accept: 'application/pdf,.pdf', acceptKey: 'pdf' } as const
@@ -227,7 +228,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'compare',
     icon: 'diff',
-    category: 'paginas',
+    category: 'metadatos',
     status: 'ready',
     ...PDF,
     multiple: true,
@@ -328,7 +329,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'compress',
     icon: 'compress',
-    category: 'conversiones',
+    category: 'optimizacion',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -342,7 +343,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'grayscale',
     icon: 'contrast',
-    category: 'conversiones',
+    category: 'optimizacion',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -353,7 +354,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'flatten',
     icon: 'archive',
-    category: 'conversiones',
+    category: 'optimizacion',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -364,7 +365,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'repair',
     icon: 'wrench',
-    category: 'conversiones',
+    category: 'optimizacion',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -402,7 +403,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'sign',
     icon: 'pen',
-    category: 'seguridad',
+    category: 'edicion',
     status: 'ready',
     ...PDF,
     multiple: false,
