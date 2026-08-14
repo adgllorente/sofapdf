@@ -80,6 +80,7 @@ export type ToolSlug =
   | 'pdf-to-text'
   | 'ocr'
   | 'number'
+  | 'header-footer'
   | 'watermark'
   | 'crop'
   | 'compare'

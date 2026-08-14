@@ -292,6 +292,7 @@ export const en: typeof es = {
     bookmarksEmpty: 'Add at least one bookmark before exporting.',
     bookmarkTitle: 'Every bookmark needs a title.',
     bookmarkPage: 'Page {page} does not exist: the document has {total}.',
+    headerFooterEmpty: 'Enter text for the header or footer.',
   },
 
   filenames: {
@@ -323,6 +324,7 @@ export const en: typeof es = {
     metadata: 'metadata',
     report: 'technical-report',
     bookmarks: 'bookmarks',
+    headerFooter: 'header-footer',
   },
 
   progress: {
@@ -606,6 +608,26 @@ export const en: typeof es = {
         margin: { label: 'Margin (pt)' },
         withTotal: { label: 'Show "n / total"' },
         skipFirst: { label: 'Skip the cover page' },
+      },
+    },
+    'header-footer': {
+      name: 'Header and footer',
+      short: 'Add configurable text above or below the pages.',
+      description:
+        'Write a header, a footer or both. You can insert the page number, total, file name and local date.',
+      action: 'Add header and footer',
+      options: {
+        header: {
+          label: 'Header',
+          help: 'Variables: {page}, {total}, {file}, {date}. It may be left empty.',
+        },
+        footer: {
+          label: 'Footer',
+          help: 'Variables: {page}, {total}, {file}, {date}. It may be left empty.',
+        },
+        size: { label: 'Size (pt)' },
+        margin: { label: 'Margin (pt)' },
+        pages: { label: 'Pages', help: 'Leave "1-" to apply it to the whole document.' },
       },
     },
     watermark: {

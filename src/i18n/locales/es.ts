@@ -296,6 +296,7 @@ export const es = {
     bookmarksEmpty: 'Añade al menos un marcador antes de exportar.',
     bookmarkTitle: 'Cada marcador necesita un título.',
     bookmarkPage: 'La página {page} no existe: el documento tiene {total}.',
+    headerFooterEmpty: 'Escribe un texto para el encabezado o el pie.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
@@ -328,6 +329,7 @@ export const es = {
     metadata: 'metadatos',
     report: 'informe-tecnico',
     bookmarks: 'marcadores',
+    headerFooter: 'encabezado-pie',
   },
 
   progress: {
@@ -611,6 +613,26 @@ export const es = {
         margin: { label: 'Margen (pt)' },
         withTotal: { label: 'Mostrar "n / total"' },
         skipFirst: { label: 'No numerar la portada' },
+      },
+    },
+    'header-footer': {
+      name: 'Encabezado y pie',
+      short: 'Añade texto configurable arriba o abajo de las páginas.',
+      description:
+        'Escribe un encabezado, un pie o ambos. Puedes insertar el número de página, el total, el nombre del archivo y la fecha local.',
+      action: 'Añadir encabezado y pie',
+      options: {
+        header: {
+          label: 'Encabezado',
+          help: 'Variables: {page}, {total}, {file}, {date}. Se admite texto vacío.',
+        },
+        footer: {
+          label: 'Pie de página',
+          help: 'Variables: {page}, {total}, {file}, {date}. Se admite texto vacío.',
+        },
+        size: { label: 'Tamaño (pt)' },
+        margin: { label: 'Margen (pt)' },
+        pages: { label: 'Páginas', help: 'Deja "1-" para aplicar a todo el documento.' },
       },
     },
     watermark: {
