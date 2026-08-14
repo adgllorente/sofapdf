@@ -49,7 +49,12 @@ export type ToolRun = (
   ctx: RunContext,
 ) => Promise<OutputFile[]>
 
-export type ToolCategoryId = 'paginas' | 'edicion' | 'conversiones' | 'seguridad'
+export type ToolCategoryId =
+  | 'paginas'
+  | 'edicion'
+  | 'conversiones'
+  | 'metadatos'
+  | 'seguridad'
 
 /** El slug es la clave con la que el diccionario nombra la herramienta. */
 export type ToolSlug =

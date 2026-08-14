@@ -86,6 +86,11 @@ export const en: typeof es = {
       short: 'Convert',
       blurb: 'Switch formats, shrink the file, or repair it.',
     },
+    metadatos: {
+      name: 'Metadata',
+      short: 'Metadata',
+      blurb: 'View and edit the PDF’s internal information.',
+    },
     seguridad: {
       name: 'Security',
       short: 'Security',

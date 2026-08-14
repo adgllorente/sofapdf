@@ -12,6 +12,7 @@ export const CATEGORY_IDS: ToolCategoryId[] = [
   'paginas',
   'edicion',
   'conversiones',
+  'metadatos',
   'seguridad',
 ]
 
@@ -437,7 +438,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'metadata',
     icon: 'tag',
-    category: 'conversiones',
+    category: 'metadatos',
     status: 'ready',
     ...PDF,
     multiple: false,
@@ -455,7 +456,7 @@ export const TOOLS: Tool[] = [
   {
     slug: 'report',
     icon: 'code',
-    category: 'conversiones',
+    category: 'metadatos',
     status: 'ready',
     ...PDF,
     multiple: false,

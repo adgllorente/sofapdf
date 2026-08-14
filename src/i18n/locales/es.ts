@@ -90,6 +90,11 @@ export const es = {
       short: 'Convertir',
       blurb: 'Cambia de formato, reduce peso o repara el documento.',
     },
+    metadatos: {
+      name: 'Metadatos',
+      short: 'Metadatos',
+      blurb: 'Consulta y edita la información interna del PDF.',
+    },
     seguridad: {
       name: 'Seguridad',
       short: 'Seguridad',
