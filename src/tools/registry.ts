@@ -6,6 +6,7 @@ import { RedactPreview } from './RedactPreview'
 import { SignaturePreview } from './SignaturePreview'
 import { EditPreview } from './EditPreview'
 import { MetadataPreview } from './MetadataPreview'
+import { BookmarksPreview } from './BookmarksPreview'
 
 /** Los ids son estables: se usan como ancla en la URL y como clave del diccionario. */
 export const CATEGORY_IDS: ToolCategoryId[] = [
@@ -453,6 +454,18 @@ export const TOOLS: Tool[] = [
     ],
     load: () => import('./impl/metadata').then((m) => m.run),
     Preview: MetadataPreview,
+  },
+  {
+    slug: 'bookmarks',
+    icon: 'bookmark',
+    category: 'edicion',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    workflow: true,
+    load: () => import('./impl/bookmarks').then((m) => m.run),
+    Preview: BookmarksPreview,
   },
   {
     slug: 'report',

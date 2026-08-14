@@ -289,6 +289,9 @@ export const en: typeof es = {
     blankPagesFailed: 'The blank pages could not be detected.',
     flattenFailed: 'The form fields could not be flattened.',
     editEmpty: 'Add at least one element before exporting.',
+    bookmarksEmpty: 'Add at least one bookmark before exporting.',
+    bookmarkTitle: 'Every bookmark needs a title.',
+    bookmarkPage: 'Page {page} does not exist: the document has {total}.',
   },
 
   filenames: {
@@ -319,6 +322,7 @@ export const en: typeof es = {
     edited: 'edited',
     metadata: 'metadata',
     report: 'technical-report',
+    bookmarks: 'bookmarks',
   },
 
   progress: {
@@ -833,6 +837,23 @@ export const en: typeof es = {
       description: 'Analyze the visible PDF structure locally and generate a downloadable technical report.',
       action: 'Generate report',
       note: 'The report distinguishes detected data from aspects PDF.js cannot analyze reliably.',
+    },
+    bookmarks: {
+      name: 'Create bookmarks',
+      short: 'Add hierarchical navigation to your PDF.',
+      description: 'Create PDF bookmarks with titles, destination pages and nested levels.',
+      action: 'Create bookmarks',
+      note: 'Existing bookmarks are replaced by the ones you define here and will appear in the PDF viewer. No page is changed or added to the document.',
+      preview: {
+        title: 'PDF bookmarks',
+        hint: 'Add one entry per row. Level 1 is a top-level entry; higher levels are nested under the previous compatible entry.',
+        entryTitle: 'Title',
+        entryTitlePlaceholder: 'For example, Introduction',
+        page: 'Page',
+        level: 'Level',
+        add: 'Add bookmark',
+        remove: 'Remove bookmark {n}',
+      },
     },
   },
 }

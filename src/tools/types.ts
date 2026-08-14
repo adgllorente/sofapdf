@@ -1,7 +1,14 @@
 import type { ComponentType } from 'react'
 import type { IconName } from '@/components/Icon'
 
-export type OptionValues = Record<string, string | number | boolean>
+export type BookmarkEntry = {
+  id: string
+  title: string
+  page: number
+  level: number
+}
+
+export type OptionValues = Record<string, string | number | boolean | BookmarkEntry[]>
 
 type BaseField = {
   key: string
@@ -88,6 +95,7 @@ export type ToolSlug =
   | 'edit'
   | 'metadata'
   | 'report'
+  | 'bookmarks'
 
 /** Familia de formatos aceptados; su etiqueta visible está en el diccionario. */
 export type AcceptKey = 'pdf' | 'image' | 'html'

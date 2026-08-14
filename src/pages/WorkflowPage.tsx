@@ -232,6 +232,7 @@ function WorkflowRunner() {
                     <button type="button" onClick={() => removeStep(step.id)} disabled={running} aria-label={t.workflow.remove} className="rounded-md p-1.5 text-muted hover:bg-subtle hover:text-ink disabled:opacity-30"><Icon name="trash" className="size-4" /></button>
                   </div>
                   {step.tool.options && <div className="mt-4 border-t border-line pt-4"><OptionsForm tool={step.tool} values={step.values} onChange={(values) => updateStep(step.id, values)} disabled={running} /></div>}
+                  {step.tool.Preview && <div className="mt-4 border-t border-line pt-4"><step.tool.Preview files={files} values={step.values} onChange={(values) => updateStep(step.id, values)} disabled={running} /></div>}
                 </article>
               )
             })}

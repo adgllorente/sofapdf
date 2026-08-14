@@ -293,6 +293,9 @@ export const es = {
     blankPagesFailed: 'No se pudieron detectar las páginas en blanco.',
     flattenFailed: 'No se pudieron aplanar los campos del formulario.',
     editEmpty: 'Añade al menos un elemento antes de exportar.',
+    bookmarksEmpty: 'Añade al menos un marcador antes de exportar.',
+    bookmarkTitle: 'Cada marcador necesita un título.',
+    bookmarkPage: 'La página {page} no existe: el documento tiene {total}.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
@@ -324,6 +327,7 @@ export const es = {
     edited: 'editado',
     metadata: 'metadatos',
     report: 'informe-tecnico',
+    bookmarks: 'marcadores',
   },
 
   progress: {
@@ -838,6 +842,23 @@ export const es = {
       description: 'Analiza localmente la estructura visible del PDF y genera un informe técnico descargable.',
       action: 'Generar informe',
       note: 'El informe distingue los datos detectados de los aspectos que PDF.js no puede analizar con seguridad.',
+    },
+    bookmarks: {
+      name: 'Crear marcadores',
+      short: 'Añade una navegación jerárquica a tu PDF.',
+      description: 'Crea marcadores PDF con títulos, páginas de destino y niveles anidados.',
+      action: 'Crear marcadores',
+      note: 'Los marcadores existentes se sustituyen por los que definas aquí y aparecerán en el visor PDF. No se modifica ni se añade ninguna página al documento.',
+      preview: {
+        title: 'Marcadores del PDF',
+        hint: 'Escribe una entrada por fila. El nivel 1 es principal; los niveles siguientes quedan anidados bajo la entrada anterior compatible.',
+        entryTitle: 'Título',
+        entryTitlePlaceholder: 'Por ejemplo, Introducción',
+        page: 'Página',
+        level: 'Nivel',
+        add: 'Añadir marcador',
+        remove: 'Eliminar marcador {n}',
+      },
     },
   },
 }
