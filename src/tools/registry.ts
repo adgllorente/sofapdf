@@ -37,14 +37,23 @@ export const TOOLS: Tool[] = [
     multiple: false,
     minFiles: 1,
     options: [
-      { key: 'mode', type: 'select', default: 'ranges', choices: ['ranges', 'extract', 'each'] },
+      { key: 'mode', type: 'select', default: 'ranges', choices: ['ranges', 'extract', 'each', 'size'] },
       {
         key: 'ranges',
         type: 'text',
         default: '1-',
         // Un ejemplo de rangos no se traduce.
         placeholder: '1-3, 5, 9-',
-        showIf: (values) => values.mode !== 'each',
+        showIf: (values) => values.mode !== 'each' && values.mode !== 'size',
+      },
+      {
+        key: 'maxSize',
+        type: 'number',
+        default: 10,
+        min: 0.1,
+        max: 500,
+        step: 0.1,
+        showIf: (values) => values.mode === 'size',
       },
     ],
     load: () => import('./impl/split').then((m) => m.run),
