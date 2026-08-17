@@ -30,6 +30,26 @@ export const es = {
     tools: 'Herramientas',
   },
 
+  toolGuide: {
+    intro:
+      '{tool} procesa tus archivos directamente en el navegador. El documento no se sube a un servidor y el resultado se genera localmente en tu dispositivo.',
+    howTitle: 'Cómo utilizar esta herramienta',
+    select: 'Selecciona los archivos que quieres procesar con {tool}.',
+    configure: 'Configura las opciones disponibles.',
+    run: 'Haz clic en «{action}».',
+    download: 'Descarga el resultado cuando termine el procesamiento.',
+    faqTitle: 'Preguntas frecuentes (FAQ)',
+    freeQuestion: '¿Es gratis?',
+    freeAnswer: 'Sí. Puedes utilizar la herramienta sin crear una cuenta.',
+    uploadQuestion: '¿Se suben mis archivos?',
+    uploadAnswer:
+      'No. Tus archivos permanecen en la memoria de esta pestaña y no se envían a ningún servidor.',
+    offlineQuestion: '¿Funciona sin conexión?',
+    offlineAnswer:
+      'Sí, después de cargar la aplicación y sus recursos necesarios. Puedes desconectar internet y procesar los archivos que ya tengas en la pestaña.',
+    technicalQuestion: '¿Cómo funciona {tool}?',
+  },
+
   kofi: 'Invítame a un café',
 
   footer: {
@@ -756,6 +776,39 @@ export const es = {
             max: 'Máximo (más reducción)',
           },
         },
+      },
+      guide: {
+        intro:
+          'Comprime archivos PDF directamente en tu navegador sin subirlos a un servidor. {app} procesa tus archivos localmente en tu dispositivo.',
+        howTitle: 'Cómo comprimir un PDF',
+        steps: [
+          'Selecciona tu PDF.',
+          'Elige el nivel de compresión.',
+          'Comprime tu archivo.',
+          'Descarga el resultado.',
+        ],
+        faqTitle: 'Preguntas frecuentes sobre la compresión de PDF (FAQ)',
+        faq: [
+          {
+            question: '¿{app} es realmente gratis?',
+            answer: 'Sí. La herramienta es gratuita y no necesitas crear una cuenta.',
+          },
+          {
+            question: '¿Se suben mis archivos?',
+            answer:
+              'No. El PDF se abre y se procesa en la memoria de tu navegador; el documento y sus datos derivados no viajan a ningún servidor.',
+          },
+          {
+            question: '¿Funciona sin conexión?',
+            answer:
+              'Sí, una vez cargados la aplicación y sus recursos necesarios. Puedes desconectar internet después de abrir la herramienta y seguir procesando el PDF.',
+          },
+          {
+            question: '¿Qué compresión utiliza {app}?',
+            answer:
+              'Reescribe el PDF con pdf-lib y re-encodea las imágenes JPEG incrustadas usando el canvas del navegador. El nivel elegido ajusta su escala y calidad; el texto sigue siendo texto y no se rasteriza. Las imágenes PNG, CMYK y las que tienen máscara no se modifican por ahora.',
+          },
+        ],
       },
     },
     grayscale: {

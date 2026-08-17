@@ -26,6 +26,26 @@ export const en: typeof es = {
     tools: 'Tools',
   },
 
+  toolGuide: {
+    intro:
+      '{tool} processes your files directly in the browser. The document is not uploaded to a server and the result is generated locally on your device.',
+    howTitle: 'How to use this tool',
+    select: 'Select the files you want to process with {tool}.',
+    configure: 'Configure the available options.',
+    run: 'Click “{action}”.',
+    download: 'Download the result when processing is complete.',
+    faqTitle: 'Frequently asked questions (FAQ)',
+    freeQuestion: 'Is it free?',
+    freeAnswer: 'Yes. You can use the tool without creating an account.',
+    uploadQuestion: 'Are my files uploaded?',
+    uploadAnswer:
+      'No. Your files stay in this tab’s memory and are not sent to any server.',
+    offlineQuestion: 'Does it work offline?',
+    offlineAnswer:
+      'Yes, after the application and its required resources have loaded. You can disconnect from the internet and process files already open in the tab.',
+    technicalQuestion: 'How does {tool} work?',
+  },
+
   kofi: 'Buy me a coffee',
 
   footer: {
@@ -751,6 +771,39 @@ export const en: typeof es = {
             max: 'Maximum (more reduction)',
           },
         },
+      },
+      guide: {
+        intro:
+          'Compress PDF files directly in your browser without uploading them to a server. {app} processes your files locally on your device.',
+        howTitle: 'How to compress a PDF',
+        steps: [
+          'Select your PDF.',
+          'Choose the compression level.',
+          'Compress your file.',
+          'Download the result.',
+        ],
+        faqTitle: 'Frequently asked questions about PDF compression (FAQ)',
+        faq: [
+          {
+            question: 'Is {app} really free?',
+            answer: 'Yes. The tool is free and you do not need to create an account.',
+          },
+          {
+            question: 'Are my files uploaded?',
+            answer:
+              'No. The PDF is opened and processed in your browser memory; the document and its derived data do not travel to any server.',
+          },
+          {
+            question: 'Does it work offline?',
+            answer:
+              'Yes, once the application and its required resources have loaded. You can disconnect from the internet after opening the tool and still process your PDF.',
+          },
+          {
+            question: 'What compression does {app} use?',
+            answer:
+              'It rewrites the PDF with pdf-lib and re-encodes embedded JPEG images through the browser canvas. The selected level changes their scale and quality; text remains text and is not rasterised. PNG, CMYK and masked images are not modified for now.',
+          },
+        ],
       },
     },
     grayscale: {

@@ -7,6 +7,14 @@ export type OptionText = {
   choices?: Record<string, string>
 }
 
+export type ToolGuide = {
+  intro: string
+  howTitle: string
+  steps: string[]
+  faqTitle: string
+  faq: { question: string; answer: string }[]
+}
+
 export type ToolText = {
   name: string
   short: string
@@ -14,6 +22,7 @@ export type ToolText = {
   action: string
   note?: string
   options?: Record<string, OptionText>
+  guide?: ToolGuide
   /**
    * Cadenas opcionales para UIs específicas que viven en el `Preview` de la
    * herramienta (miniaturas, posición de firma…). La forma es libre: cada

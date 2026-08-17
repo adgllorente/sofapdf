@@ -33,6 +33,27 @@ export function ToolPage() {
 function ToolRunner({ tool }: { tool: Tool }) {
   const text = toolText(tool)
   const locale = useLocale()
+  const guide =
+    text.guide ?? {
+      intro: fmt(t.toolGuide.intro, { tool: text.name }),
+      howTitle: t.toolGuide.howTitle,
+      steps: [
+        fmt(t.toolGuide.select, { tool: text.name }),
+        t.toolGuide.configure,
+        fmt(t.toolGuide.run, { action: text.action }),
+        t.toolGuide.download,
+      ],
+      faqTitle: t.toolGuide.faqTitle,
+      faq: [
+        { question: t.toolGuide.freeQuestion, answer: t.toolGuide.freeAnswer },
+        { question: t.toolGuide.uploadQuestion, answer: t.toolGuide.uploadAnswer },
+        { question: t.toolGuide.offlineQuestion, answer: t.toolGuide.offlineAnswer },
+        {
+          question: fmt(t.toolGuide.technicalQuestion, { tool: text.name }),
+          answer: text.note ? `${text.description} ${text.note}` : text.description,
+        },
+      ],
+    }
 
   useEffect(() => {
     applyDocumentSeo({
@@ -302,6 +323,8 @@ function ToolRunner({ tool }: { tool: Tool }) {
 
       </div>
 
+      <ToolGuide guide={guide} toolName={text.name} />
+
       {previewing && (
         <PreviewModal
           blob={previewing.blob}
@@ -310,6 +333,38 @@ function ToolRunner({ tool }: { tool: Tool }) {
         />
       )}
     </div>
+  )
+}
+
+function ToolGuide({
+  guide,
+  toolName,
+}: {
+  guide: NonNullable<ReturnType<typeof toolText>['guide']>
+  toolName: string
+}) {
+  return (
+    <section className="mt-12 border-t border-line pt-10 text-ink-soft">
+      <h2 className="text-xl font-semibold tracking-tight text-ink">{toolName}</h2>
+      <p className="mt-3 leading-relaxed">{fmt(guide.intro, { app: APP.name, tool: toolName })}</p>
+
+      <h2 className="mt-8 text-xl font-semibold tracking-tight text-ink">{guide.howTitle}</h2>
+      <ol className="mt-3 list-decimal space-y-2 pl-5 leading-relaxed">
+        {guide.steps.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ol>
+
+      <h2 className="mt-8 text-xl font-semibold tracking-tight text-ink">{guide.faqTitle}</h2>
+      <dl className="mt-4 space-y-5">
+        {guide.faq.map((item) => (
+          <div key={item.question}>
+            <dt className="font-semibold text-ink">{item.question}</dt>
+            <dd className="mt-1 leading-relaxed">{fmt(item.answer, { app: APP.name })}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   )
 }
 
