@@ -3,6 +3,7 @@ import { APP } from '@/config'
 import { fmt, t } from '@/i18n'
 import kofiBadgeSmall from '@/assets/kofi-badge-small.webp'
 import { KofiBadge } from './KofiBadge'
+import { Icon } from './Icon'
 import { Wordmark } from './Logo'
 import { ToolsMenu } from './ToolsMenu'
 
@@ -37,6 +38,16 @@ function Header() {
             <img src={kofiBadgeSmall} alt="" className="h-9 w-auto" />
           </a>
           <KofiBadge height="h-9" className="hidden md:block" />
+          <a
+            href={APP.repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t.header.github}
+            title={t.header.github}
+            className="grid size-9 shrink-0 place-items-center rounded-lg text-muted transition hover:bg-subtle hover:text-ink"
+          >
+            <Icon name="github" className="size-5" />
+          </a>
           <ToolsMenu />
         </div>
       </div>

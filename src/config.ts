@@ -13,7 +13,7 @@ export const APP = {
   /** Dominio provisional; solo texto, no se hace ninguna petición a él. */
   domain: 'sofapdf.com',
   year: new Date().getFullYear(),
-  repoUrl: '',
+  repoUrl: 'https://github.com/adgllorente/sofapdf',
   /** Enlace externo: no carga nada, solo se navega si el usuario lo pulsa. */
   kofiUrl: 'https://ko-fi.com/adgllorente',
   /** Formulario externo para avisos y comentarios; solo se abre si el usuario lo pulsa. */

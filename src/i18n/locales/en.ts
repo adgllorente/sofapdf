@@ -24,6 +24,7 @@ export const en: typeof es = {
     badge: 'Runs on your device',
     howItWorks: 'How it works',
     tools: 'Tools',
+    github: 'View on GitHub',
   },
 
   toolGuide: {

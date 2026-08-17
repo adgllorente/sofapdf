@@ -28,6 +28,7 @@ export const es = {
     badge: 'Se ejecuta en tu dispositivo',
     howItWorks: 'Cómo funciona',
     tools: 'Herramientas',
+    github: 'Ver en GitHub',
   },
 
   toolGuide: {

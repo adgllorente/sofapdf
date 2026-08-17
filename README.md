@@ -30,6 +30,10 @@ npm run lint
 
 `dist/` es estático: sirve en cualquier hosting de ficheros.
 
+## Licencia
+
+El código se distribuye bajo la [licencia MIT](LICENSE).
+
 ## El nombre
 
 Vive en `src/config.ts`, en la constante `APP`. Cambiar `name`, `legalName` y `domain` ahí
