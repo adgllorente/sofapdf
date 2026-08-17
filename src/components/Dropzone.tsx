@@ -72,7 +72,15 @@ export function Dropzone({ accept, acceptLabel, multiple, files, onChange, sorta
         >
           {multiple ? t.dropzone.pickMany : t.dropzone.pickOne}
         </button>
-        <p className="mt-3 text-xs text-muted">{t.dropzone.hint}</p>
+        <div
+          role="note"
+          className="mx-auto mt-5 max-w-md text-center"
+        >
+          <p className="text-sm leading-relaxed text-muted">
+            <strong className="font-semibold text-ink">{t.dropzone.hintTitle}</strong>
+            <span className="mt-0.5 block">{t.dropzone.hint}</span>
+          </p>
+        </div>
       </div>
 
       {files.length > 0 && (
