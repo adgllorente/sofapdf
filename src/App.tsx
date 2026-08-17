@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from '@/components/Layout'
 import { Dashboard } from '@/pages/Dashboard'
+import { OfflinePdfTools } from '@/pages/OfflinePdfTools'
 import { NotFound } from '@/pages/NotFound'
 import { Privacy } from '@/pages/Privacy'
 import { ToolPage } from '@/pages/ToolPage'
@@ -18,6 +19,7 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
+          <Route path="tools/offline-pdf-tools/" element={<OfflinePdfTools />} />
           <Route path="tools/:slug" element={<ToolPage />} />
           <Route path="workflow" element={<WorkflowPage />} />
           <Route path="privacy" element={<Privacy />} />

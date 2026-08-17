@@ -29,6 +29,37 @@ export function Dashboard() {
       title: fmt(t.meta.homeTitle, { app: APP.name, tagline: t.brand.tagline }),
       description: t.meta.description,
       path: '/',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'WebSite',
+            name: APP.name,
+            url: `https://${APP.domain}/`,
+            description: t.meta.description,
+            inLanguage: t.meta.lang,
+          },
+          {
+            '@type': 'SoftwareApplication',
+            name: APP.name,
+            url: `https://${APP.domain}/`,
+            description: t.meta.description,
+            applicationCategory: 'UtilitiesApplication',
+            applicationSubCategory: 'PDF utility',
+            operatingSystem: 'Web',
+            isAccessibleForFree: true,
+            inLanguage: t.meta.lang,
+            featureList: TOOLS.filter((tool) => tool.status === 'ready').map(
+              (tool) => t.tools[tool.slug].name,
+            ),
+            offers: {
+              '@type': 'Offer',
+              price: '0',
+              priceCurrency: 'USD',
+            },
+          },
+        ],
+      },
     })
   }, [locale])
 

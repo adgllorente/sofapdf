@@ -129,6 +129,27 @@ export const en: typeof es = {
     all: 'All',
   },
 
+  offlinePage: {
+    title: 'Free Offline PDF Tools – No Upload Required',
+    heading: 'Free offline PDF tools for private work',
+    description:
+      'Free PDF tools that work without uploading files: edit, organize, convert and protect your documents directly in your browser.',
+    badge: 'No upload required',
+    intro:
+      'A collection of offline PDF tools for working with documents directly on your device. These are PDF tools without uploading, an offline PDF editor and private PDF tools in one place. Load the app, disconnect from the internet and keep working: your files never leave this tab.',
+    benefitsTitle: 'Why use offline PDF tools',
+    benefits: [
+      { title: 'No uploads', body: 'Your document is processed in browser memory and never sent to a server.' },
+      { title: 'Works offline', body: 'Once the app has loaded, you can disconnect from the internet and continue.' },
+      { title: 'Private by design', body: 'No account is needed, and results disappear when you close the tab.' },
+    ],
+    toolsTitle: 'All PDF tools',
+    toolsBody: 'Choose a tool to start working locally.',
+    linkTitle: 'Offline PDF tools',
+    linkBody: 'Edit and transform your documents without uploading them to a server.',
+    back: 'View homepage',
+  },
+
   workflow: {
     badge: 'Workflows',
     badgeBody: 'Apply several actions in sequence to one PDF.',

@@ -122,6 +122,16 @@ export function ToolsMenu() {
             )
           })}
 
+          <Link
+            to="/tools/offline-pdf-tools/"
+            onClick={() => setOpen(false)}
+            role="menuitem"
+            className="mt-3 flex items-center gap-2 border-t border-line px-2 pt-3 text-ink-soft transition hover:text-ink"
+          >
+            <Icon name="wifiOff" className="size-4 text-accent" />
+            <span className="truncate text-sm">{t.offlinePage.linkTitle}</span>
+          </Link>
+
           <Section title={t.locale.label}>
             {LOCALES.map((option) => (
               <Choice

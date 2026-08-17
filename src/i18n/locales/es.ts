@@ -133,6 +133,27 @@ export const es = {
     all: 'Todo',
   },
 
+  offlinePage: {
+    title: 'Herramientas PDF offline gratis — sin subir archivos',
+    heading: 'Herramientas PDF offline y privadas',
+    description:
+      'Herramientas PDF gratis que funcionan sin subir archivos: edita, organiza, convierte y protege tus documentos directamente en el navegador.',
+    badge: 'Sin subir archivos',
+    intro:
+      'Una colección de herramientas PDF sin conexión para trabajar con tus documentos directamente en tu dispositivo. Son herramientas PDF sin subir archivos, un editor PDF offline y herramientas PDF privadas en un solo lugar. Carga la aplicación, desconecta internet y sigue trabajando: tus archivos no salen de esta pestaña.',
+    benefitsTitle: 'Ventajas de las herramientas PDF offline',
+    benefits: [
+      { title: 'Sin subidas', body: 'El documento se procesa en la memoria del navegador y no se envía a un servidor.' },
+      { title: 'Funciona sin conexión', body: 'Después de cargar la aplicación, puedes desconectar internet y continuar.' },
+      { title: 'Privacidad real', body: 'No necesitas una cuenta y los resultados desaparecen al cerrar la pestaña.' },
+    ],
+    toolsTitle: 'Todas las herramientas PDF',
+    toolsBody: 'Elige una herramienta para empezar a trabajar localmente.',
+    linkTitle: 'Herramientas PDF offline',
+    linkBody: 'Edita y transforma tus documentos sin subirlos a ningún servidor.',
+    back: 'Ver el inicio',
+  },
+
   workflow: {
     badge: 'Workflows',
     badgeBody: 'Aplica varias acciones seguidas a un mismo PDF.',
