@@ -154,6 +154,53 @@ export const es = {
     back: 'Ver el inicio',
   },
 
+  compare: {
+    linkTitle: 'Comparativas',
+    title: 'Comparativa de herramientas PDF',
+    pageTitle: '{app} frente a {competitor}: comparativa honesta',
+    description: 'Compara {app} con otras herramientas PDF: procesamiento local, subidas, precio, instalación y privacidad.',
+    heading: '¿Qué herramienta PDF encaja contigo?',
+    badge: 'Comparativa honesta',
+    intro: 'Una comparación breve sobre cómo se ejecuta cada servicio y qué implica para tus documentos. No todas las herramientas ofrecen exactamente las mismas funciones ni los mismos planes.',
+    tableTitle: 'Resumen',
+    criteriaLabel: 'Criterio',
+    criteria: {
+      local: 'Procesamiento local',
+      upload: '¿Hace falta subir el archivo?',
+      free: 'Uso gratuito',
+      install: 'Instalación',
+      privacy: 'Privacidad según el modelo',
+    },
+    values: {
+      sofapdf: { local: 'Sí', upload: 'No', free: 'Sí', install: 'No', privacy: '★★★★★' },
+      ilovepdf: { local: 'Depende de la herramienta', upload: 'Sí, en la versión web', free: 'Parcial', install: 'No', privacy: '★★★☆☆' },
+      smallpdf: { local: 'Depende de la herramienta', upload: 'Sí, en la versión web', free: 'Parcial', install: 'No', privacy: '★★★☆☆' },
+      'adobe-acrobat': { local: 'Depende de la herramienta', upload: 'Sí, en la versión web', free: 'Parcial', install: 'No', privacy: '★★★☆☆' },
+    },
+    localTitle: 'Qué significa exactamente «local»',
+    localBody: 'El PDF se lee mediante la API File del navegador y se procesa en la memoria de tu dispositivo con JavaScript y WebAssembly. No se envía el archivo, ni una imagen de sus páginas, ni texto o metadatos derivados. Para comprobarlo, carga la aplicación, desconecta internet y procesa un documento ya abierto. El resultado solo existe en la memoria de esta pestaña hasta que lo descargas o la cierras.',
+    localLink: 'Ver cómo comprobarlo',
+    notFound: 'Esta comparativa no existe',
+    viewAll: 'Ver todas las comparativas',
+    competitors: {
+      ilovepdf: {
+        name: 'iLovePDF',
+        description: 'Compara {app} e iLovePDF en procesamiento local, subidas, precio, instalación y privacidad.',
+        intro: 'iLovePDF ofrece muchas operaciones desde la web. La diferencia principal aquí es dónde se procesa el archivo: comprueba siempre qué herramienta y qué modalidad estás usando.',
+      },
+      smallpdf: {
+        name: 'Smallpdf',
+        description: 'Compara {app} y Smallpdf en procesamiento local, subidas, precio, instalación y privacidad.',
+        intro: 'Smallpdf reúne herramientas PDF online y aplicaciones para distintos dispositivos. Esta comparación se centra en su experiencia web y en la diferencia entre procesamiento remoto y local.',
+      },
+      'adobe-acrobat': {
+        name: 'Adobe Acrobat',
+        description: 'Compara {app} y Adobe Acrobat en procesamiento local, subidas, precio, instalación y privacidad.',
+        intro: 'Adobe Acrobat combina aplicaciones instalables y servicios web. Las capacidades exactas dependen del producto y del plan; aquí comparamos el modelo web con una herramienta local en el navegador.',
+      },
+    },
+  },
+
   workflow: {
     badge: 'Workflows',
     badgeBody: 'Aplica varias acciones seguidas a un mismo PDF.',

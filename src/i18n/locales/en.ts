@@ -150,6 +150,53 @@ export const en: typeof es = {
     back: 'View homepage',
   },
 
+  compare: {
+    linkTitle: 'Comparisons',
+    title: 'PDF tool comparisons',
+    pageTitle: '{app} vs {competitor}: an honest comparison',
+    description: 'Compare {app} with other PDF tools: local processing, uploads, price, installation and privacy.',
+    heading: 'Which PDF tool is right for you?',
+    badge: 'An honest comparison',
+    intro: 'A brief comparison of where each service runs and what that means for your documents. Tools do not all offer the same features or plans.',
+    tableTitle: 'Summary',
+    criteriaLabel: 'Criteria',
+    criteria: {
+      local: 'Local processing',
+      upload: 'Is an upload required?',
+      free: 'Free use',
+      install: 'Installation',
+      privacy: 'Privacy by design',
+    },
+    values: {
+      sofapdf: { local: 'Yes', upload: 'No', free: 'Yes', install: 'No', privacy: '★★★★★' },
+      ilovepdf: { local: 'Depends on the tool', upload: 'Yes, on the web version', free: 'Partial', install: 'No', privacy: '★★★☆☆' },
+      smallpdf: { local: 'Depends on the tool', upload: 'Yes, on the web version', free: 'Partial', install: 'No', privacy: '★★★☆☆' },
+      'adobe-acrobat': { local: 'Depends on the tool', upload: 'Yes, on the web version', free: 'Partial', install: 'No', privacy: '★★★☆☆' },
+    },
+    localTitle: 'What “local” means exactly',
+    localBody: 'The PDF is read through the browser File API and processed in your device’s memory with JavaScript and WebAssembly. The file, page images, text and metadata derived from it are not sent anywhere. To check it, load the app, disconnect from the internet and process a document already open in the tab. The result exists only in this tab’s memory until you download it or close the tab.',
+    localLink: 'See how to check it',
+    notFound: 'This comparison does not exist',
+    viewAll: 'View all comparisons',
+    competitors: {
+      ilovepdf: {
+        name: 'iLovePDF',
+        description: 'Compare {app} and iLovePDF for local processing, uploads, price, installation and privacy.',
+        intro: 'iLovePDF offers many operations on the web. The main difference here is where the file is processed: always check which tool and mode you are using.',
+      },
+      smallpdf: {
+        name: 'Smallpdf',
+        description: 'Compare {app} and Smallpdf for local processing, uploads, price, installation and privacy.',
+        intro: 'Smallpdf brings together online PDF tools and apps for different devices. This comparison focuses on its web experience and the difference between remote and local processing.',
+      },
+      'adobe-acrobat': {
+        name: 'Adobe Acrobat',
+        description: 'Compare {app} and Adobe Acrobat for local processing, uploads, price, installation and privacy.',
+        intro: 'Adobe Acrobat combines installed apps and web services. Exact capabilities depend on the product and plan; here we compare the web model with a local browser tool.',
+      },
+    },
+  },
+
   workflow: {
     badge: 'Workflows',
     badgeBody: 'Apply several actions in sequence to one PDF.',

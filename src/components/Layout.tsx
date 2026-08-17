@@ -56,6 +56,9 @@ function Footer() {
           <Link to="/privacy" className="text-muted transition hover:text-ink">
             {t.footer.link}
           </Link>
+          <Link to="/compare/" className="text-muted transition hover:text-ink">
+            {t.compare.linkTitle}
+          </Link>
           <a
             href={APP.contactUrl}
             target="_blank"

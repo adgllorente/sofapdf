@@ -6,6 +6,7 @@ import { NotFound } from '@/pages/NotFound'
 import { Privacy } from '@/pages/Privacy'
 import { ToolPage } from '@/pages/ToolPage'
 import { WorkflowPage } from '@/pages/WorkflowPage'
+import { ComparePage } from '@/pages/ComparePage'
 import { ScrollToTop } from '@/components/ScrollToTop'
 import { useLocale } from '@/i18n/react'
 
@@ -22,6 +23,8 @@ export default function App() {
           <Route path="tools/offline-pdf-tools/" element={<OfflinePdfTools />} />
           <Route path="tools/:slug" element={<ToolPage />} />
           <Route path="workflow" element={<WorkflowPage />} />
+          <Route path="compare/" element={<ComparePage />} />
+          <Route path="compare/sofapdf-vs-:competitor/" element={<ComparePage />} />
           <Route path="privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Route>
