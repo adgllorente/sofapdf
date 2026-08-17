@@ -4,7 +4,8 @@ import { Dropzone } from '@/components/Dropzone'
 import { Icon } from '@/components/Icon'
 import { OptionsForm } from '@/components/OptionsForm'
 import { PreviewModal } from '@/components/PreviewModal'
-import { fmt, t } from '@/i18n'
+import { applyDocumentMeta, fmt, t } from '@/i18n'
+import { useLocale } from '@/i18n/react'
 import { toolText } from '@/i18n/tools'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
 import {
@@ -31,6 +32,12 @@ export function ToolPage() {
 
 function ToolRunner({ tool }: { tool: Tool }) {
   const text = toolText(tool)
+  const locale = useLocale()
+
+  useEffect(() => {
+    applyDocumentMeta(fmt(t.meta.toolTitle, { app: APP.name, tool: text.name }), text.description)
+  }, [locale, text.description, text.name])
+
   const [files, setFiles] = useState<File[]>([])
   const [values, setValues] = useState<OptionValues>(() => defaultValues(tool))
   const [status, setStatus] = useState<Status>('idle')

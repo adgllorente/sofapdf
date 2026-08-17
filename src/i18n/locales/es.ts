@@ -8,6 +8,8 @@
 export const es = {
   meta: {
     lang: 'es',
+    homeTitle: '{app} · {tagline}',
+    toolTitle: '{tool} · {app}',
     description:
       'Herramientas PDF que se ejecutan por completo en tu navegador. Tus documentos nunca se suben a ningún servidor.',
   },

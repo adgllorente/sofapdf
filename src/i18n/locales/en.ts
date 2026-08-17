@@ -4,6 +4,8 @@ import type { es } from './es'
 export const en: typeof es = {
   meta: {
     lang: 'en',
+    homeTitle: '{app} · {tagline}',
+    toolTitle: '{tool} · {app}',
     description:
       'PDF tools that run entirely inside your browser. Your documents are never uploaded to any server.',
   },

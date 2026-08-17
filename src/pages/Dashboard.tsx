@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
 import { Icon, type IconName } from "@/components/Icon";
 import { SofaMascot } from "@/components/SofaMascot";
 import { ToolCard } from "@/components/ToolCard";
-import { t } from "@/i18n";
+import { applyDocumentMeta, fmt, t } from "@/i18n";
+import { APP } from "@/config";
+import { useLocale } from "@/i18n/react";
 import { renderInline } from "@/i18n/inline";
 import { CATEGORY_IDS, sortTools, TOOLS } from "@/tools/registry";
 
@@ -20,6 +22,15 @@ const POINTS: { key: PointKey; icon: IconName }[] = [
 type TabId = "all" | (typeof CATEGORY_IDS)[number];
 
 export function Dashboard() {
+  const locale = useLocale()
+
+  useEffect(() => {
+    applyDocumentMeta(
+      fmt(t.meta.homeTitle, { app: APP.name, tagline: t.brand.tagline }),
+      t.meta.description,
+    )
+  }, [locale])
+
   return (
     <>
       <Hero />

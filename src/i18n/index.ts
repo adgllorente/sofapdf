@@ -79,8 +79,12 @@ export function setLocale(next: Locale): void {
 /** Lo que vive fuera de React: atributo lang, título y meta descripción. */
 export function applyDocumentLocale(): void {
   document.documentElement.lang = t.meta.lang
-  document.title = `${APP.name} · ${t.brand.tagline}`
-  document.querySelector('meta[name="description"]')?.setAttribute('content', t.meta.description)
+  applyDocumentMeta(fmt(t.meta.homeTitle, { app: APP.name, tagline: t.brand.tagline }), t.meta.description)
+}
+
+export function applyDocumentMeta(title: string, description: string): void {
+  document.title = title
+  document.querySelector('meta[name="description"]')?.setAttribute('content', description)
 }
 
 /** Sustituye `{clave}` por su valor. Deja el hueco visible si falta, para que cante. */
