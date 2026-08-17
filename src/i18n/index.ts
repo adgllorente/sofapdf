@@ -79,13 +79,44 @@ export function setLocale(next: Locale): void {
 /** Lo que vive fuera de React: atributo lang, título y meta descripción. */
 export function applyDocumentLocale(): void {
   document.documentElement.lang = t.meta.lang
-  applyDocumentMeta(fmt(t.meta.homeTitle, { app: APP.name, tagline: t.brand.tagline }), t.meta.description)
+  applyDocumentSeo({
+    title: fmt(t.meta.homeTitle, { app: APP.name, tagline: t.brand.tagline }),
+    description: t.meta.description,
+    path: '/',
+  })
 }
 
-export function applyDocumentMeta(title: string, description: string): void {
+type DocumentSeo = {
+  title: string
+  description: string
+  path: string
+  structuredData?: Record<string, unknown>
+}
+
+export function applyDocumentSeo({ title, description, path, structuredData }: DocumentSeo): void {
   document.title = title
   document.querySelector('meta[name="description"]')?.setAttribute('content', description)
+
+  let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
+  if (!canonical) {
+    canonical = document.createElement('link')
+    canonical.rel = 'canonical'
+    document.head.append(canonical)
+  }
+  canonical.href = `https://${APP.domain}${path}`
+
+  const existingSchema = document.querySelector<HTMLScriptElement>('script[data-seo-schema]')
+  if (structuredData) {
+    const schema = existingSchema ?? document.createElement('script')
+    schema.type = 'application/ld+json'
+    schema.dataset.seoSchema = ''
+    schema.textContent = JSON.stringify(structuredData)
+    if (!existingSchema) document.head.append(schema)
+  } else {
+    existingSchema?.remove()
+  }
 }
+
 
 /** Sustituye `{clave}` por su valor. Deja el hueco visible si falta, para que cante. */
 export function fmt(template: string, vars: Record<string, string | number>): string {

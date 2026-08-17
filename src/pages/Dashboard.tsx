@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { Icon, type IconName } from "@/components/Icon";
 import { SofaMascot } from "@/components/SofaMascot";
 import { ToolCard } from "@/components/ToolCard";
-import { applyDocumentMeta, fmt, t } from "@/i18n";
+import { applyDocumentSeo, fmt, t } from "@/i18n";
 import { APP } from "@/config";
 import { useLocale } from "@/i18n/react";
 import { renderInline } from "@/i18n/inline";
@@ -25,10 +25,11 @@ export function Dashboard() {
   const locale = useLocale()
 
   useEffect(() => {
-    applyDocumentMeta(
-      fmt(t.meta.homeTitle, { app: APP.name, tagline: t.brand.tagline }),
-      t.meta.description,
-    )
+    applyDocumentSeo({
+      title: fmt(t.meta.homeTitle, { app: APP.name, tagline: t.brand.tagline }),
+      description: t.meta.description,
+      path: '/',
+    })
   }, [locale])
 
   return (

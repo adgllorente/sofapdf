@@ -4,7 +4,7 @@ import { Dropzone } from '@/components/Dropzone'
 import { Icon } from '@/components/Icon'
 import { OptionsForm } from '@/components/OptionsForm'
 import { PreviewModal } from '@/components/PreviewModal'
-import { applyDocumentMeta, fmt, t } from '@/i18n'
+import { applyDocumentSeo, fmt, t } from '@/i18n'
 import { useLocale } from '@/i18n/react'
 import { toolText } from '@/i18n/tools'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
@@ -35,8 +35,30 @@ function ToolRunner({ tool }: { tool: Tool }) {
   const locale = useLocale()
 
   useEffect(() => {
-    applyDocumentMeta(fmt(t.meta.toolTitle, { app: APP.name, tool: text.name }), text.description)
-  }, [locale, text.description, text.name])
+    applyDocumentSeo({
+      title: fmt(t.meta.toolTitle, { app: APP.name, tool: text.name }),
+      description: text.description,
+      path: `/tools/${tool.slug}`,
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: APP.name,
+        url: `https://${APP.domain}/tools/${tool.slug}`,
+        description: text.description,
+        applicationCategory: 'UtilitiesApplication',
+        applicationSubCategory: 'PDF utility',
+        operatingSystem: 'Web',
+        isAccessibleForFree: true,
+        inLanguage: t.meta.lang,
+        featureList: [text.name],
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+      },
+    })
+  }, [locale, text.description, text.name, tool.slug])
 
   const [files, setFiles] = useState<File[]>([])
   const [values, setValues] = useState<OptionValues>(() => defaultValues(tool))
