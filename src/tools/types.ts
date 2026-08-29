@@ -23,6 +23,7 @@ export type OptionField =
       /** Solo los valores: las etiquetas están en el diccionario del idioma. */
       choices: string[]
     })
+  | (BaseField & { type: 'color'; default: string })
   | (BaseField & { type: 'text'; default: string; placeholder?: string })
   | (BaseField & { type: 'password'; default: string; placeholder?: string })
   | (BaseField & { type: 'number'; default: number; min?: number; max?: number; step?: number })

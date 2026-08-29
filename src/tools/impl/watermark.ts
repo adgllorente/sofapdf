@@ -2,15 +2,14 @@ import { PDFDocument, StandardFonts, degrees, rgb } from 'pdf-lib'
 import { fmt, t } from '@/i18n'
 import { toBlob } from '@/lib/files'
 import { baseName, parsePageList } from '@/lib/pages'
+import { parseHexColor } from '@/lib/colors'
 import type { ToolRun } from '@/tools/types'
 
-type Rgb = readonly [number, number, number]
-
-const COLORS: Record<string, Rgb> = {
-  gray: [0.5, 0.5, 0.5],
-  red: [0.85, 0.2, 0.2],
-  blue: [0.2, 0.4, 0.85],
-  black: [0.1, 0.1, 0.1],
+const LEGACY_COLORS: Record<string, string> = {
+  gray: '#808080',
+  red: '#d93333',
+  blue: '#3366d9',
+  black: '#1a1a1a',
 }
 
 type Anchor = { x: (width: number, margin: number) => number; y: (height: number, margin: number) => number }
@@ -37,7 +36,7 @@ export const run: ToolRun = async (files, values, ctx) => {
   const angle = Number(values.rotation)
   const position = String(values.position)
   const anchor = ANCHORS[position] ?? ANCHORS.center
-  const [cr, cg, cb] = COLORS[String(values.color)] ?? COLORS.gray
+  const color = parseHexColor(LEGACY_COLORS[String(values.color)] ?? String(values.color))
   // Margen mínimo para que la marca no choque con el borde ni con sí misma rotada.
   const margin = Math.max(size / 2 + 8, 36)
 
@@ -64,8 +63,8 @@ export const run: ToolRun = async (files, values, ctx) => {
       y,
       size,
       font,
-      color: rgb(cr, cg, cb),
-      opacity,
+      color: rgb(color.red, color.green, color.blue),
+      opacity: opacity * color.alpha,
       rotate: degrees(angle),
     })
 

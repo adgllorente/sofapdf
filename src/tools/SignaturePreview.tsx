@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 import clsx from 'clsx'
 import { fmt, t } from '@/i18n'
 import { Icon } from '@/components/Icon'
+import { ColorPicker } from '@/components/ColorPicker'
+import { hexToCssRgba } from '@/lib/colors'
 import type { OptionValues, ToolPreviewProps } from '@/tools/types'
 import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist'
 
@@ -134,6 +136,7 @@ function TextSource({
   const text = String(values.text ?? '')
   const style = String(values.style ?? 'script')
   const color = String(values.color ?? 'black')
+  const colorValue = COLORS[color] ?? color
   const fontSize = Number(values.fontSize ?? 32)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -161,13 +164,13 @@ function TextSource({
     canvas.height = height
     // Cambiar tamaño del canvas borra el contexto: hay que reaplicar la fuente.
     ctx.font = fontDecl
-    ctx.fillStyle = COLORS[color] ?? COLORS.black
+    ctx.fillStyle = hexToCssRgba(colorValue)
     ctx.textBaseline = 'middle'
     ctx.textAlign = 'center'
     ctx.fillText(display, width / 2, height / 2)
     onChange({ signatureDataUrl: canvas.toDataURL('image/png') })
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [text, style, color, fontSize])
+  }, [text, style, colorValue, fontSize])
 
   return (
     <div className="space-y-3">
@@ -179,14 +182,14 @@ function TextSource({
         onChange={(event) => onChange({ text: event.target.value })}
         className="w-full rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink transition placeholder:text-muted focus:border-accent disabled:opacity-50"
       />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid w-fit grid-cols-[repeat(2,max-content)] gap-3 sm:grid-cols-[repeat(3,max-content)]">
         <label className="block space-y-1.5">
-          <span className="text-xs text-ink-soft">{t.tools.sign.preview.textStyle}</span>
+          <span className="block text-xs text-ink-soft">{t.tools.sign.preview.textStyle}</span>
           <select
             value={style}
             disabled={disabled}
             onChange={(event) => onChange({ style: event.target.value })}
-            className="w-full rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink disabled:opacity-50"
+            className="w-max rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink disabled:opacity-50"
           >
             {(['script', 'serif', 'sans'] as const).map((key) => (
               <option key={key} value={key}>
@@ -196,22 +199,18 @@ function TextSource({
           </select>
         </label>
         <label className="block space-y-1.5">
-          <span className="text-xs text-ink-soft">{t.tools.sign.preview.textColor}</span>
-          <select
-            value={color}
-            disabled={disabled}
-            onChange={(event) => onChange({ color: event.target.value })}
-            className="w-full rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink disabled:opacity-50"
-          >
-            {(['black', 'blue', 'gray'] as const).map((key) => (
-              <option key={key} value={key}>
-                {t.tools.sign.preview.colors[key]}
-              </option>
-            ))}
-          </select>
+          <span className="block text-xs text-ink-soft">{t.tools.sign.preview.textColor}</span>
+          <div className="flex h-[38px] items-center">
+            <ColorPicker
+              label={t.tools.sign.preview.textColor}
+              value={colorValue}
+              disabled={disabled}
+              onChange={(next) => onChange({ color: next })}
+            />
+          </div>
         </label>
         <label className="block space-y-1.5">
-          <span className="text-xs text-ink-soft">{t.tools.sign.preview.textSize}</span>
+          <span className="block text-xs text-ink-soft">{t.tools.sign.preview.textSize}</span>
           <input
             type="number"
             value={fontSize}
@@ -220,7 +219,7 @@ function TextSource({
             step={2}
             disabled={disabled}
             onChange={(event) => onChange({ fontSize: Number(event.target.value) })}
-            className="w-full rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink disabled:opacity-50"
+            className="w-20 rounded-lg border border-line bg-canvas px-3 py-2 text-sm text-ink disabled:opacity-50"
           />
         </label>
       </div>

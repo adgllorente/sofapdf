@@ -782,10 +782,7 @@ export const es = {
             'bottom-right': 'Abajo derecha',
           },
         },
-        color: {
-          label: 'Color',
-          choices: { gray: 'Gris', red: 'Rojo', blue: 'Azul', black: 'Negro' },
-        },
+        color: { label: 'Color' },
         opacity: { label: 'Opacidad (%)' },
         size: { label: 'Tamaño (pt)' },
         rotation: { label: 'Giro (°)' },
@@ -950,7 +947,6 @@ export const es = {
         textColor: 'Color',
         textSize: 'Tamaño',
         styles: { script: 'Script', serif: 'Serif', sans: 'Sans' },
-        colors: { black: 'Negro', blue: 'Azul', gray: 'Gris' },
         drawHint: 'Dibuja con el ratón o el dedo.',
         drawClear: 'Limpiar',
         imageHint: 'Sube una imagen. Lo ideal es PNG con fondo transparente.',
@@ -974,7 +970,7 @@ export const es = {
       preview: {
         title: 'Editor PDF', hint: 'Elige una herramienta y dibuja sobre la página. Usa la mano para seleccionar y mover elementos.',
         hand: 'Seleccionar y mover', organizeLabel: 'Organizar', bringForward: 'Traer adelante', sendBackward: 'Enviar atrás', alignHorizontal: 'Centrar horizontalmente', alignVertical: 'Centrar verticalmente', text: 'Añadir texto', image: 'Añadir imagen', pencil: 'Dibujar con lápiz', shape: 'Añadir forma', highlight: 'Resaltar texto', underlineText: 'Subrayar texto', strikeText: 'Tachar texto',
-        color: 'Texto / trazo', borderColor: 'Color del borde', strokeWidth: 'Grosor', alignment: 'Alineación', background: 'Fondo', transparent: 'Transparente', opacity: 'Opacidad', style: 'Estilo', content: 'Texto', font: 'Fuente', size: 'Tamaño',
+        color: 'Texto / trazo', borderColor: 'Color del borde', strokeWidth: 'Grosor', alignment: 'Alineación', background: 'Fondo', opacity: 'Opacidad', style: 'Estilo', content: 'Texto', font: 'Fuente', size: 'Tamaño',
         rectangle: 'Rectángulo', ellipse: 'Elipse', triangle: 'Triángulo', alignLeft: 'Izquierda', alignCenter: 'Centro', alignRight: 'Derecha',
         delete: 'Eliminar', rotate: 'Rotar', resize: 'Cambiar tamaño', undo: 'Deshacer', redo: 'Rehacer', pageNumber: 'Número de página', boldMark: 'B', italicMark: 'I', underlineMark: 'U', defaultText: 'Escribe aquí', pageOf: 'Página {n} de {total}', prevPage: 'Página anterior', nextPage: 'Página siguiente',
       },

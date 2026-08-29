@@ -2,6 +2,7 @@ import { LineCapStyle, PDFDocument, StandardFonts, degrees, rgb } from 'pdf-lib'
 import { fmt, t } from '@/i18n'
 import { toBlob } from '@/lib/files'
 import { baseName } from '@/lib/pages'
+import { parseHexColor } from '@/lib/colors'
 import type { ToolRun } from '@/tools/types'
 
 type Point = { x: number; y: number }
@@ -13,12 +14,12 @@ type EditObject = {
   rotation: number
 }
 
-function color(value: string) {
-  if (value === 'transparent') return undefined
-  const hex = value.replace('#', '')
-  const full = hex.length === 3 ? hex.split('').map((part) => part + part).join('') : hex
-  const rgbValue = [0, 1, 2].map((index) => parseInt(full.slice(index * 2, index * 2 + 2), 16) / 255)
-  return rgb(rgbValue[0] || 0, rgbValue[1] || 0, rgbValue[2] || 0)
+function paint(value: string) {
+  const parsed = parseHexColor(value)
+  return {
+    color: parsed.alpha === 0 ? undefined : rgb(parsed.red, parsed.green, parsed.blue),
+    alpha: parsed.alpha,
+  }
 }
 
 async function dataUrlBytes(value: string) {
@@ -56,12 +57,14 @@ export const run: ToolRun = async (files, values, ctx) => {
     if (!page) continue
     const { width, height } = page.getSize()
     const x = item.x * width, y = height - (item.y + item.height) * height
-    const opacity = Math.max(0.05, Math.min(1, item.opacity || 1))
+    const opacity = Math.max(0, Math.min(1, Number.isFinite(item.opacity) ? item.opacity : 1))
     if (item.type === 'highlight') {
-      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: color(item.color), opacity, rotate: degrees(item.rotation ?? 0) })
+      const fill = paint(item.color)
+      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: fill.color, opacity: opacity * fill.alpha, rotate: degrees(item.rotation ?? 0) })
     } else if (item.type === 'underlineText' || item.type === 'strikeText') {
       const lineY = item.type === 'strikeText' ? y + item.height * height / 2 : y + item.borderWidth
-      page.drawLine({ start: { x, y: lineY }, end: { x: x + item.width * width, y: lineY }, thickness: Math.max(1, item.borderWidth), color: color(item.color), opacity })
+      const stroke = paint(item.color)
+      page.drawLine({ start: { x, y: lineY }, end: { x: x + item.width * width, y: lineY }, thickness: Math.max(1, item.borderWidth), color: stroke.color, opacity: opacity * stroke.alpha })
     } else if (item.type === 'text') {
       const key = fontName(item)
       let font = fonts.get(key)
@@ -69,9 +72,12 @@ export const run: ToolRun = async (files, values, ctx) => {
       const size = Math.max(4, item.fontSize || 18)
       const textWidth = font.widthOfTextAtSize(item.text || ' ', size)
       const textX = item.align === 'center' ? x + (item.width * width - textWidth) / 2 : item.align === 'right' ? x + item.width * width - textWidth : x
-      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: color(item.bgColor), opacity, borderColor: color(item.borderColor), borderWidth: 0, rotate: degrees(item.rotation ?? 0) })
-      page.drawText(item.text.replace(/\r\n/g, '\n'), { x: textX, y: y + item.height * height - size - 3, size, font, color: color(item.color), opacity, lineHeight: size, rotate: degrees(item.rotation ?? 0) })
-      if (item.underline) page.drawLine({ start: { x: textX, y: y + item.height * height - size - 5 }, end: { x: textX + textWidth, y: y + item.height * height - size - 5 }, thickness: Math.max(1, item.borderWidth), color: color(item.color), opacity, lineCap: LineCapStyle.Round })
+      const background = paint(item.bgColor)
+      const border = paint(item.borderColor)
+      const text = paint(item.color)
+      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: background.color, opacity: opacity * background.alpha, borderColor: border.color, borderWidth: 0, rotate: degrees(item.rotation ?? 0) })
+      page.drawText(item.text.replace(/\r\n/g, '\n'), { x: textX, y: y + item.height * height - size - 3, size, font, color: text.color, opacity: opacity * text.alpha, lineHeight: size, rotate: degrees(item.rotation ?? 0) })
+      if (item.underline) page.drawLine({ start: { x: textX, y: y + item.height * height - size - 5 }, end: { x: textX + textWidth, y: y + item.height * height - size - 5 }, thickness: Math.max(1, item.borderWidth), color: text.color, opacity: opacity * text.alpha, lineCap: LineCapStyle.Round })
     } else if (item.type === 'image' && item.imageData) {
       const key = item.imageData.slice(0, 40)
       let image = images.get(key)
@@ -79,10 +85,18 @@ export const run: ToolRun = async (files, values, ctx) => {
       page.drawImage(image, { x, y, width: item.width * width, height: item.height * height, opacity, rotate: degrees(item.rotation ?? 0) })
     } else if (item.type === 'pencil') {
       const points = item.points ?? []
-      for (let point = 1; point < points.length; point++) { const start = rotatePoint(points[point - 1], item), end = rotatePoint(points[point], item); page.drawLine({ start: { x: start.x * width, y: height - start.y * height }, end: { x: end.x * width, y: height - end.y * height }, thickness: Math.max(1, item.borderWidth), color: color(item.color), opacity, lineCap: LineCapStyle.Round }) }
-    } else if (item.type === 'ellipse') page.drawEllipse({ x: x + item.width * width / 2, y: y + item.height * height / 2, xScale: item.width * width / 2, yScale: item.height * height / 2, color: color(item.bgColor), borderColor: color(item.borderColor), borderWidth: item.borderWidth, opacity, borderOpacity: opacity, rotate: degrees(item.rotation ?? 0) })
-    else if (item.type === 'triangle') page.drawSvgPath(`M 0 0 L ${item.width * width} 0 L ${item.width * width / 2} ${item.height * height} Z`, { x, y, color: color(item.bgColor), borderColor: color(item.borderColor), borderWidth: item.borderWidth, opacity, borderOpacity: opacity, rotate: degrees(item.rotation ?? 0) })
-    else page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: color(item.bgColor), borderColor: color(item.borderColor), borderWidth: item.borderWidth, opacity, borderOpacity: opacity, rotate: degrees(item.rotation ?? 0) })
+      const stroke = paint(item.color)
+      for (let point = 1; point < points.length; point++) { const start = rotatePoint(points[point - 1], item), end = rotatePoint(points[point], item); page.drawLine({ start: { x: start.x * width, y: height - start.y * height }, end: { x: end.x * width, y: height - end.y * height }, thickness: Math.max(1, item.borderWidth), color: stroke.color, opacity: opacity * stroke.alpha, lineCap: LineCapStyle.Round }) }
+    } else if (item.type === 'ellipse') {
+      const fill = paint(item.bgColor), border = paint(item.borderColor)
+      page.drawEllipse({ x: x + item.width * width / 2, y: y + item.height * height / 2, xScale: item.width * width / 2, yScale: item.height * height / 2, color: fill.color, borderColor: border.color, borderWidth: item.borderWidth, opacity: opacity * fill.alpha, borderOpacity: opacity * border.alpha, rotate: degrees(item.rotation ?? 0) })
+    } else if (item.type === 'triangle') {
+      const fill = paint(item.bgColor), border = paint(item.borderColor)
+      page.drawSvgPath(`M 0 0 L ${item.width * width} 0 L ${item.width * width / 2} ${item.height * height} Z`, { x, y, color: fill.color, borderColor: border.color, borderWidth: item.borderWidth, opacity: opacity * fill.alpha, borderOpacity: opacity * border.alpha, rotate: degrees(item.rotation ?? 0) })
+    } else {
+      const fill = paint(item.bgColor), border = paint(item.borderColor)
+      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: fill.color, borderColor: border.color, borderWidth: item.borderWidth, opacity: opacity * fill.alpha, borderOpacity: opacity * border.alpha, rotate: degrees(item.rotation ?? 0) })
+    }
     ctx.onProgress((index + 1) / objects.length, fmt(t.progress.page, { n: item.page }))
   }
   return [{ name: `${baseName(file.name)}-${t.filenames.edited}.pdf`, blob: toBlob(await document_.save()) }]

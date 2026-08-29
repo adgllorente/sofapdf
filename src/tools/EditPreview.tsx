@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { t } from '@/i18n'
 import { Icon } from '@/components/Icon'
+import { ColorPicker } from '@/components/ColorPicker'
 import type { OptionValues, ToolPreviewProps } from '@/tools/types'
 import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist'
 
@@ -358,27 +359,26 @@ function EditorOptions({ type, style, setStyle, patchActive }: { type: Mode | Ed
     {isText && <>
       <Field label={t.tools.edit.preview.font}><select value={style.font} onChange={(e) => change({ font: e.target.value }, { font: e.target.value })} className={field}><option value="Helvetica">Helvetica</option><option value="Times">Times</option><option value="Courier">Courier</option></select></Field>
       <Field label={t.tools.edit.preview.size}><input type="number" min="6" max="96" value={style.fontSize} onChange={(e) => change({ fontSize: Number(e.target.value) }, { fontSize: Number(e.target.value) })} className={field} /></Field>
-      <ColorControl label={t.tools.edit.preview.color} value={style.color} allowTransparent={false} onChange={(color) => change({ color }, { color })} />
-      <ColorControl label={t.tools.edit.preview.background} value={style.bgColor} allowTransparent={false} onChange={(bgColor) => change({ bgColor }, { bgColor })} />
+      <ColorControl label={t.tools.edit.preview.color} value={style.color} onChange={(color) => change({ color }, { color })} />
+      <ColorControl label={t.tools.edit.preview.background} value={style.bgColor} onChange={(bgColor) => change({ bgColor }, { bgColor })} />
       <div><span className="block min-h-4 text-xs text-muted">{t.tools.edit.preview.style}</span><div className="mt-1 flex h-9 items-center gap-1"><ToggleButton label={t.tools.edit.preview.boldMark} active={style.bold} onClick={() => change({ bold: !style.bold }, { bold: !style.bold })} className="font-bold" /><ToggleButton label={t.tools.edit.preview.italicMark} active={style.italic} onClick={() => change({ italic: !style.italic }, { italic: !style.italic })} className="italic" /><ToggleButton label={t.tools.edit.preview.underlineMark} active={style.underline} onClick={() => change({ underline: !style.underline }, { underline: !style.underline })} className="underline" /></div></div>
       <Field label={t.tools.edit.preview.alignment}><div className="mt-1 flex h-9 items-center gap-1"><AlignmentButton value="left" current={style.align} label={t.tools.edit.preview.alignLeft} icon="alignLeft" onChange={(align) => change({ align }, { align })} /><AlignmentButton value="center" current={style.align} label={t.tools.edit.preview.alignCenter} icon="alignCenter" onChange={(align) => change({ align }, { align })} /><AlignmentButton value="right" current={style.align} label={t.tools.edit.preview.alignRight} icon="alignRight" onChange={(align) => change({ align }, { align })} /></div></Field>
     </>}
     {isShape && <>
       <Field label={t.tools.edit.preview.shape}><select value={style.shape} onChange={(e) => change({ shape: e.target.value }, { type: e.target.value as EditObject['type'] })} className={field}><option value="rect">{t.tools.edit.preview.rectangle}</option><option value="ellipse">{t.tools.edit.preview.ellipse}</option><option value="triangle">{t.tools.edit.preview.triangle}</option></select></Field>
-      <ColorControl label={t.tools.edit.preview.borderColor} value={style.borderColor} allowTransparent onChange={(borderColor) => change({ borderColor }, { borderColor })} />
-      <ColorControl label={t.tools.edit.preview.background} value={style.bgColor} allowTransparent onChange={(bgColor) => change({ bgColor }, { bgColor })} />
+      <ColorControl label={t.tools.edit.preview.borderColor} value={style.borderColor} onChange={(borderColor) => change({ borderColor }, { borderColor })} />
+      <ColorControl label={t.tools.edit.preview.background} value={style.bgColor} onChange={(bgColor) => change({ bgColor }, { bgColor })} />
       <WidthControl value={style.borderWidth} onChange={(borderWidth) => change({ borderWidth }, { borderWidth })} />
     </>}
-    {isPencil && <><ColorControl label={t.tools.edit.preview.color} value={style.color} allowTransparent={false} onChange={(color) => change({ color }, { color })} /><WidthControl value={style.borderWidth} onChange={(borderWidth) => change({ borderWidth }, { borderWidth })} /></>}
+    {isPencil && <><ColorControl label={t.tools.edit.preview.color} value={style.color} onChange={(color) => change({ color }, { color })} /><WidthControl value={style.borderWidth} onChange={(borderWidth) => change({ borderWidth }, { borderWidth })} /></>}
     {(isShape || isImage) && <Field label={t.tools.edit.preview.opacity}><input type="range" min="5" max="100" value={style.opacity} onChange={(e) => change({ opacity: Number(e.target.value) }, { opacity: Number(e.target.value) / 100 })} className="mt-2 block w-28 accent-accent" /></Field>}
   </div>
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className="block text-xs text-muted"><span className="block min-h-4">{label}</span>{children}</label> }
 function AlignmentButton({ value, current, label, icon, onChange }: { value: string; current: string; label: string; icon: 'alignLeft' | 'alignCenter' | 'alignRight'; onChange: (value: string) => void }) { return <button type="button" aria-label={label} title={label} onClick={() => onChange(value)} className={`grid size-9 place-items-center rounded border ${current === value ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted'}`}><Icon name={icon} className="size-4" /></button> }
-function ColorControl({ label, value, allowTransparent, onChange }: { label: string; value: string; allowTransparent: boolean; onChange: (value: string) => void }) {
-  const transparent = value === 'transparent'
-  return <div className="text-xs text-muted"><span className="block min-h-4">{label}</span><div className="mt-1 flex h-9 items-center gap-2"><input type="color" disabled={allowTransparent && transparent} value={transparent ? '#ffffff' : value} onChange={(event) => onChange(event.target.value)} className="size-8 cursor-pointer rounded border-0 bg-transparent p-0 disabled:cursor-not-allowed disabled:opacity-40" />{allowTransparent && <label className="flex items-center gap-1 whitespace-nowrap"><input type="checkbox" checked={transparent} onChange={(event) => onChange(event.target.checked ? 'transparent' : '#ffffff')} className="size-3.5 accent-accent" />{t.tools.edit.preview.transparent}</label>}</div></div>
+function ColorControl({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return <div className="text-xs text-muted"><span className="block min-h-4">{label}</span><div className="mt-1 flex h-9 items-center gap-2"><ColorPicker label={label} value={value} onChange={onChange} /></div></div>
 }
 function WidthControl({ value, onChange }: { value: number; onChange: (value: number) => void }) { return <label className="block text-xs text-muted">{t.tools.edit.preview.strokeWidth}<input type="number" min="1" max="24" value={value} onChange={(event) => onChange(Number(event.target.value))} className="mt-1 block w-20 rounded border border-line bg-surface px-2 py-1.5 text-sm text-ink" /></label> }
 function ToggleButton({ label, active, onClick, className }: { label: string; active: boolean; onClick: () => void; className: string }) { return <button type="button" onClick={onClick} aria-label={label} className={`rounded border px-2 py-1.5 text-sm ${className} ${active ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted'}`}>{label}</button> }

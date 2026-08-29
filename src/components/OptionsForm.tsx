@@ -1,5 +1,6 @@
 import { t } from '@/i18n'
 import { choiceLabel, optionText } from '@/i18n/tools'
+import { ColorPicker } from '@/components/ColorPicker'
 import type { OptionValues, Tool } from '@/tools/types'
 
 type Props = {
@@ -26,7 +27,7 @@ export function OptionsForm({ tool, values, onChange, disabled }: Props) {
 
         return (
           <label key={field.key} className="block space-y-1.5">
-            <span className="text-sm font-medium text-ink-soft">{text.label}</span>
+            <span className={`text-sm font-medium text-ink-soft ${field.type === 'color' ? 'block' : ''}`}>{text.label}</span>
 
             {field.type === 'select' && (
               <select
@@ -52,6 +53,15 @@ export function OptionsForm({ tool, values, onChange, disabled }: Props) {
                 disabled={disabled}
                 autoComplete={field.type === 'password' ? 'off' : undefined}
                 onChange={(event) => set(field.key, event.target.value)}
+              />
+            )}
+
+            {field.type === 'color' && (
+              <ColorPicker
+                label={text.label}
+                value={String(values[field.key])}
+                disabled={disabled}
+                onChange={(value) => set(field.key, value)}
               />
             )}
 

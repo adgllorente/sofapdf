@@ -777,10 +777,7 @@ export const en: typeof es = {
             'bottom-right': 'Bottom right',
           },
         },
-        color: {
-          label: 'Color',
-          choices: { gray: 'Grey', red: 'Red', blue: 'Blue', black: 'Black' },
-        },
+        color: { label: 'Color' },
         opacity: { label: 'Opacity (%)' },
         size: { label: 'Size (pt)' },
         rotation: { label: 'Rotation (°)' },
@@ -945,7 +942,6 @@ export const en: typeof es = {
         textColor: 'Color',
         textSize: 'Size',
         styles: { script: 'Script', serif: 'Serif', sans: 'Sans' },
-        colors: { black: 'Black', blue: 'Blue', gray: 'Grey' },
         drawHint: 'Draw with the mouse or your finger.',
         drawClear: 'Clear',
         imageHint: 'Upload an image. PNG with a transparent background works best.',
@@ -969,7 +965,7 @@ export const en: typeof es = {
       preview: {
         title: 'PDF editor', hint: 'Choose a tool and draw on the page. Use the hand to select and move elements.',
         hand: 'Select and move', organizeLabel: 'Arrange', bringForward: 'Bring forward', sendBackward: 'Send backward', alignHorizontal: 'Center horizontally', alignVertical: 'Center vertically', text: 'Add text', image: 'Add image', pencil: 'Draw with pencil', shape: 'Add shape', highlight: 'Highlight text', underlineText: 'Underline text', strikeText: 'Strike through text',
-        color: 'Text / stroke', borderColor: 'Border color', strokeWidth: 'Width', alignment: 'Alignment', background: 'Background', transparent: 'Transparent', opacity: 'Opacity', style: 'Style', content: 'Text', font: 'Font', size: 'Size',
+        color: 'Text / stroke', borderColor: 'Border color', strokeWidth: 'Width', alignment: 'Alignment', background: 'Background', opacity: 'Opacity', style: 'Style', content: 'Text', font: 'Font', size: 'Size',
         rectangle: 'Rectangle', ellipse: 'Ellipse', triangle: 'Triangle', alignLeft: 'Left', alignCenter: 'Center', alignRight: 'Right',
         delete: 'Delete', rotate: 'Rotate', resize: 'Resize', undo: 'Undo', redo: 'Redo', pageNumber: 'Page number', boldMark: 'B', italicMark: 'I', underlineMark: 'U', defaultText: 'Write here', pageOf: 'Page {n} of {total}', prevPage: 'Previous page', nextPage: 'Next page',
       },

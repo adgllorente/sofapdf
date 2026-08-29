@@ -222,7 +222,7 @@ export const TOOLS: Tool[] = [
           'bottom-right',
         ],
       },
-      { key: 'color', type: 'select', default: 'gray', choices: ['gray', 'red', 'blue', 'black'] },
+      { key: 'color', type: 'color', default: '#808080' },
       { key: 'opacity', type: 'number', default: 20, min: 5, max: 100, step: 5 },
       { key: 'size', type: 'number', default: 72, min: 12, max: 200, step: 4 },
       { key: 'rotation', type: 'number', default: -45, min: -90, max: 90, step: 5 },
