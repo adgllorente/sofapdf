@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ChangeEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { t } from '@/i18n'
 import { Icon } from '@/components/Icon'
 import { ColorPicker } from '@/components/ColorPicker'
@@ -9,6 +9,7 @@ const KEY = 'editor'
 const SCALE = 1.5
 const MIN_SIZE = 0.025
 const MAX_HISTORY = 100
+const TEXT_DEFAULT_WIDTH = 0.4
 type Mode = 'hand' | 'text' | 'image' | 'pencil' | 'shape' | 'highlight' | 'underlineText' | 'strikeText'
 type Point = { x: number; y: number }
 type ResizeHandle = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
@@ -58,7 +59,7 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
   const imageInputRef = useRef<HTMLInputElement>(null)
   const idRef = useRef(0)
   const historyRef = useRef<EditorHistory>({ past: [], future: [] })
-  const [style, setStyle] = useState<EditorStyle>({ text: t.tools.edit.preview.defaultText, font: 'Helvetica', fontSize: 18, color: '#111827', bgColor: '#ffffff', borderColor: '#111827', borderWidth: 1, opacity: 100, bold: false, italic: false, underline: false, align: 'left', shape: 'rect' })
+  const [style, setStyle] = useState<EditorStyle>({ text: t.tools.edit.preview.defaultText, font: 'Helvetica', fontSize: 18, color: '#111827', bgColor: 'transparent', borderColor: '#111827', borderWidth: 1, opacity: 100, bold: false, italic: false, underline: false, align: 'left', shape: 'rect' })
   const objects = readObjects(values)
   const current = objects.filter((item) => item.page === page)
   const active = objects.find((item) => item.id === selected && item.page === page) ?? null
@@ -135,7 +136,7 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
   }
   function addObject(partial: Partial<EditObject>) {
     const annotation = partial.type === 'highlight' || partial.type === 'underlineText' || partial.type === 'strikeText'
-    const item = { id: nextId(), page, type: partial.type ?? 'text', x: partial.x ?? .2, y: partial.y ?? .2, width: partial.width ?? .3, height: partial.height ?? .1, color: partial.type === 'highlight' ? '#facc15' : style.color, bgColor: style.bgColor, borderColor: style.borderColor, borderWidth: style.borderWidth, opacity: annotation ? (partial.type === 'highlight' ? .35 : 1) : style.opacity / 100, font: style.font, fontSize: style.fontSize, bold: style.bold, italic: style.italic, underline: style.underline, align: style.align, text: partial.text ?? '', rotation: partial.rotation ?? 0, ...partial } as EditObject
+    const item = { id: nextId(), page, type: partial.type ?? 'text', x: partial.x ?? .2, y: partial.y ?? .2, width: partial.width ?? (partial.type === "text" ? .4 : .3), height: partial.height ?? .1, color: partial.type === 'highlight' ? '#facc15' : style.color, bgColor: partial.type === 'text' ? 'transparent' : style.bgColor, borderColor: style.borderColor, borderWidth: style.borderWidth, opacity: annotation ? (partial.type === 'highlight' ? .35 : 1) : style.opacity / 100, font: style.font, fontSize: style.fontSize, bold: style.bold, italic: style.italic, underline: style.underline, align: style.align, text: partial.text ?? '', rotation: partial.rotation ?? 0, ...partial } as EditObject
     update([...objects, item]); setSelected(item.id); setMode('hand'); syncStyle(item)
   }
   function patchActive(patch: Partial<EditObject>) {
@@ -200,8 +201,8 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
   }, [selected, editingText, objects, values])
   function startCreate(event: ReactPointerEvent<HTMLDivElement>) {
     if (disabled || mode === 'image') return
-    if (mode === 'hand') { setSelected(null); setEditingText(null); setMode('text'); return }
-    setSelected(null); setEditingText(null)
+    if (mode === 'hand') { finishTextEdit(); setSelected(null); setMode('text'); return }
+    setSelected(null); finishTextEdit()
     const rect = containerRef.current?.getBoundingClientRect(); if (!rect) return
     event.preventDefault()
     const start = point(event, rect)
@@ -218,7 +219,7 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
       document.removeEventListener('pointercancel', onUp)
       const x = Math.min(start.x, state.current.x), y = Math.min(start.y, state.current.y)
       if (mode === 'pencil' && state.points.length > 1) addObject({ type: 'pencil', x, y, width: Math.abs(state.current.x - start.x), height: Math.abs(state.current.y - start.y), points: state.points })
-      if (mode === 'text' || mode === 'shape' || mode === 'highlight' || mode === 'underlineText' || mode === 'strikeText') addObject({ type: mode === 'text' ? 'text' : mode === 'shape' ? style.shape as EditObject['type'] : mode, x, y, width: Math.max(MIN_SIZE, Math.abs(state.current.x - start.x)), height: Math.max(MIN_SIZE, Math.abs(state.current.y - start.y)), text: style.text })
+      if (mode === 'text' || mode === 'shape' || mode === 'highlight' || mode === 'underlineText' || mode === 'strikeText') { const type = mode === 'text' ? 'text' : mode === 'shape' ? style.shape as EditObject['type'] : mode; const draggedWidth = Math.abs(state.current.x - start.x); const draggedHeight = Math.abs(state.current.y - start.y); const width = type === 'text' && draggedWidth < MIN_SIZE * 2 ? TEXT_DEFAULT_WIDTH : Math.max(MIN_SIZE, draggedWidth); const height = type === 'text' && draggedHeight < MIN_SIZE * 2 ? 0.1 : Math.max(MIN_SIZE, draggedHeight); addObject({ type, x: clamp(x, 0, 1 - width), y: clamp(y, 0, 1 - height), width, height, text: style.text }) }
       setDraft(null)
     }
     document.addEventListener('pointermove', onMove)
@@ -271,7 +272,14 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
     document.addEventListener('pointercancel', onUp)
   }
   function editText(item: EditObject) { setSelected(item.id); syncStyle(item); setTextDraft(item.text); setEditingText(item.id); setMode('hand') }
-  function finishTextEdit() { if (editingText) { update(objects.map((item) => item.id === editingText ? { ...item, text: textDraft } : item)); setStyle({ ...style, text: textDraft }) }; setEditingText(null) }
+  function resizeText(id: string, widthPixels: number) { const rect = containerRef.current?.getBoundingClientRect(); const item = objects.find((candidate) => candidate.id === id); if (!rect || !item || item.type !== 'text') return; const width = clamp(Math.max(TEXT_DEFAULT_WIDTH, widthPixels / rect.width), MIN_SIZE, 1 - item.x); if (Math.abs(width - item.width) > 0.002) update(objects.map((candidate) => candidate.id === id ? { ...candidate, width } : candidate)) }
+  function finishTextEdit(nextText = textDraft) {
+    if (editingText) {
+      update(objects.map((item) => item.id === editingText ? { ...item, text: nextText } : item))
+      setStyle((previous) => ({ ...previous, text: nextText }))
+    }
+    setEditingText(null)
+  }
   function moveLayer(direction: -1 | 1) {
     if (!active) return
     const index = objects.findIndex((item) => item.id === active.id)
@@ -340,7 +348,7 @@ export function EditPreview({ files, values, onChange, disabled }: ToolPreviewPr
       <div ref={containerRef} onPointerDown={startCreate} className={`relative min-h-[200px] touch-none select-none overflow-visible ${mode === 'hand' ? 'cursor-default' : 'cursor-crosshair'}`}>
         <canvas ref={canvasRef} className="block h-auto w-full" />
         {error && <p className="absolute inset-0 grid place-items-center text-sm text-danger">{error}</p>}
-        {current.map((item) => <EditorObject key={item.id} item={item} selected={item.id === selected} editing={item.id === editingText} onSelect={(event) => selectAndMove(event, item)} onResize={(event, handle) => startResize(event, item, handle)} onDelete={() => deleteObject(item.id)} onRotateStart={(event) => startRotate(event, item)} onEdit={() => editText(item)} textDraft={textDraft} onTextChange={setTextDraft} onTextCommit={finishTextEdit} />)}
+        {current.map((item) => <EditorObject key={item.id} item={item} selected={item.id === selected} editing={item.id === editingText} onSelect={(event) => selectAndMove(event, item)} onResize={(event, handle) => startResize(event, item, handle)} onDelete={() => deleteObject(item.id)} onRotateStart={(event) => startRotate(event, item)} onEdit={() => editText(item)} textDraft={textDraft} onTextChange={setTextDraft} onTextResize={(width) => resizeText(item.id, width)} onTextCommit={finishTextEdit} />)}
         {draft?.points && mode === 'pencil' && <svg viewBox="0 0 1 1" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 size-full overflow-visible"><polyline points={draft.points.map((point) => `${point.x},${point.y}`).join(' ')} fill="none" stroke={style.color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={style.borderWidth} vectorEffect="non-scaling-stroke" /></svg>}
         {draft && mode !== 'pencil' && <div className="pointer-events-none absolute border-2 border-dashed border-accent" style={{ left: `${Math.min(draft.start.x, draft.current.x) * 100}%`, top: `${Math.min(draft.start.y, draft.current.y) * 100}%`, width: `${Math.abs(draft.current.x - draft.start.x) * 100}%`, height: `${Math.abs(draft.current.y - draft.start.y) * 100}%` }} />}
       </div>
@@ -383,13 +391,15 @@ function ColorControl({ label, value, onChange }: { label: string; value: string
 function WidthControl({ value, onChange }: { value: number; onChange: (value: number) => void }) { return <label className="block text-xs text-muted">{t.tools.edit.preview.strokeWidth}<input type="number" min="1" max="24" value={value} onChange={(event) => onChange(Number(event.target.value))} className="mt-1 block w-20 rounded border border-line bg-surface px-2 py-1.5 text-sm text-ink" /></label> }
 function ToggleButton({ label, active, onClick, className }: { label: string; active: boolean; onClick: () => void; className: string }) { return <button type="button" onClick={onClick} aria-label={label} className={`rounded border px-2 py-1.5 text-sm ${className} ${active ? 'border-accent bg-accent-soft text-accent' : 'border-line text-muted'}`}>{label}</button> }
 
-function EditorObject({ item, selected, editing, onSelect, onResize, onDelete, onRotateStart, onEdit, textDraft, onTextChange, onTextCommit }: { item: EditObject; selected: boolean; editing: boolean; onSelect: (event: ReactPointerEvent<Element>) => void; onResize: (event: ReactPointerEvent<Element>, handle: ResizeHandle) => void; onDelete: () => void; onRotateStart: (event: ReactPointerEvent<HTMLButtonElement>) => void; onEdit: () => void; textDraft: string; onTextChange: (value: string) => void; onTextCommit: () => void }) {
+function EditorObject({ item, selected, editing, onSelect, onResize, onDelete, onRotateStart, onEdit, textDraft, onTextChange, onTextResize, onTextCommit }: { item: EditObject; selected: boolean; editing: boolean; onSelect: (event: ReactPointerEvent<Element>) => void; onResize: (event: ReactPointerEvent<Element>, handle: ResizeHandle) => void; onDelete: () => void; onRotateStart: (event: ReactPointerEvent<HTMLButtonElement>) => void; onEdit: () => void; textDraft: string; onTextChange: (value: string) => void; onTextResize: (width: number) => void; onTextCommit: (value?: string) => void }) {
   const box = item.type === 'pencil' ? pencilBounds(item.points) : item
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  useLayoutEffect(() => { if (!editing || !textareaRef.current) return; const textarea = textareaRef.current; textarea.style.width = "0px"; const width = Math.max(160, textarea.scrollWidth + 4); textarea.style.width = '100%'; onTextResize(width) }, [editing, textDraft, item.width, onTextResize])
   const common = { left: `${box.x * 100}%`, top: `${box.y * 100}%`, width: `${Math.max(box.width, MIN_SIZE) * 100}%`, height: `${Math.max(box.height, MIN_SIZE) * 100}%`, opacity: item.opacity, transform: `rotate(${item.rotation ?? 0}deg)`, transformOrigin: 'center' }
   const border = item.borderWidth ? `solid ${item.borderWidth}px ${item.borderColor}` : 'none'
   if (item.type === 'pencil') return <><svg viewBox="0 0 1 1" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 size-full overflow-visible" style={{ transform: `rotate(${item.rotation ?? 0}deg)`, transformOrigin: 'center' }}><polyline points={(item.points ?? []).map((point) => `${point.x},${point.y}`).join(' ')} fill="none" stroke={item.color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={item.borderWidth} vectorEffect="non-scaling-stroke" /></svg><div onPointerDown={onSelect} className={`absolute ${selected ? 'ring-2 ring-accent' : ''}`} style={common}>{selected && <><RotateControl rotation={item.rotation ?? 0} onRotateStart={onRotateStart} /><DeleteControl rotation={item.rotation ?? 0} onDelete={onDelete} /></>}</div></>
   if (item.type === 'image' && item.imageData) return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><img src={item.imageData} alt="" className="h-full w-full object-contain" /></SelectableBox>
-  if (item.type === 'text') return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><div onDoubleClick={(event) => { event.stopPropagation(); onEdit() }} className="flex size-full overflow-hidden whitespace-pre-wrap p-1" style={{ color: item.color, backgroundColor: item.bgColor, border: 'none', fontFamily: item.font, fontSize: `${item.fontSize * .75}px`, fontWeight: item.bold ? 700 : 400, fontStyle: item.italic ? 'italic' : 'normal', textDecoration: item.underline ? 'underline' : 'none', textAlign: item.align as 'left' | 'center' | 'right', justifyContent: item.align === 'center' ? 'center' : item.align === 'right' ? 'flex-end' : 'flex-start' }}>{editing ? <textarea autoFocus value={textDraft} onPointerDown={(event) => event.stopPropagation()} onChange={(event) => onTextChange(event.target.value)} onBlur={onTextCommit} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); onTextCommit() } if (event.key === 'Escape') { event.preventDefault(); onTextCommit() } }} className="size-full resize-none border-0 bg-transparent p-0 text-inherit outline-none" /> : item.text}</div></SelectableBox>
+  if (item.type === 'text') return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><div onDoubleClick={(event) => { event.stopPropagation(); onEdit() }} className="flex size-full overflow-visible whitespace-pre-wrap p-1" style={{ color: item.color, backgroundColor: item.bgColor, border: 'none', fontFamily: item.font, fontSize: `${item.fontSize * .75}px`, fontWeight: item.bold ? 700 : 400, fontStyle: item.italic ? 'italic' : 'normal', textDecoration: item.underline ? 'underline' : 'none', textAlign: item.align as 'left' | 'center' | 'right', justifyContent: item.align === 'center' ? 'center' : item.align === 'right' ? 'flex-end' : 'flex-start' }}>{editing ? <textarea ref={textareaRef} autoFocus wrap="off" value={textDraft} onPointerDown={(event) => event.stopPropagation()} onChange={(event) => onTextChange(event.target.value)} onBlur={(event) => onTextCommit(event.currentTarget.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); onTextCommit() } if (event.key === 'Escape') { event.preventDefault(); onTextCommit() } }} style={{ width: '100%' }} className="size-full min-w-0 resize-none overflow-hidden border-0 bg-transparent p-0 text-inherit outline-none focus:border-0 focus:outline-none focus:ring-0" /> : item.text}</div></SelectableBox>
   if (item.type === 'highlight') return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><div className="size-full" style={{ backgroundColor: item.color }} /></SelectableBox>
   if (item.type === 'underlineText' || item.type === 'strikeText') return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><div className="relative size-full"><span className="absolute inset-x-0 h-0.5" style={{ backgroundColor: item.color, top: item.type === 'strikeText' ? '50%' : 'calc(100% - 2px)' }} /></div></SelectableBox>
   if (item.type === 'triangle') return <SelectableBox rotation={item.rotation ?? 0} common={common} selected={selected} onSelect={onSelect} onResize={onResize} onDelete={onDelete} onRotateStart={onRotateStart}><svg viewBox="0 0 100 100" preserveAspectRatio="none" className="size-full overflow-visible"><polygon points="50,0 100,100 0,100" fill={item.bgColor} stroke={item.borderColor} strokeWidth={item.borderWidth * 2} vectorEffect="non-scaling-stroke" strokeLinejoin="round" /></svg></SelectableBox>
