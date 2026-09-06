@@ -5,7 +5,7 @@ import { Icon } from '@/components/Icon'
 import { OptionsForm } from '@/components/OptionsForm'
 import { PreviewModal } from '@/components/PreviewModal'
 import { fmt, t } from '@/i18n'
-import { formatBytes, saveBlob } from '@/lib/files'
+import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
 import { bumpToolUsage } from '@/lib/usage'
 import { loadMetadataFromFile } from '@/tools/metadata-loader'
 import { getTool, TOOLS } from '@/tools/registry'
@@ -25,14 +25,17 @@ function WorkflowRunner() {
   const [steps, setSteps] = useState<Step[]>([])
   const [status, setStatus] = useState<Status>('idle')
   const [progress, setProgress] = useState({ ratio: 0, label: '' })
-  const [output, setOutput] = useState<OutputFile | null>(null)
+  const [outputs, setOutputs] = useState<OutputFile[]>([])
   const [error, setError] = useState('')
-  const [previewing, setPreviewing] = useState(false)
+  const [previewing, setPreviewing] = useState<OutputFile | null>(null)
   const [nextId, setNextId] = useState(1)
 
   const running = status === 'running'
-  const ready = files.length === 1 && steps.length > 0
-  const totalOut = useMemo(() => output?.blob.size ?? 0, [output])
+  const ready = files.length > 0 && steps.length > 0
+  const totalOut = useMemo(
+    () => outputs.reduce((sum, output) => sum + output.blob.size, 0),
+    [outputs],
+  )
 
   // Algunas herramientas saben inicializar sus valores a partir del PDF de
   // entrada (metadata lee la info dict actual). En el resto, caemos al
@@ -113,29 +116,38 @@ function WorkflowRunner() {
     }
     setStatus('running')
     setError('')
-    setOutput(null)
+    setOutputs([])
     setProgress({ ratio: 0, label: '' })
 
     try {
-      let current = files[0]
-      for (const [index, step] of steps.entries()) {
-        const run = await step.tool.load!()
-        const result = await run([current], step.values, {
-          onProgress: (ratio, label = '') =>
-            setProgress({
-              ratio: (index + Math.max(0, Math.min(1, ratio))) / steps.length,
-              label: fmt(t.workflow.running, { current: index + 1, total: steps.length }) +
-                (label ? ` · ${label}` : ''),
-            }),
-        })
-        if (result.length !== 1 || result[0].blob.type !== 'application/pdf') {
-          throw new Error(t.workflow.invalidOutput)
+      const nextOutputs: OutputFile[] = []
+      for (const [fileIndex, file] of files.entries()) {
+        let current = file
+        for (const [stepIndex, step] of steps.entries()) {
+          const run = await step.tool.load!()
+          const result = await run([current], step.values, {
+            onProgress: (ratio, label = '') =>
+              setProgress({
+                ratio: (fileIndex * steps.length + stepIndex + Math.max(0, Math.min(1, ratio))) /
+                  (files.length * steps.length),
+                label: fmt(t.workflow.running, {
+                  file: fileIndex + 1,
+                  files: files.length,
+                  step: stepIndex + 1,
+                  steps: steps.length,
+                }) + (label ? ` · ${label}` : ''),
+              }),
+          })
+          if (result.length !== 1 || result[0].blob.type !== 'application/pdf') {
+            throw new Error(t.workflow.invalidOutput)
+          }
+          current = new File([result[0].blob], result[0].name, { type: 'application/pdf' })
         }
-        current = new File([result[0].blob], result[0].name, { type: 'application/pdf' })
+        nextOutputs.push({ name: current.name, blob: current })
       }
       for (const step of steps) bumpToolUsage(step.tool.slug)
       setProgress({ ratio: 1, label: t.progress.done })
-      setOutput({ name: current.name, blob: current })
+      setOutputs(uniqueOutputs(nextOutputs))
       setStatus('done')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t.run.failed)
@@ -146,7 +158,7 @@ function WorkflowRunner() {
   function reset() {
     setFiles([])
     setSteps([])
-    setOutput(null)
+    setOutputs([])
     setStatus('idle')
     setError('')
     setProgress({ ratio: 0, label: '' })
@@ -202,7 +214,7 @@ function WorkflowRunner() {
           <Dropzone
             accept="application/pdf,.pdf"
             acceptLabel={t.accept.pdf}
-            multiple={false}
+            multiple
             files={files}
             onChange={setFiles}
           />
@@ -251,10 +263,25 @@ function WorkflowRunner() {
 
         {running && <div className="space-y-2"><div className="h-1.5 overflow-hidden rounded-full bg-subtle"><div className="h-full rounded-full bg-accent transition-[width] duration-200" style={{ width: `${Math.max(4, Math.round(progress.ratio * 100))}%` }} /></div><p className="text-xs text-muted">{progress.label || t.run.working}</p></div>}
         {status === 'error' && <p className="flex gap-2.5 rounded-card border border-line bg-surface px-4 py-3 text-sm text-danger"><Icon name="alert" className="mt-0.5 size-4 shrink-0" />{error}</p>}
-        {status === 'done' && output && <section className="rounded-card border border-accent-line bg-surface"><header className="flex items-center gap-2 border-b border-line px-5 py-4 text-sm font-semibold text-ink"><Icon name="check" className="size-4 text-accent" strokeWidth={2} />{t.workflow.done}</header><div className="flex items-center gap-3 px-5 py-4"><span className="min-w-0 flex-1"><span className="block truncate text-sm text-ink">{output.name}</span><span className="block text-xs text-muted">{formatBytes(totalOut)}</span></span><button type="button" onClick={() => setPreviewing(true)} className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft transition hover:border-line-strong"><Icon name="eye" className="size-4" />{t.run.preview}</button><button type="button" onClick={() => saveBlob(output.blob, output.name)} className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft transition hover:border-line-strong"><Icon name="download" className="size-4" />{t.run.download}</button></div><p className="border-t border-line px-5 py-3 text-xs text-muted">{t.run.ephemeral}</p></section>}
+        {status === 'done' && outputs.length > 0 && <section className="rounded-card border border-accent-line bg-surface"><header className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4"><span className="flex items-center gap-2 text-sm font-semibold text-ink"><Icon name="check" className="size-4 text-accent" strokeWidth={2} />{outputs.length === 1 ? t.workflow.done : fmt(t.run.doneMany, { n: outputs.length })} <span className="font-normal text-muted">({formatBytes(totalOut)})</span></span>{outputs.length > 1 && <button type="button" onClick={() => saveAllAsZip(outputs, t.workflow.zipName)} className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-canvas transition hover:opacity-90">{t.run.zip}</button>}</header><ul className="max-h-80 divide-y divide-line overflow-y-auto">{outputs.map((output) => <li key={output.name} className="flex items-center gap-3 px-5 py-3"><span className="min-w-0 flex-1"><span className="block truncate text-sm text-ink">{output.name}</span><span className="block text-xs text-muted">{formatBytes(output.blob.size)}</span></span><button type="button" onClick={() => setPreviewing(output)} className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft transition hover:border-line-strong"><Icon name="eye" className="size-4" />{t.run.preview}</button><button type="button" onClick={() => saveBlob(output.blob, output.name)} className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm text-ink-soft transition hover:border-line-strong"><Icon name="download" className="size-4" />{t.run.download}</button></li>)}</ul><p className="border-t border-line px-5 py-3 text-xs text-muted">{t.run.ephemeral}</p></section>}
       </div>
 
-      {previewing && output && <PreviewModal blob={output.blob} name={output.name} onClose={() => setPreviewing(false)} />}
+      {previewing && <PreviewModal blob={previewing.blob} name={previewing.name} onClose={() => setPreviewing(null)} />}
     </div>
   )
+}
+
+function uniqueOutputs(outputs: OutputFile[]): OutputFile[] {
+  const names = new Set<string>()
+  return outputs.map((output) => {
+    const dot = output.name.lastIndexOf('.')
+    const stem = dot > 0 ? output.name.slice(0, dot) : output.name
+    const extension = dot > 0 ? output.name.slice(dot) : ''
+    let name = output.name
+    let suffix = 2
+    // Evita que una descarga ZIP sobrescriba resultados de entradas homónimas.
+    while (names.has(name)) name = `${stem} (${suffix++})${extension}`
+    names.add(name)
+    return name === output.name ? output : { ...output, name }
+  })
 }
