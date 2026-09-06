@@ -370,6 +370,8 @@ export const en: typeof es = {
     signatureEmpty: 'Create a signature before signing the document.',
     repairEncrypted:
       'The document is encrypted: remove the password with Unlock PDF and try again.',
+    sanitizeEncrypted:
+      'The document is encrypted: remove its password with Remove password before sanitising it.',
     organizeEmpty: 'No pages left: add at least one before exporting.',
     cropEmpty: 'The crop leaves the page empty: ease one of the margins.',
     redactEmpty: 'Draw at least one rectangle over the text you want to redact.',
@@ -401,6 +403,7 @@ export const en: typeof es = {
     inserted: 'inserted',
     duplicated: 'duplicated',
     repaired: 'repaired',
+    sanitized: 'sanitised',
     protected: 'protected',
     unlocked: 'unlocked',
     watermark: 'watermark',
@@ -430,6 +433,7 @@ export const en: typeof es = {
     extractingImages: 'Extracting images',
     writingPdf: 'Writing the PDF',
     repairing: 'Rebuilding the structure',
+    sanitizing: 'Removing active elements and attached data',
     rebuildingObjects: 'Recovering the objects',
     salvaging: 'Salvaging what is left',
     encrypting: 'Encrypting the document',
@@ -895,6 +899,14 @@ export const en: typeof es = {
       description: 'Rewrites the PDF cross-reference table to rescue files that will not open.',
       action: 'Repair',
       note: 'It tries several strategies, from the most faithful to the most aggressive. What was lost does not come back: from a truncated file it salvages up to the last complete object.',
+    },
+    sanitize: {
+      name: 'Sanitise PDF',
+      short: 'Remove active elements, attachments, and hidden data from the document.',
+      description:
+        'Creates a clean PDF copy without automatic actions, JavaScript, links and annotations, forms, attachments, bookmarks, or metadata.',
+      action: 'Sanitise PDF',
+      note: 'It keeps the pages’ visible content, but also removes comments, links, and fillable fields. Remove its password first if it is encrypted. It is not a replacement for antivirus scanning.',
     },
 
     protect: {

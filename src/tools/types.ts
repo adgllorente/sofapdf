@@ -89,6 +89,7 @@ export type ToolSlug =
   | 'grayscale'
   | 'flatten'
   | 'repair'
+  | 'sanitize'
   | 'ocr'
   | 'protect'
   | 'unlock'
