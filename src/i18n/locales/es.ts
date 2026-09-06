@@ -375,6 +375,8 @@ export const es = {
     signatureEmpty: 'Crea una firma antes de firmar el documento.',
     repairEncrypted:
       'El documento está cifrado: quítale la contraseña con Desbloquear PDF y vuelve a intentarlo.',
+    sanitizeEncrypted:
+      'El documento está cifrado: quítale la contraseña con Quitar contraseña antes de sanitizarlo.',
     organizeEmpty: 'No queda ninguna página: añade al menos una antes de exportar.',
     cropEmpty: 'El recorte deja la página vacía: reduce algún margen.',
     redactEmpty: 'Dibuja al menos un rectángulo sobre el texto que quieres censurar.',
@@ -407,6 +409,7 @@ export const es = {
     inserted: 'insertado',
     duplicated: 'duplicado',
     repaired: 'reparado',
+    sanitized: 'sanitizado',
     protected: 'protegido',
     unlocked: 'sin-contraseña',
     watermark: 'marca-de-agua',
@@ -436,6 +439,7 @@ export const es = {
     extractingImages: 'Extrayendo imágenes',
     writingPdf: 'Escribiendo el PDF',
     repairing: 'Reconstruyendo la estructura',
+    sanitizing: 'Eliminando elementos activos y datos adjuntos',
     rebuildingObjects: 'Recuperando los objetos',
     salvaging: 'Rescatando lo que queda',
     encrypting: 'Cifrando el documento',
@@ -901,6 +905,14 @@ export const es = {
       description: 'Reescribe la tabla de referencias del PDF para rescatar ficheros que no abren.',
       action: 'Reparar',
       note: 'Se prueban varias estrategias, de la más fiel a la más agresiva. Lo que se perdió no vuelve: de un fichero truncado se rescata hasta el último objeto completo.',
+    },
+    sanitize: {
+      name: 'Sanitizar PDF',
+      short: 'Elimina elementos activos, adjuntos y datos ocultos del documento.',
+      description:
+        'Crea una copia limpia del PDF sin acciones automáticas, JavaScript, enlaces y anotaciones, formularios, archivos adjuntos, marcadores ni metadatos.',
+      action: 'Sanitizar PDF',
+      note: 'Conserva el contenido visible de las páginas, pero elimina también comentarios, enlaces y campos rellenables. Si está cifrado, quita primero la contraseña. No sustituye un análisis antivirus.',
     },
 
     protect: {

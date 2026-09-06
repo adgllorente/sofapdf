@@ -393,6 +393,17 @@ export const TOOLS: Tool[] = [
     load: () => import('./impl/repair').then((m) => m.run),
   },
   {
+    slug: 'sanitize',
+    icon: 'shield',
+    category: 'seguridad',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    workflow: true,
+    load: () => import('./impl/sanitize').then((m) => m.run),
+  },
+  {
     slug: 'protect',
     icon: 'lock',
     category: 'seguridad',
