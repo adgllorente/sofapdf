@@ -280,6 +280,15 @@ export const es = {
     },
   },
 
+  unlockPrompt: {
+    title: 'Este PDF está protegido con contraseña',
+    body: 'Escribe la contraseña para desbloquearlo localmente. El resultado final no tendrá contraseña.',
+    password: 'Contraseña para {name}',
+    submit: 'Desbloquear y continuar',
+    processing: 'Desbloqueando…',
+    cancel: 'Cancelar',
+  },
+
   card: {
     soon: 'Pronto',
   },

@@ -136,3 +136,7 @@ export function defaultValues(tool: Tool): OptionValues {
   for (const field of tool.options ?? []) values[field.key] = field.default
   return values
 }
+
+export function isPasswordTool(tool: Tool): boolean {
+  return tool.slug === 'protect' || tool.slug === 'unlock'
+}

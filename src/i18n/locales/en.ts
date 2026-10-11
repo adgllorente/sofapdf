@@ -276,6 +276,15 @@ export const en: typeof es = {
     },
   },
 
+  unlockPrompt: {
+    title: 'This PDF is password-protected',
+    body: 'Enter the password to unlock it locally. The final result will not have a password.',
+    password: 'Password for {name}',
+    submit: 'Unlock and continue',
+    processing: 'Unlocking…',
+    cancel: 'Cancel',
+  },
+
   card: {
     soon: 'Soon',
   },

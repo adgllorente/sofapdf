@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Dropzone } from '@/components/Dropzone'
 import { Icon } from '@/components/Icon'
 import { OptionsForm } from '@/components/OptionsForm'
 import { PreviewModal } from '@/components/PreviewModal'
+import { UnlockModal } from '@/components/UnlockModal'
 import { applyDocumentSeo, fmt, t } from '@/i18n'
 import { useLocale } from '@/i18n/react'
 import { toolText } from '@/i18n/tools'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
+import { encryptedFiles, unlockFiles } from '@/lib/unlock'
 import {
   bumpToolUsage,
   dismissSupportPrompt,
@@ -16,7 +18,7 @@ import {
 } from '@/lib/usage'
 import { APP } from '@/config'
 import { getTool } from '@/tools/registry'
-import { defaultValues, type OptionValues, type OutputFile, type Tool } from '@/tools/types'
+import { defaultValues, isPasswordTool, type OptionValues, type OutputFile, type Tool } from '@/tools/types'
 import { NotFound } from './NotFound'
 
 type Status = 'idle' | 'running' | 'done' | 'error'
@@ -89,6 +91,9 @@ function ToolRunner({ tool }: { tool: Tool }) {
   const [error, setError] = useState('')
   const [previewing, setPreviewing] = useState<OutputFile | null>(null)
   const [showSupportPrompt, setShowSupportPrompt] = useState(shouldShowSupportPrompt)
+  const [unlockingFiles, setUnlockingFiles] = useState<File[]>([])
+  const [checkingEncryption, setCheckingEncryption] = useState(false)
+  const selectionId = useRef(0)
 
   const running = status === 'running'
   const ready = files.length >= tool.minFiles
@@ -96,6 +101,41 @@ function ToolRunner({ tool }: { tool: Tool }) {
     () => outputs.reduce((sum, output) => sum + output.blob.size, 0),
     [outputs],
   )
+
+  async function handleFiles(nextFiles: File[]) {
+    const currentSelection = ++selectionId.current
+    setFiles(nextFiles)
+    setUnlockingFiles([])
+    if (isPasswordTool(tool) || nextFiles.length === 0) {
+      setCheckingEncryption(false)
+      return
+    }
+
+    setCheckingEncryption(true)
+    try {
+      const protectedFiles = await encryptedFiles(nextFiles)
+      if (currentSelection !== selectionId.current) return
+      setUnlockingFiles(protectedFiles)
+    } catch (cause) {
+      if (currentSelection === selectionId.current) {
+        setError(cause instanceof Error ? cause.message : t.run.failed)
+        setStatus('error')
+      }
+    } finally {
+      if (currentSelection === selectionId.current) setCheckingEncryption(false)
+    }
+  }
+
+  async function unlockSelected(entries: { file: File; password: string }[]) {
+    const unlocked = await unlockFiles(entries)
+    setFiles((current) => current.map((file) => unlocked.get(file) ?? file))
+    setUnlockingFiles([])
+  }
+
+  function cancelUnlock() {
+    setFiles((current) => current.filter((file) => !unlockingFiles.includes(file)))
+    setUnlockingFiles([])
+  }
 
   async function execute() {
     setStatus('running')
@@ -119,11 +159,14 @@ function ToolRunner({ tool }: { tool: Tool }) {
   }
 
   function reset() {
+    selectionId.current += 1
     setFiles([])
     setOutputs([])
     setStatus('idle')
     setError('')
     setValues(defaultValues(tool))
+    setUnlockingFiles([])
+    setCheckingEncryption(false)
   }
 
   function dismissSupport() {
@@ -199,7 +242,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
           acceptLabel={t.accept[tool.acceptKey]}
           multiple={tool.multiple}
           files={files}
-          onChange={setFiles}
+          onChange={handleFiles}
           sortable={tool.multiple}
         />
 
@@ -220,7 +263,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
           <button
             type="button"
             onClick={execute}
-            disabled={!ready || running}
+            disabled={!ready || running || checkingEncryption || unlockingFiles.length > 0}
             className="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
           >
             {running ? t.run.processing : text.action}
@@ -331,6 +374,9 @@ function ToolRunner({ tool }: { tool: Tool }) {
           name={previewing.name}
           onClose={() => setPreviewing(null)}
         />
+      )}
+      {unlockingFiles.length > 0 && (
+        <UnlockModal files={unlockingFiles} onUnlock={unlockSelected} onCancel={cancelUnlock} />
       )}
     </div>
   )

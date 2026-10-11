@@ -1,15 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Dropzone } from '@/components/Dropzone'
 import { Icon } from '@/components/Icon'
 import { OptionsForm } from '@/components/OptionsForm'
 import { PreviewModal } from '@/components/PreviewModal'
+import { UnlockModal } from '@/components/UnlockModal'
 import { fmt, t } from '@/i18n'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
+import { encryptedFiles, unlockFiles } from '@/lib/unlock'
 import { bumpToolUsage } from '@/lib/usage'
 import { loadMetadataFromFile } from '@/tools/metadata-loader'
 import { getTool, TOOLS } from '@/tools/registry'
-import { defaultValues, type OptionValues, type OutputFile, type Tool } from '@/tools/types'
+import { defaultValues, isPasswordTool, type OptionValues, type OutputFile, type Tool } from '@/tools/types'
 
 type Status = 'idle' | 'running' | 'done' | 'error'
 type Step = { id: number; tool: Tool; values: OptionValues }
@@ -29,6 +31,9 @@ function WorkflowRunner() {
   const [error, setError] = useState('')
   const [previewing, setPreviewing] = useState<OutputFile | null>(null)
   const [nextId, setNextId] = useState(1)
+  const [unlockingFiles, setUnlockingFiles] = useState<File[]>([])
+  const [checkingEncryption, setCheckingEncryption] = useState(false)
+  const selectionId = useRef(0)
 
   const running = status === 'running'
   const ready = files.length > 0 && steps.length > 0
@@ -36,6 +41,44 @@ function WorkflowRunner() {
     () => outputs.reduce((sum, output) => sum + output.blob.size, 0),
     [outputs],
   )
+
+  async function handleFiles(nextFiles: File[]) {
+    const currentSelection = ++selectionId.current
+    setFiles(nextFiles)
+    setUnlockingFiles([])
+
+    // Si el workflow ya incluye una acción de contraseñas, esa acción gestiona
+    // explícitamente el acceso al documento y no se duplica el diálogo.
+    if (steps.some((step) => isPasswordTool(step.tool)) || nextFiles.length === 0) {
+      setCheckingEncryption(false)
+      return
+    }
+
+    setCheckingEncryption(true)
+    try {
+      const protectedFiles = await encryptedFiles(nextFiles)
+      if (currentSelection !== selectionId.current) return
+      setUnlockingFiles(protectedFiles)
+    } catch (cause) {
+      if (currentSelection === selectionId.current) {
+        setError(cause instanceof Error ? cause.message : t.run.failed)
+        setStatus('error')
+      }
+    } finally {
+      if (currentSelection === selectionId.current) setCheckingEncryption(false)
+    }
+  }
+
+  async function unlockSelected(entries: { file: File; password: string }[]) {
+    const unlocked = await unlockFiles(entries)
+    setFiles((current) => current.map((file) => unlocked.get(file) ?? file))
+    setUnlockingFiles([])
+  }
+
+  function cancelUnlock() {
+    setFiles((current) => current.filter((file) => !unlockingFiles.includes(file)))
+    setUnlockingFiles([])
+  }
 
   // Algunas herramientas saben inicializar sus valores a partir del PDF de
   // entrada (metadata lee la info dict actual). En el resto, caemos al
@@ -156,12 +199,15 @@ function WorkflowRunner() {
   }
 
   function reset() {
+    selectionId.current += 1
     setFiles([])
     setSteps([])
     setOutputs([])
     setStatus('idle')
     setError('')
     setProgress({ ratio: 0, label: '' })
+    setUnlockingFiles([])
+    setCheckingEncryption(false)
   }
 
   return (
@@ -216,7 +262,7 @@ function WorkflowRunner() {
             acceptLabel={t.accept.pdf}
             multiple
             files={files}
-            onChange={setFiles}
+            onChange={handleFiles}
           />
         </section>
 
@@ -256,7 +302,7 @@ function WorkflowRunner() {
         </section>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button type="button" onClick={execute} disabled={!ready || running} className="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40">{running ? t.run.processing : t.workflow.run}</button>
+          <button type="button" onClick={execute} disabled={!ready || running || checkingEncryption || unlockingFiles.length > 0} className="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40">{running ? t.run.processing : t.workflow.run}</button>
           {(files.length > 0 || steps.length > 0) && <button type="button" onClick={reset} disabled={running} className="rounded-lg border border-line px-4 py-2.5 text-sm text-muted transition hover:border-line-strong hover:text-ink disabled:opacity-40">{t.workflow.reset}</button>}
           {!ready && <span className="text-sm text-muted">{steps.length === 0 ? t.workflow.empty : t.run.needOne}</span>}
         </div>
@@ -267,6 +313,7 @@ function WorkflowRunner() {
       </div>
 
       {previewing && <PreviewModal blob={previewing.blob} name={previewing.name} onClose={() => setPreviewing(null)} />}
+      {unlockingFiles.length > 0 && <UnlockModal files={unlockingFiles} onUnlock={unlockSelected} onCancel={cancelUnlock} />}
     </div>
   )
 }
