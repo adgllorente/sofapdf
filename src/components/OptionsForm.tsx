@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { t } from '@/i18n'
 import { choiceLabel, optionText } from '@/i18n/tools'
 import { ColorPicker } from '@/components/ColorPicker'
+import { Icon } from '@/components/Icon'
 import type { OptionValues, Tool } from '@/tools/types'
 
 type Props = {
@@ -14,6 +16,7 @@ const inputClass =
   'w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink transition placeholder:text-muted focus:border-accent disabled:opacity-50'
 
 export function OptionsForm({ tool, values, onChange, disabled }: Props) {
+  const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({})
   const visible = (tool.options ?? []).filter((field) => !field.showIf || field.showIf(values))
 
   function set(key: string, value: OptionValues[string]) {
@@ -45,15 +48,34 @@ export function OptionsForm({ tool, values, onChange, disabled }: Props) {
             )}
 
             {(field.type === 'text' || field.type === 'password') && (
-              <input
-                type={field.type}
-                className={inputClass}
-                value={String(values[field.key])}
-                placeholder={field.placeholder}
-                disabled={disabled}
-                autoComplete={field.type === 'password' ? 'off' : undefined}
-                onChange={(event) => set(field.key, event.target.value)}
-              />
+              <span className="relative block">
+                <input
+                  type={field.type === 'password' && !visiblePasswords[field.key] ? 'password' : 'text'}
+                  className={`${inputClass} ${field.type === 'password' ? 'pr-10' : ''}`}
+                  value={String(values[field.key])}
+                  placeholder={field.placeholder}
+                  disabled={disabled}
+                  autoComplete={field.type === 'password' ? 'off' : undefined}
+                  onChange={(event) => set(field.key, event.target.value)}
+                />
+                {field.type === 'password' && (
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted transition hover:text-ink disabled:opacity-50"
+                    aria-label={visiblePasswords[field.key] ? t.options.hidePassword : t.options.showPassword}
+                    aria-pressed={Boolean(visiblePasswords[field.key])}
+                    disabled={disabled}
+                    onClick={() =>
+                      setVisiblePasswords((current) => ({
+                        ...current,
+                        [field.key]: !current[field.key],
+                      }))
+                    }
+                  >
+                    <Icon name={visiblePasswords[field.key] ? 'eyeOff' : 'eye'} className="size-4" />
+                  </button>
+                )}
+              </span>
             )}
 
             {field.type === 'color' && (

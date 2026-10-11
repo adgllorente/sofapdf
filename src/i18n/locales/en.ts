@@ -247,6 +247,8 @@ export const en: typeof es = {
     title: 'Options',
     on: 'On',
     off: 'Off',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
   },
 
   run: {

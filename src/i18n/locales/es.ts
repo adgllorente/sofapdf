@@ -251,6 +251,8 @@ export const es = {
     title: 'Opciones',
     on: 'Activado',
     off: 'Desactivado',
+    showPassword: 'Mostrar contraseña',
+    hidePassword: 'Ocultar contraseña',
   },
 
   run: {
