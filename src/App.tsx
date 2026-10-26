@@ -9,6 +9,7 @@ import { WorkflowPage } from '@/pages/WorkflowPage'
 import { ComparePage } from '@/pages/ComparePage'
 import { ScrollToTop } from '@/components/ScrollToTop'
 import { useLocale } from '@/i18n/react'
+import { Analytics } from '@vercel/analytics/react'
 
 export default function App() {
   // Un solo suscriptor en la raíz: cambiar de idioma repinta todo el árbol.
@@ -17,6 +18,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <Analytics />
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />

@@ -89,7 +89,7 @@ export const es = {
     },
     noTracking: {
       title: 'Sin cuentas ni rastreo individual',
-      body: 'No hay registro, cookies de sesión, publicidad ni rastreo individual. Usamos Cloudflare Web Analytics para medir el rendimiento de forma agregada y sin venderte nada.',
+      body: 'No hay registro, cookies de sesión, publicidad ni rastreo individual. Usamos Vercel Web Analytics para medir el uso agregado del sitio.',
     },
     private: {
       title: '100% privado',
@@ -328,7 +328,7 @@ export const es = {
       },
       devtools: {
         title: 'Mira la pestaña Red de las DevTools',
-        body: 'Abre las herramientas de desarrollo (F12), ve a Red y procesa un documento. Puede aparecer una petición de Cloudflare Web Analytics con métricas técnicas, pero no hay ningún POST con tu archivo ni con datos derivados de él.',
+        body: 'Abre las herramientas de desarrollo (F12), ve a Red y procesa un documento. Puede aparecer una petición de Vercel Web Analytics con datos de navegación, pero no se envía el archivo ni datos derivados de él.',
       },
       source: {
         title: 'Lee el código',
@@ -340,7 +340,7 @@ export const es = {
     limits: {
       ip: {
         strong: 'Servir la web deja huella.',
-        body: 'Al cargar la página, el servidor que la aloja ve tu IP y tu navegador, como cualquier otra web. Cloudflare Web Analytics recibe únicamente métricas técnicas de rendimiento y no usa cookies, almacenamiento local ni huellas digitales para seguirte. Lo que nunca ve es tu documento.',
+        body: 'Al cargar la página, el servidor que la aloja ve tu IP y tu navegador, como cualquier otra web. Vercel Web Analytics recibe datos de navegación agregados. Lo que nunca recibe es tu documento ni datos derivados de él.',
       },
       theme: {
         strong: 'Se guardan algunos ajustes.',
@@ -356,9 +356,9 @@ export const es = {
       },
     },
     analytics: {
-      title: 'Analítica ética, sin venderte nada',
-      body: 'Usaremos Cloudflare Web Analytics para saber qué páginas funcionan y detectar problemas de rendimiento. No crea perfiles, no usa cookies ni rastrea a las personas entre visitas o sitios. Solo recoge métricas técnicas de la carga de la página; nunca recibe tus documentos ni datos derivados de ellos.',
-      link: 'Más información sobre la privacidad de Cloudflare Web Analytics',
+      title: 'Analítica del sitio',
+      body: 'Usamos Vercel Web Analytics para conocer las visitas y páginas vistas de forma agregada. La integración registra la ruta de navegación, no incluye nombres de archivo, opciones ni resultados de las herramientas, y nunca recibe tus documentos ni datos derivados de ellos.',
+      link: 'Más información sobre Vercel Web Analytics',
     },
   },
 

@@ -85,7 +85,7 @@ export const en: typeof es = {
     },
     noTracking: {
       title: 'No accounts, no individual tracking',
-      body: 'No sign-up, session cookies, advertising or individual tracking. We use Cloudflare Web Analytics to measure performance in aggregate, not to sell you anything.',
+      body: 'No sign-up, session cookies, advertising or individual tracking. We use Vercel Web Analytics to measure site usage in aggregate.',
     },
     private: {
       title: '100% private',
@@ -324,7 +324,7 @@ export const en: typeof es = {
       },
       devtools: {
         title: 'Watch the Network tab in DevTools',
-        body: 'Open the developer tools (F12), go to Network and process a document. A Cloudflare Web Analytics request with technical metrics may appear, but there is no POST carrying your file or data derived from it.',
+        body: 'Open the developer tools (F12), go to Network and process a document. A Vercel Web Analytics request with navigation data may appear, but the file and data derived from it are never sent.',
       },
       source: {
         title: 'Read the code',
@@ -336,7 +336,7 @@ export const en: typeof es = {
     limits: {
       ip: {
         strong: 'Serving the site leaves a trace.',
-        body: 'When the page loads, the server that hosts it sees your IP and your browser, like any other website. Cloudflare Web Analytics receives only technical performance metrics and does not use cookies, local storage or fingerprints to follow you. What it never sees is your document.',
+        body: 'When the page loads, the server that hosts it sees your IP and browser, like any other website. Vercel Web Analytics receives aggregated navigation data. It never receives your document or data derived from it.',
       },
       theme: {
         strong: 'Some settings are stored.',
@@ -352,9 +352,9 @@ export const en: typeof es = {
       },
     },
     analytics: {
-      title: 'Ethical analytics, nothing to sell you',
-      body: 'We will use Cloudflare Web Analytics to understand which pages work and find performance problems. It does not create profiles, use cookies, or track people across visits or sites. It only collects technical page-load metrics; it never receives your documents or data derived from them.',
-      link: 'Learn more about Cloudflare Web Analytics privacy',
+      title: 'Site analytics',
+      body: 'We use Vercel Web Analytics to understand visits and page views in aggregate. The integration records the navigation path; it does not include file names, tool options or results, and it never receives your documents or data derived from them.',
+      link: 'Learn more about Vercel Web Analytics',
     },
   },
 
