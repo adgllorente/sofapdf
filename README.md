@@ -87,8 +87,9 @@ Añadir un idioma es copiar `en.ts` y sumarlo al mapa de `src/i18n/index.ts`.
    }
    ```
 
-2. Añade la entrada en `TOOLS` (`src/tools/registry.ts`) con `status: 'ready'` y
-   `load: () => import('./impl/mi-tool').then((m) => m.run)`, y el slug a `ToolSlug`.
+2. Añade su carga diferida en `IMPLS` (`src/tools/impls.ts`), la entrada en `TOOLS`
+   (`src/tools/registry.ts`) con `status: 'ready'` y `load: IMPLS['mi-tool']`, y el slug a
+   `ToolSlug`. La implementación corre en un Web Worker: no puede usar el DOM.
 
 3. Añade sus textos en `tools` de los dos diccionarios.
 

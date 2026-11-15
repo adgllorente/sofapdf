@@ -1,4 +1,5 @@
 import type { Tool, ToolCategoryId } from './types'
+import { IMPLS } from './impls'
 import { getToolUsage } from '@/lib/usage'
 import { CropPreview } from './CropPreview'
 import { OrganizePreview } from './OrganizePreview'
@@ -29,7 +30,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: true,
     minFiles: 2,
-    load: () => import('./impl/merge').then((m) => m.run),
+    load: IMPLS['merge'],
   },
   {
     slug: 'split',
@@ -59,7 +60,7 @@ export const TOOLS: Tool[] = [
         showIf: (values) => values.mode === 'size',
       },
     ],
-    load: () => import('./impl/split').then((m) => m.run),
+    load: IMPLS['split'],
   },
   {
     slug: 'insert',
@@ -76,7 +77,7 @@ export const TOOLS: Tool[] = [
       { key: 'pageSize', type: 'select', default: 'a4', choices: ['a4', 'letter'] },
       { key: 'orientation', type: 'select', default: 'portrait', choices: ['portrait', 'landscape'] },
     ],
-    load: () => import('./impl/insert').then((m) => m.run),
+    load: IMPLS['insert'],
   },
   {
     slug: 'duplicate',
@@ -91,7 +92,7 @@ export const TOOLS: Tool[] = [
       { key: 'pages', type: 'text', default: '1-', placeholder: '1-3, 5, 9-' },
       { key: 'copies', type: 'number', default: 2, min: 2, max: 100 },
     ],
-    load: () => import('./impl/duplicate').then((m) => m.run),
+    load: IMPLS['duplicate'],
   },
   {
     slug: 'rotate',
@@ -106,7 +107,7 @@ export const TOOLS: Tool[] = [
       { key: 'angle', type: 'select', default: '90', choices: ['90', '180', '270'] },
       { key: 'pages', type: 'text', default: '1-', placeholder: '1-3, 5' },
     ],
-    load: () => import('./impl/rotate').then((m) => m.run),
+    load: IMPLS['rotate'],
   },
   {
     slug: 'organize',
@@ -116,7 +117,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: true,
     minFiles: 1,
-    load: () => import('./impl/organize').then((m) => m.run),
+    load: IMPLS['organize'],
     Preview: OrganizePreview,
   },
   {
@@ -135,7 +136,7 @@ export const TOOLS: Tool[] = [
       { key: 'order', type: 'select', default: 'rows', choices: ['rows', 'columns'] },
       { key: 'lines', type: 'toggle', default: false },
     ],
-    load: () => import('./impl/n-up').then((m) => m.run),
+    load: IMPLS['n-up'],
   },
   {
     slug: 'remove-blank-pages',
@@ -146,7 +147,7 @@ export const TOOLS: Tool[] = [
     multiple: false,
     minFiles: 1,
     workflow: true,
-    load: () => import('./impl/remove-blank-pages').then((m) => m.run),
+    load: IMPLS['remove-blank-pages'],
   },
   {
     slug: 'number',
@@ -177,7 +178,7 @@ export const TOOLS: Tool[] = [
       { key: 'withTotal', type: 'toggle', default: false },
       { key: 'skipFirst', type: 'toggle', default: false },
     ],
-    load: () => import('./impl/number').then((m) => m.run),
+    load: IMPLS['number'],
   },
   {
     slug: 'header-footer',
@@ -195,7 +196,7 @@ export const TOOLS: Tool[] = [
       { key: 'margin', type: 'number', default: 28, min: 4, max: 120, step: 4 },
       { key: 'pages', type: 'text', default: '1-', placeholder: '1-3, 5' },
     ],
-    load: () => import('./impl/header-footer').then((m) => m.run),
+    load: IMPLS['header-footer'],
   },
   {
     slug: 'watermark',
@@ -228,7 +229,7 @@ export const TOOLS: Tool[] = [
       { key: 'rotation', type: 'number', default: -45, min: -90, max: 90, step: 5 },
       { key: 'pages', type: 'text', default: '1-', placeholder: '1-3, 5' },
     ],
-    load: () => import('./impl/watermark').then((m) => m.run),
+    load: IMPLS['watermark'],
   },
   {
     slug: 'crop',
@@ -241,7 +242,7 @@ export const TOOLS: Tool[] = [
     options: [
       { key: 'applyTo', type: 'select', default: 'all', choices: ['all', 'one'] },
     ],
-    load: () => import('./impl/crop').then((m) => m.run),
+    load: IMPLS['crop'],
     Preview: CropPreview,
   },
   {
@@ -255,7 +256,7 @@ export const TOOLS: Tool[] = [
     options: [
       { key: 'tolerance', type: 'number', default: 30, min: 0, max: 255 },
     ],
-    load: () => import('./impl/compare').then((m) => m.run),
+    load: IMPLS['compare'],
   },
 
   {
@@ -285,7 +286,7 @@ export const TOOLS: Tool[] = [
         showIf: (values) => values.pageSize !== 'fit',
       },
     ],
-    load: () => import('./impl/images-to-pdf').then((m) => m.run),
+    load: IMPLS['jpg-to-pdf'],
   },
   {
     slug: 'pdf-to-jpg',
@@ -309,7 +310,7 @@ export const TOOLS: Tool[] = [
         showIf: (values) => values.format === 'jpeg',
       },
     ],
-    load: () => import('./impl/pdf-to-images').then((m) => m.run),
+    load: IMPLS['pdf-to-jpg'],
   },
   {
     slug: 'extract-images',
@@ -319,7 +320,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
-    load: () => import('./impl/extract-images').then((m) => m.run),
+    load: IMPLS['extract-images'],
   },
   {
     slug: 'pdf-to-text',
@@ -329,7 +330,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
-    load: () => import('./impl/pdf-to-text').then((m) => m.run),
+    load: IMPLS['pdf-to-text'],
   },
   {
     slug: 'ocr',
@@ -343,7 +344,7 @@ export const TOOLS: Tool[] = [
     options: [
       { key: 'language', type: 'select', default: 'spa', choices: ['spa', 'eng'] },
     ],
-    load: () => import('./impl/ocr').then((m) => m.run),
+    load: IMPLS['ocr'],
   },
   {
     slug: 'compress',
@@ -357,7 +358,7 @@ export const TOOLS: Tool[] = [
     options: [
       { key: 'level', type: 'select', default: 'balanced', choices: ['light', 'balanced', 'max'] },
     ],
-    load: () => import('./impl/compress').then((m) => m.run),
+    load: IMPLS['compress'],
   },
   {
     slug: 'grayscale',
@@ -368,7 +369,7 @@ export const TOOLS: Tool[] = [
     multiple: false,
     minFiles: 1,
     workflow: true,
-    load: () => import('./impl/grayscale').then((m) => m.run),
+    load: IMPLS['grayscale'],
   },
   {
     slug: 'flatten',
@@ -379,7 +380,7 @@ export const TOOLS: Tool[] = [
     multiple: false,
     minFiles: 1,
     workflow: true,
-    load: () => import('./impl/flatten').then((m) => m.run),
+    load: IMPLS['flatten'],
   },
   {
     slug: 'repair',
@@ -390,7 +391,7 @@ export const TOOLS: Tool[] = [
     multiple: false,
     minFiles: 1,
     workflow: true,
-    load: () => import('./impl/repair').then((m) => m.run),
+    load: IMPLS['repair'],
   },
   {
     slug: 'sanitize',
@@ -401,7 +402,7 @@ export const TOOLS: Tool[] = [
     multiple: false,
     minFiles: 1,
     workflow: true,
-    load: () => import('./impl/sanitize').then((m) => m.run),
+    load: IMPLS['sanitize'],
   },
   {
     slug: 'protect',
@@ -416,7 +417,7 @@ export const TOOLS: Tool[] = [
       { key: 'password', type: 'password', default: '' },
       { key: 'confirm', type: 'password', default: '' },
     ],
-    load: () => import('./impl/protect').then((m) => m.run),
+    load: IMPLS['protect'],
   },
   {
     slug: 'unlock',
@@ -428,7 +429,7 @@ export const TOOLS: Tool[] = [
     minFiles: 1,
     workflow: true,
     options: [{ key: 'password', type: 'password', default: '' }],
-    load: () => import('./impl/unlock').then((m) => m.run),
+    load: IMPLS['unlock'],
   },
   {
     slug: 'sign',
@@ -441,7 +442,7 @@ export const TOOLS: Tool[] = [
     options: [
       { key: 'applyTo', type: 'select', default: 'one', choices: ['one', 'all'] },
     ],
-    load: () => import('./impl/sign').then((m) => m.run),
+    load: IMPLS['sign'],
     Preview: SignaturePreview,
   },
   {
@@ -452,7 +453,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
-    load: () => import('./impl/edit').then((m) => m.run),
+    load: IMPLS['edit'],
     Preview: EditPreview,
   },
   {
@@ -463,7 +464,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
-    load: () => import('./impl/redact').then((m) => m.run),
+    load: IMPLS['redact'],
     Preview: RedactPreview,
   },
   {
@@ -481,7 +482,7 @@ export const TOOLS: Tool[] = [
       { key: 'subject', type: 'text', default: '' },
       { key: 'keywords', type: 'text', default: '' },
     ],
-    load: () => import('./impl/metadata').then((m) => m.run),
+    load: IMPLS['metadata'],
     Preview: MetadataPreview,
   },
   {
@@ -493,7 +494,7 @@ export const TOOLS: Tool[] = [
     multiple: false,
     minFiles: 1,
     workflow: true,
-    load: () => import('./impl/bookmarks').then((m) => m.run),
+    load: IMPLS['bookmarks'],
     Preview: BookmarksPreview,
   },
   {
@@ -504,7 +505,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
-    load: () => import('./impl/report').then((m) => m.run),
+    load: IMPLS['report'],
   },
   {
     slug: 'accessibility',
@@ -514,7 +515,7 @@ export const TOOLS: Tool[] = [
     ...PDF,
     multiple: false,
     minFiles: 1,
-    load: () => import('./impl/accessibility').then((m) => m.run),
+    load: IMPLS['accessibility'],
   },
 ]
 

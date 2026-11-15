@@ -9,7 +9,7 @@ import { applyDocumentSeo, fmt, t } from '@/i18n'
 import { useLocale } from '@/i18n/react'
 import { toolText } from '@/i18n/tools'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
-import { encryptedFiles, preloadEngine, unlockFiles } from '@/lib/unlock'
+import { encryptedFiles, runTool, unlockFiles, warmEngine } from '@/tools/runner'
 import {
   bumpToolUsage,
   dismissSupportPrompt,
@@ -106,7 +106,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
     const currentSelection = ++selectionId.current
     setFiles(nextFiles)
     setUnlockingFiles([])
-    if (nextFiles.length > 0) preloadEngine()
+    if (nextFiles.length > 0) warmEngine(tool.slug)
     if (isPasswordTool(tool) || nextFiles.length === 0) {
       setCheckingEncryption(false)
       return
@@ -145,8 +145,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
     setProgress({ ratio: 0, label: '' })
 
     try {
-      const run = await tool.load!()
-      const result = await run(files, values, {
+      const result = await runTool(tool, files, values, {
         onProgress: (ratio, label = '') => setProgress({ ratio, label }),
       })
       setOutputs(result)

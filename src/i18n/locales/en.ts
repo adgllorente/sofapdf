@@ -439,6 +439,8 @@ export const en: typeof es = {
   progress: {
     page: 'Page {n}',
     document: 'Document {n} of {total}',
+    image: 'Image {n} of {total}',
+    preparing: 'Getting the PDF engine ready…',
     reading: 'Reading {name}',
     readingPdf: 'Reading the PDF',
     compressingImages: 'Compressing images',

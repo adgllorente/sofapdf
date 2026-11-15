@@ -12,6 +12,9 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // El worker de herramientas carga cada implementación de forma diferida: con
+  // `iife` no podría partirse en chunks.
+  worker: { format: 'es' },
   build: {
     // Nada de este proyecto habla con la red: todo el peso va al bundle.
     chunkSizeWarningLimit: 1500,

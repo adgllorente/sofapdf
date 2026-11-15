@@ -1,4 +1,4 @@
-import { t } from '@/i18n'
+import { fmt, t } from '@/i18n'
 import { mupdf, pdfBlob, readPdf, usingPdf, yieldToUI } from '@/lib/mupdf'
 import { baseName } from '@/lib/pages'
 import type { ToolRun } from '@/tools/types'
@@ -124,7 +124,10 @@ export const run: ToolRun = async (files, values, ctx) => {
       } catch {
         // Si una imagen no se deja decodificar, se queda como estaba.
       }
-      ctx.onProgress(0.25 + ((index + 1) / images.length) * 0.55, t.progress.compressingImages)
+      ctx.onProgress(
+        0.25 + ((index + 1) / images.length) * 0.55,
+        fmt(t.progress.image, { n: index + 1, total: images.length }),
+      )
       await yieldToUI()
     }
 

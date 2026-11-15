@@ -76,6 +76,12 @@ export function setLocale(next: Locale): void {
   for (const listener of listeners) listener()
 }
 
+/** En un worker no hay documento ni almacenamiento: solo cambia el diccionario. */
+export function adoptLocale(next: Locale): void {
+  current = next
+  t = DICTS[next]
+}
+
 /** Lo que vive fuera de React: atributo lang, título y meta descripción. */
 export function applyDocumentLocale(): void {
   document.documentElement.lang = t.meta.lang

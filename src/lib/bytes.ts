@@ -15,7 +15,11 @@ function matchesAt(haystack: Uint8Array, needle: Uint8Array, at: number): boolea
 }
 
 export function indexOfBytes(haystack: Uint8Array, needle: Uint8Array): number {
-  for (let i = 0; i <= haystack.length - needle.length; i++) {
+  if (needle.length === 0) return 0
+  const last = haystack.length - needle.length
+  // `indexOf` nativo salta hasta cada candidato: en un PDF de cientos de MB el
+  // bucle en JS byte a byte bloqueaba casi un segundo.
+  for (let i = haystack.indexOf(needle[0]); i !== -1 && i <= last; i = haystack.indexOf(needle[0], i + 1)) {
     if (matchesAt(haystack, needle, i)) return i
   }
   return -1

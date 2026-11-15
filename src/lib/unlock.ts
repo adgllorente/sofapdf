@@ -1,21 +1,6 @@
 import { t } from '@/i18n'
-import { toBlob } from '@/lib/files'
 
-export type UnlockEntry = {
-  file: File
-  password: string
-}
-
-/**
- * Empieza a descargar y compilar MuPDF en segundo plano cuando el usuario ya
- * ha elegido un fichero: así está listo al pulsar el botón, sin bloquearlo.
- */
-export function preloadEngine(): void {
-  // Si falla aquí, volverá a intentarse (y a dar el error) al ejecutar.
-  import('@/lib/mupdf').catch(() => {})
-}
-
-/** Busca el cifrado en un chunk diferido para no meter MuPDF en el bundle inicial. */
+/** Ficheros que necesitan contraseña; MuPDF solo se carga si el escaneo lo pide. */
 export async function encryptedFiles(files: File[]): Promise<File[]> {
   const { encryptionState } = await import('@/lib/encryption')
   const encrypted: File[] = []
@@ -43,19 +28,4 @@ export async function decryptPdf(input: Uint8Array, password: string): Promise<U
     // Sin `garbage`: descifrar no debe tocar la estructura más de lo necesario.
     return pdfBytes(pdf, 'encrypt=none')
   })
-}
-
-/** Devuelve una copia sin contraseña con el mismo nombre, sin persistirla. */
-export async function unlockFile(file: File, password: string): Promise<File> {
-  const input = new Uint8Array(await file.arrayBuffer())
-  const output = await decryptPdf(input, password)
-  return new File([toBlob(output)], file.name, { type: 'application/pdf' })
-}
-
-export async function unlockFiles(entries: UnlockEntry[]): Promise<Map<File, File>> {
-  const unlocked = new Map<File, File>()
-  for (const { file, password } of entries) {
-    unlocked.set(file, await unlockFile(file, password))
-  }
-  return unlocked
 }

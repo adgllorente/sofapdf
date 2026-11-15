@@ -1,4 +1,4 @@
-import { t } from '@/i18n'
+import { fmt, t } from '@/i18n'
 import { mupdf, pdfBlob, readPdf, usingPdf, yieldToUI } from '@/lib/mupdf'
 import { baseName } from '@/lib/pages'
 import type { ToolRun } from '@/tools/types'
@@ -154,7 +154,10 @@ export const run: ToolRun = async (files, _values, ctx) => {
       } catch {
         // Las imágenes no compatibles conservan su formato original.
       }
-      ctx.onProgress(0.35 + ((index + 1) / Math.max(1, images.length)) * 0.5)
+      ctx.onProgress(
+        0.35 + ((index + 1) / Math.max(1, images.length)) * 0.5,
+        fmt(t.progress.image, { n: index + 1, total: images.length }),
+      )
       await yieldToUI()
     }
 

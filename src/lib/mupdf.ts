@@ -7,6 +7,11 @@ import { toBlob } from '@/lib/files'
 
 export { mupdf }
 
+// MuPDF avisa por consola de cada rareza que repara al vuelo («aes padding out
+// of range»…). Los fallos de verdad llegan como excepción; en producción, el
+// resto solo asusta.
+if (!import.meta.env.DEV) mupdf.setLog(() => {})
+
 /**
  * Guardado por defecto: compacta objetos, comprime streams y deja el resultado
  * sin cifrar. Sin `encrypt=none` MuPDF conservaría el cifrado del original.

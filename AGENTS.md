@@ -94,7 +94,7 @@ src/
 
 El dashboard, la página de cada herramienta, el formulario de opciones, la barra de progreso, la
 lista de resultados y los errores se generan **desde el registro**. Una implementación solo recibe
-ficheros y devuelve blobs; no sabe nada de React.
+ficheros y devuelve blobs; no sabe nada de React y se ejecuta en un Web Worker.
 
 ## Añadir una herramienta
 
@@ -109,8 +109,10 @@ ficheros y devuelve blobs; no sabe nada de React.
    }
    ```
 
-2. Entrada en `TOOLS` (`src/tools/registry.ts`) con `status: 'ready'` y
-   `load: () => import('./impl/mi-tool').then((m) => m.run)`. El slug tiene que estar en `ToolSlug`.
+2. Carga diferida en `IMPLS` (`src/tools/impls.ts`):
+   `'mi-tool': () => import('./impl/mi-tool').then((m) => m.run)`, y entrada en `TOOLS`
+   (`src/tools/registry.ts`) con `status: 'ready'` y `load: IMPLS['mi-tool']`. El slug tiene que
+   estar en `ToolSlug`.
 
 3. Textos en `tools` de **los dos** diccionarios (`name`, `short`, `description`, `action`, y
    `note`/`options` si aplica). Si falta un idioma, `tsc` lo caza.
@@ -125,8 +127,13 @@ Reglas:
 - Los objetos de MuPDF viven en el heap del WASM: llama a `destroy()` en documentos, páginas y
   pixmaps grandes (o usa `usingPdf`) en vez de esperar al recolector. `asUint8Array()` devuelve
   una vista sobre ese heap: cópiala con `.slice()` antes de liberar el buffer.
-- MuPDF ejecuta en el hilo principal y de forma síncrona: en documentos largos, cede el control
-  entre páginas con `await yieldToUI()` (de `@/lib/mupdf`) para que la barra de progreso se pinte.
+- Las implementaciones corren en un Web Worker (`src/tools/tool.worker.ts`, vía
+  `src/tools/runner.ts`), porque MuPDF es síncrono y en la pestaña la congelaría con un PDF grande.
+  Por eso **no pueden tocar el DOM**: nada de `document`, canvas ni `localStorage`. Usa pixmaps de
+  MuPDF. La excepción es OCR, que corre en la pestaña porque tesseract ya usa su propio worker
+  (`MAIN_THREAD` en `runner.ts`); ahí sí hay que ceder entre páginas con `await yieldToUI()`.
+- Llama a `ctx.onProgress` por página o por imagen, con una etiqueta concreta («Imagen 3 de 40»):
+  en un documento grande es lo único que le dice al usuario que la herramienta sigue viva.
 - Las opciones son datos, no JSX: `select`, `text`, `number`, `toggle`, con `showIf` para los
   campos dependientes. Si te ves escribiendo un formulario a mano, es que falta un tipo de campo
   en `OptionField`.
@@ -185,8 +192,8 @@ la obra combinada que se sirve a los usuarios queda bajo AGPL-3.0. En la prácti
 - **PDF/A**: MuPDF no convierte a PDF/A. Ghostscript sí (AGPL, ver arriba).
 - **OCR** con `tesseract.js`; el modelo de idioma se sirve desde el propio origen, no desde el CDN
   por defecto de la librería.
-- **Vistas previas**: siguen en pdf.js. Pasarlas a MuPDF exigiría moverlo a un Web Worker para no
-  congelar la interfaz; hasta entonces, no lo hagas en el hilo principal.
+- **Vistas previas**: siguen en pdf.js. Si algún día pasan a MuPDF, que rendericen a través del
+  worker de herramientas, nunca en el hilo principal.
 - **Office ↔ PDF** queda fuera de alcance: exigiría LibreOffice en WASM, cientos de MB. Es la única
   familia donde un servicio con servidor gana, y se asume.
 - Si algún día hace falta `SharedArrayBuffer` para hilos en WASM, el hosting tendrá que servir

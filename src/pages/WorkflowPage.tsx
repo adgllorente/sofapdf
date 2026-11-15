@@ -7,7 +7,7 @@ import { PreviewModal } from '@/components/PreviewModal'
 import { UnlockModal } from '@/components/UnlockModal'
 import { fmt, t } from '@/i18n'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
-import { encryptedFiles, preloadEngine, unlockFiles } from '@/lib/unlock'
+import { encryptedFiles, runTool, unlockFiles, warmEngine } from '@/tools/runner'
 import { bumpToolUsage } from '@/lib/usage'
 import { loadMetadataFromFile } from '@/tools/metadata-loader'
 import { getTool, TOOLS } from '@/tools/registry'
@@ -46,7 +46,7 @@ function WorkflowRunner() {
     const currentSelection = ++selectionId.current
     setFiles(nextFiles)
     setUnlockingFiles([])
-    if (nextFiles.length > 0) preloadEngine()
+    if (nextFiles.length > 0) warmEngine()
 
     // Si el workflow ya incluye una acción de contraseñas, esa acción gestiona
     // explícitamente el acceso al documento y no se duplica el diálogo.
@@ -168,8 +168,7 @@ function WorkflowRunner() {
       for (const [fileIndex, file] of files.entries()) {
         let current = file
         for (const [stepIndex, step] of steps.entries()) {
-          const run = await step.tool.load!()
-          const result = await run([current], step.values, {
+          const result = await runTool(step.tool, [current], step.values, {
             onProgress: (ratio, label = '') =>
               setProgress({
                 ratio: (fileIndex * steps.length + stepIndex + Math.max(0, Math.min(1, ratio))) /

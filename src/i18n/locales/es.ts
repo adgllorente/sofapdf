@@ -444,6 +444,8 @@ export const es = {
   progress: {
     page: 'Página {n}',
     document: 'Documento {n} de {total}',
+    image: 'Imagen {n} de {total}',
+    preparing: 'Preparando el motor PDF…',
     reading: 'Leyendo {name}',
     readingPdf: 'Leyendo el PDF',
     compressingImages: 'Comprimiendo imágenes',
