@@ -399,6 +399,7 @@ export const en: typeof es = {
     bookmarkTitle: 'Every bookmark needs a title.',
     bookmarkPage: 'Page {page} does not exist: the document has {total}.',
     headerFooterEmpty: 'Enter text for the header or footer.',
+    notPdf: 'Could not read “{name}”: it does not look like a valid PDF.',
   },
 
   filenames: {

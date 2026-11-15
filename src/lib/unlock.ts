@@ -6,7 +6,7 @@ export type UnlockEntry = {
   password: string
 }
 
-/** Busca el cifrado en un chunk diferido para no meter pdf-lib en el bundle inicial. */
+/** Busca el cifrado en un chunk diferido para no meter MuPDF en el bundle inicial. */
 export async function encryptedFiles(files: File[]): Promise<File[]> {
   const { encryptionState } = await import('@/lib/encryption')
   const encrypted: File[] = []
@@ -17,13 +17,23 @@ export async function encryptedFiles(files: File[]): Promise<File[]> {
   return encrypted
 }
 
-/** Descifra en memoria; qpdf y su WASM solo se cargan cuando hacen falta. */
+/** Descifra en memoria; MuPDF y su WASM solo se cargan cuando hacen falta. */
 export async function decryptPdf(input: Uint8Array, password: string): Promise<Uint8Array> {
-  const { runQpdf } = await import('@/lib/qpdf')
-  const args = password ? ['--decrypt', `--password=${password}`] : ['--decrypt']
-  const { code, output } = await runQpdf(input, args)
-  if (code !== 0 || !output) throw new Error(t.errors.wrongPassword)
-  return output
+  const { openPdf, pdfBytes, usingPdf } = await import('@/lib/mupdf')
+  let doc
+  try {
+    doc = openPdf(input)
+  } catch {
+    throw new Error(t.errors.wrongPassword)
+  }
+  return usingPdf(doc, (pdf) => {
+    // Sin contraseña de usuario abre directamente; la de propietario no se exige.
+    if (pdf.needsPassword() && !pdf.authenticatePassword(password)) {
+      throw new Error(t.errors.wrongPassword)
+    }
+    // Sin `garbage`: descifrar no debe tocar la estructura más de lo necesario.
+    return pdfBytes(pdf, 'encrypt=none')
+  })
 }
 
 /** Devuelve una copia sin contraseña con el mismo nombre, sin persistirla. */

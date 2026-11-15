@@ -403,6 +403,7 @@ export const es = {
     bookmarkTitle: 'Cada marcador necesita un título.',
     bookmarkPage: 'La página {page} no existe: el documento tiene {total}.',
     headerFooterEmpty: 'Escribe un texto para el encabezado o el pie.',
+    notPdf: 'No se pudo leer «{name}»: no parece un PDF válido.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
