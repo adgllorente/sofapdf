@@ -10,13 +10,17 @@ CDN de fuentes, analítica) rompe también el argumento de venta.
 
 - **Vite 8** + **React 19** + **TypeScript** — estándar, sin framework de más.
 - **Tailwind CSS 4** con configuración CSS-first (`@theme` en `src/index.css`).
-- **react-router-dom** para las rutas.
-- **pdf-lib** para manipular PDF sin rasterizar.
-- **pdfjs-dist** para renderizar páginas a canvas.
+- **react-router-dom** para las rutas; **lucide-react** para los iconos.
+- **MuPDF.js** (`mupdf`, WASM) como motor de todas las herramientas: páginas, contenido, render,
+  texto, imágenes, redacción real, cifrado y reparación.
+- **pdfjs-dist** para las vistas previas interactivas, que renderizan en un worker.
+- **tesseract.js** para el OCR.
 - **jszip** (carga diferida) para descargar varios resultados de una vez.
 
-Sin dependencias de red en tiempo de ejecución: el worker de pdf.js se sirve desde el propio
-bundle, las fuentes son las del sistema y no hay analítica.
+Los documentos no salen del navegador. El WASM de MuPDF, el worker de pdf.js y el modelo de OCR
+se sirven desde el propio bundle, y las fuentes son las del sistema. La única petición a terceros
+es Vercel Web Analytics, que cuenta visitas por ruta y nunca recibe documentos ni nada derivado
+de ellos (detalle en la página de privacidad).
 
 ## Arranque
 
@@ -32,7 +36,13 @@ npm run lint
 
 ## Licencia
 
-El código se distribuye bajo la [licencia MIT](LICENSE).
+El código de este repositorio se distribuye bajo la [licencia MIT](LICENSE).
+
+La aplicación publicada incluye [MuPDF](https://mupdf.com/) (© Artifex Software), licenciado bajo
+la [GNU AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). Por tanto, la obra combinada que se
+sirve a los usuarios se distribuye bajo AGPL-3.0, y su código fuente completo es este repositorio.
+Si haces un fork y lo publicas como servicio, el AGPL te obliga a ofrecer también tu código
+fuente.
 
 ## El nombre
 
@@ -51,7 +61,7 @@ src/
     registry.ts        catálogo: estructura + opciones + carga diferida
     types.ts           contrato Tool / ToolRun
     impl/              una implementación por herramienta
-  lib/                 pdfjs, parseo de rangos de páginas, descargas
+  lib/                 mupdf, pdfjs, cifrado, parseo de rangos de páginas, descargas
 ```
 
 ## Idiomas
@@ -90,21 +100,16 @@ dependientes. No hace falta escribir React para una herramienta nueva.
 
 ## Estado
 
-Listas: unir, dividir, rotar, numerar páginas, imágenes a PDF, PDF a imágenes.
+El catálogo completo está en `src/tools/registry.ts`; todas las herramientas listadas ahí con
+`status: 'ready'` funcionan en el navegador sobre MuPDF.
 
-Pendientes (aparecen en el dashboard marcadas como «Pronto»): comprimir, OCR, proteger,
-desbloquear, marca de agua, organizar, recortar, comparar, redactar, firmar, reparar, PDF/A,
-PDF a texto y web a PDF.
+Notas técnicas:
 
-Notas técnicas de lo pendiente:
-
-- **Comprimir / reparar / proteger / desbloquear / PDF/A** necesitan un motor WASM. `qpdf-wasm`
-  (Apache 2.0) cubre cifrado, reparación y linealización; para recomprimir imágenes lo limpio es
-  extraer los XObject y pasarlos por `mozjpeg`/`jsquash` (MIT). Ghostscript y MuPDF harían más con
-  menos código pero son **AGPL**: obligan a publicar el fuente del producto.
+- **Redactar** borra de verdad el contenido bajo cada rectángulo (texto, imágenes y trazos) con
+  `applyRedactions` de MuPDF. El resto de la página sigue siendo texto seleccionable.
+- **Comprimir** recomprime imágenes y compacta objetos; nunca rasteriza el texto.
 - **OCR** con `tesseract.js`: el modelo de idioma pesa 10-15 MB y se cachea tras la primera vez.
-- **Redactar** debe borrar el contenido del content stream, no dibujar un rectángulo encima. Tapar
-  no elimina: el texto se sigue pudiendo copiar.
+- **PDF/A** no está: MuPDF no lo genera y Ghostscript (también AGPL) pesa mucho más.
 - **Office ↔ PDF** queda fuera del alcance local: haría falta LibreOffice compilado a WASM
   (cientos de MB). Es la única familia de herramientas donde un servicio con servidor gana.
 
@@ -112,5 +117,7 @@ Notas técnicas de lo pendiente:
 
 El trabajo lo hace el equipo del usuario. WASM de 32 bits topa en 4 GB y en la práctica mucho
 antes, así que conviene procesar página a página y no cargar documentos enormes enteros en memoria.
+La primera herramienta que se usa descarga el WASM de MuPDF (unos 3,6 MB comprimido); después
+queda en la caché del navegador.
 Si en el futuro se activan Web Workers con `SharedArrayBuffer`, el hosting tendrá que servir las
 cabeceras COOP/COEP.
