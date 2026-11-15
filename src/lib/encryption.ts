@@ -1,5 +1,4 @@
 import { bytesOf, indexOfBytes } from '@/lib/bytes'
-import { mupdf } from '@/lib/mupdf'
 
 const ENCRYPT_KEY = bytesOf('/Encrypt')
 
@@ -17,6 +16,9 @@ export type EncryptionState = 'encrypted' | 'plain' | 'unknown'
 /** `unknown` cuando el documento está tan dañado que no se deja parsear. */
 export async function encryptionState(bytes: Uint8Array): Promise<EncryptionState> {
   if (!mentionsEncrypt(bytes)) return 'plain'
+  // MuPDF solo se carga si el escaneo no basta: su WASM tarda en llegar y
+  // bloquearía el botón de la herramienta con cualquier PDF.
+  const { mupdf } = await import('@/lib/mupdf')
   let doc: InstanceType<typeof mupdf.Document> | null = null
   try {
     // `needsPassword` no ve los PDF que solo llevan contraseña de propietario;

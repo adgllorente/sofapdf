@@ -254,6 +254,7 @@ export const en: typeof es = {
   run: {
     back: 'All tools',
     processing: 'Working…',
+    checking: 'Checking the file…',
     reset: 'Start over',
     needOne: 'Add a file to begin.',
     needMany: 'Add at least {n} files.',

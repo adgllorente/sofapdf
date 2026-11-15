@@ -6,6 +6,15 @@ export type UnlockEntry = {
   password: string
 }
 
+/**
+ * Empieza a descargar y compilar MuPDF en segundo plano cuando el usuario ya
+ * ha elegido un fichero: así está listo al pulsar el botón, sin bloquearlo.
+ */
+export function preloadEngine(): void {
+  // Si falla aquí, volverá a intentarse (y a dar el error) al ejecutar.
+  import('@/lib/mupdf').catch(() => {})
+}
+
 /** Busca el cifrado en un chunk diferido para no meter MuPDF en el bundle inicial. */
 export async function encryptedFiles(files: File[]): Promise<File[]> {
   const { encryptionState } = await import('@/lib/encryption')

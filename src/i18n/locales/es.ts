@@ -258,6 +258,7 @@ export const es = {
   run: {
     back: 'Todas las herramientas',
     processing: 'Procesando…',
+    checking: 'Comprobando el archivo…',
     reset: 'Empezar de nuevo',
     needOne: 'Añade un archivo para empezar.',
     needMany: 'Añade al menos {n} archivos.',
