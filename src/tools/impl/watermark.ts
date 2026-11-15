@@ -1,8 +1,7 @@
-import { PDFDocument, StandardFonts, degrees, rgb } from 'pdf-lib'
 import { fmt, t } from '@/i18n'
-import { toBlob } from '@/lib/files'
+import { pdfBlob, readPdf, usingPdf, yieldToUI } from '@/lib/mupdf'
+import { Overlay, hexColor } from '@/lib/overlay'
 import { baseName, parsePageList } from '@/lib/pages'
-import { parseHexColor } from '@/lib/colors'
 import type { ToolRun } from '@/tools/types'
 
 const LEGACY_COLORS: Record<string, string> = {
@@ -26,55 +25,44 @@ const ANCHORS: Record<string, Anchor> = {
 
 export const run: ToolRun = async (files, values, ctx) => {
   const [file] = files
-  const document_ = await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true })
-  // Helvetica Bold es base del formato: no embebe nada y da cuerpo a la marca.
-  const font = await document_.embedFont(StandardFonts.HelveticaBold)
-
-  const text = String(values.text).trim() || 'WATERMARK'
-  const size = Number(values.size)
-  const opacity = Number(values.opacity) / 100
-  const angle = Number(values.rotation)
-  const position = String(values.position)
-  const anchor = ANCHORS[position] ?? ANCHORS.center
-  const color = parseHexColor(LEGACY_COLORS[String(values.color)] ?? String(values.color))
-  // Margen mínimo para que la marca no choque con el borde ni con sí misma rotada.
-  const margin = Math.max(size / 2 + 8, 36)
-
-  const pages = document_.getPages()
-  const targets = parsePageList(String(values.pages), pages.length)
-
-  for (const [index, pageIndex] of targets.entries()) {
-    const page = pages[pageIndex]
-    const { width, height } = page.getSize()
-    const targetX = anchor.x(width, margin)
-    const targetY = anchor.y(height, margin)
-
-    // pdf-lib rota el texto alrededor de (x, y), no de su centro. Resolvemos
-    // (x, y) para que, tras rotar, el centro del texto quede en (targetX, targetY).
-    const textWidth = font.widthOfTextAtSize(text, size)
+  return usingPdf(await readPdf(file), async (doc) => {
+    // Helvetica Bold es base del formato: no embebe nada y da cuerpo a la marca.
+    const overlay = new Overlay(doc)
+    const text = String(values.text).trim() || 'WATERMARK'
+    const size = Number(values.size)
+    const opacity = Number(values.opacity) / 100
+    const angle = Number(values.rotation)
+    const anchor = ANCHORS[String(values.position)] ?? ANCHORS.center
+    const color = hexColor(LEGACY_COLORS[String(values.color)] ?? String(values.color))
+    // Margen mínimo para que la marca no choque con el borde ni con sí misma rotada.
+    const margin = Math.max(size / 2 + 8, 36)
+    const textWidth = overlay.textWidth('Helvetica-Bold', text, size)
     const rad = (angle * Math.PI) / 180
     const cos = Math.cos(rad)
     const sin = Math.sin(rad)
-    const x = targetX - (textWidth / 2) * cos + (size / 2) * sin
-    const y = targetY - (textWidth / 2) * sin - (size / 2) * cos
 
-    page.drawText(text, {
-      x,
-      y,
-      size,
-      font,
-      color: rgb(color.red, color.green, color.blue),
-      opacity: opacity * color.alpha,
-      rotate: degrees(angle),
-    })
+    const targets = parsePageList(String(values.pages), doc.countPages())
+    try {
+      for (const [index, pageIndex] of targets.entries()) {
+        const page = overlay.page(pageIndex)
+        const targetX = page.x0 + anchor.x(page.width, margin)
+        const targetY = page.y0 + anchor.y(page.height, margin)
 
-    ctx.onProgress((index + 1) / targets.length, fmt(t.progress.page, { n: pageIndex + 1 }))
-  }
+        // Girar alrededor del centro del texto: el ángulo es antihorario, como el del espacio PDF.
+        page.save()
+        page.alpha(opacity * color.alpha)
+        page.fill(color.rgb)
+        page.transform([cos, sin, -sin, cos, targetX, targetY])
+        page.text(text, -textWidth / 2, -size / 2, 'Helvetica-Bold', size)
+        page.restore()
+        page.finish()
 
-  return [
-    {
-      name: `${baseName(file.name)}-${t.filenames.watermark}.pdf`,
-      blob: toBlob(await document_.save()),
-    },
-  ]
+        ctx.onProgress((index + 1) / targets.length, fmt(t.progress.page, { n: pageIndex + 1 }))
+        await yieldToUI()
+      }
+      return [{ name: `${baseName(file.name)}-${t.filenames.watermark}.pdf`, blob: pdfBlob(doc) }]
+    } finally {
+      overlay.dispose()
+    }
+  })
 }

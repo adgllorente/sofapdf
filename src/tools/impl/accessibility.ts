@@ -1,25 +1,18 @@
 import { fmt, t } from '@/i18n'
 import { encryptionState } from '@/lib/encryption'
 import { formatBytes } from '@/lib/files'
+import { mupdf, openPdf, usingPdf, yieldToUI } from '@/lib/mupdf'
 import { baseName } from '@/lib/pages'
-import { getPdfDocument } from '@/lib/pdfjs'
 import type { ToolRun } from '@/tools/types'
 
-type AccessibilityNode = {
-  role?: string
-  alt?: string
-  children?: AccessibilityNode[]
-}
-
+type PdfObject = InstanceType<typeof mupdf.PDFObject>
 type Heading = { level: number; page: number }
+
+/** Las estructuras patológicas pueden ser enormes; con esto el recorrido no se cuelga. */
+const MAX_STRUCT_NODES = 200_000
 
 function hasText(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
-}
-
-function walk(node: AccessibilityNode, visit: (node: AccessibilityNode) => void): void {
-  visit(node)
-  for (const child of node.children ?? []) walk(child, visit)
 }
 
 function result(label: string, state: string, detail: string): string {
@@ -33,6 +26,60 @@ function output(file: File, lines: string[]) {
   }
 }
 
+type StructSummary = { figures: number; figuresWithAlt: number; headings: Heading[]; pages: Set<number> }
+
+/**
+ * Recorre el árbol de estructura en orden lógico. Los roles propios se
+ * traducen con el RoleMap, como haría un lector de pantalla.
+ */
+function walkStructure(root: PdfObject, pageOf: Map<number, number>): StructSummary {
+  const summary: StructSummary = { figures: 0, figuresWithAlt: 0, headings: [], pages: new Set() }
+  const roleMap = root.get('RoleMap')
+  const seen = new Set<number>()
+  let visited = 0
+
+  const roleOf = (element: PdfObject): string | undefined => {
+    let role = element.get('S')
+    for (let hops = 0; hops < 8 && role.isName(); hops++) {
+      const mapped = roleMap.isDictionary() ? roleMap.get(role.asName()) : null
+      if (!mapped?.isName() || mapped.asName() === role.asName()) break
+      role = mapped
+    }
+    return role.isName() ? role.asName().toUpperCase() : undefined
+  }
+
+  const visit = (node: PdfObject, page: number | undefined): void => {
+    if (++visited > MAX_STRUCT_NODES) return
+    if (node.isArray()) {
+      node.forEach((child) => visit(child, page))
+      return
+    }
+    if (!node.isDictionary()) return
+    if (node.isIndirect()) {
+      if (seen.has(node.asIndirect())) return
+      seen.add(node.asIndirect())
+    }
+    const pg = node.get('Pg')
+    const own = pg.isIndirect() ? pageOf.get(pg.asIndirect()) : undefined
+    const current = own ?? page
+    if (current !== undefined) summary.pages.add(current)
+
+    const role = roleOf(node)
+    if (role === 'FIGURE') {
+      summary.figures++
+      const alt = node.get('Alt')
+      if (alt.isString() && hasText(alt.asString())) summary.figuresWithAlt++
+    }
+    if (role && /^H[1-6]$/.test(role) && current !== undefined) {
+      summary.headings.push({ level: Number(role.slice(1)), page: current })
+    }
+    visit(node.get('K'), current)
+  }
+
+  visit(root.get('K'), undefined)
+  return summary
+}
+
 export const run: ToolRun = async (files, _values, ctx) => {
   const [file] = files
   const data = new Uint8Array(await file.arrayBuffer())
@@ -43,61 +90,50 @@ export const run: ToolRun = async (files, _values, ctx) => {
   ]
 
   if ((await encryptionState(data)) === 'encrypted') {
-    lines.push(
-      '',
-      `${t.accessibility.unavailable}:`,
-      `- ${t.report.encryptedContent}`,
-      '',
-      t.accessibility.disclaimer,
-      t.accessibility.footer,
-    )
+    lines.push('', `${t.accessibility.unavailable}:`, `- ${t.report.encryptedContent}`, '', t.accessibility.disclaimer, t.accessibility.footer)
     return [output(file, lines)]
   }
 
-  const task = getPdfDocument(data)
+  let doc: InstanceType<typeof mupdf.PDFDocument>
   try {
-    let document_: Awaited<typeof task.promise>
-    try {
-      document_ = await task.promise
-    } catch {
-      lines.push('', `${t.accessibility.unavailable}:`, `- ${t.report.unavailableDetails}`, '', t.accessibility.disclaimer, t.accessibility.footer)
-      return [output(file, lines)]
-    }
+    doc = openPdf(data, file.name)
+  } catch {
+    lines.push('', `${t.accessibility.unavailable}:`, `- ${t.report.unavailableDetails}`, '', t.accessibility.disclaimer, t.accessibility.footer)
+    return [output(file, lines)]
+  }
 
-    const metadata = await document_.getMetadata().catch(() => null)
-    const info = (metadata?.info ?? {}) as Record<string, unknown>
-    const title = hasText(info.Title)
-    const markInfo = await document_.getMarkInfo().catch(() => null)
-    let language: string | null = null
-    let structurePages = 0
-    let figures = 0
-    let figuresWithAlt = 0
-    const headings: Heading[] = []
+  return usingPdf(doc, async () => {
+    const total = doc.countPages()
+    const title = hasText(doc.getMetaData(mupdf.Document.META_INFO_TITLE))
+    const catalog = doc.getTrailer().get('Root')
+    // `getLanguage` pasa por un enumerado y pierde la región («es-ES» → «es»).
+    const lang = catalog.get('Lang')
+    const language = (lang.isString() && lang.asString().trim()) || null
+    // `get` sobre el objeto nulo de MuPDF lanza: cada nivel se comprueba antes.
+    const markInfo = catalog.get('MarkInfo')
+    const marked = markInfo.isDictionary() ? markInfo.get('Marked') : null
+    const isMarked = Boolean(marked?.isBoolean() && marked.asBoolean())
+
+    // Los nodos de estructura apuntan a su página por referencia: hace falta el índice.
+    const pageOf = new Map<number, number>()
     const pageErrors: number[] = []
-
-    for (let number = 1; number <= document_.numPages; number++) {
+    for (let index = 0; index < total; index++) {
       try {
-        const page = await document_.getPage(number)
-        const text = await page.getTextContent()
-        if (!language && hasText(text.lang)) language = text.lang.trim()
-        const tree = (await page.getStructTree().catch(() => null)) as AccessibilityNode | null
-        if (tree) {
-          structurePages++
-          walk(tree, (node) => {
-            const role = node.role?.toUpperCase()
-            if (role === 'FIGURE') {
-              figures++
-              if (hasText(node.alt)) figuresWithAlt++
-            }
-            if (role && /^H[1-6]$/.test(role)) headings.push({ level: Number(role.slice(1)), page: number })
-          })
-        }
-        page.cleanup()
+        const ref = doc.findPage(index)
+        if (ref.isIndirect()) pageOf.set(ref.asIndirect(), index + 1)
       } catch {
-        pageErrors.push(number)
+        pageErrors.push(index + 1)
       }
-      ctx.onProgress(number / document_.numPages, fmt(t.progress.page, { n: number }))
+      ctx.onProgress((index + 1) / total, fmt(t.progress.page, { n: index + 1 }))
+      if (index % 50 === 49) await yieldToUI()
     }
+
+    const treeRoot = catalog.get('StructTreeRoot')
+    const structure = treeRoot.isDictionary()
+      ? walkStructure(treeRoot, pageOf)
+      : { figures: 0, figuresWithAlt: 0, headings: [], pages: new Set<number>() }
+    const tagged = isMarked || structure.pages.size > 0
+    const { figures, figuresWithAlt, headings } = structure
 
     const headingJumps: string[] = []
     for (let index = 1; index < headings.length; index++) {
@@ -122,8 +158,8 @@ export const run: ToolRun = async (files, _values, ctx) => {
       ),
       result(
         t.accessibility.tagging,
-        markInfo?.Marked || structurePages > 0 ? t.accessibility.pass : t.accessibility.fail,
-        markInfo?.Marked || structurePages > 0 ? t.accessibility.taggingPresent : t.accessibility.taggingMissing,
+        tagged ? t.accessibility.pass : t.accessibility.fail,
+        tagged ? t.accessibility.taggingPresent : t.accessibility.taggingMissing,
       ),
     )
 
@@ -153,7 +189,5 @@ export const run: ToolRun = async (files, _values, ctx) => {
     if (pageErrors.length > 0) lines.push('', `${t.accessibility.unavailable}:`, ...pageErrors.map((page) => `${t.report.page} ${page}: ${t.accessibility.pageError}`))
     lines.push('', t.accessibility.disclaimer, '', t.accessibility.footer)
     return [output(file, lines)]
-  } finally {
-    await task.destroy()
-  }
+  })
 }

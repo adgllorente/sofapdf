@@ -81,6 +81,11 @@ export function renderPage(page: mupdf.Page, scale: number, alpha = false): mupd
   return page.toPixmap(mupdf.Matrix.scale(scale, scale), mupdf.ColorSpace.DeviceRGB, alpha)
 }
 
+/** MuPDF es síncrono: sin ceder un macrotask la barra de progreso no se repinta. */
+export function yieldToUI(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0))
+}
+
 /** Copia todas las páginas de `source` al final de `target`. */
 export function appendPages(target: mupdf.PDFDocument, source: mupdf.PDFDocument, indices?: number[]): void {
   // Un único graft map comparte fuentes e imágenes entre páginas: sin él se duplican.

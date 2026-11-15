@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
 
+const PDFJS_WASM = ['openjpeg.wasm', 'jbig2.wasm', 'qcms_bg.wasm']
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -16,9 +18,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // pdf.js construye las URLs de sus decodificadores con su nombre
-        // original, por eso los WASM no pueden llevar hash.
+        // original, por eso esos WASM no pueden llevar hash. El de MuPDF sí lo
+        // lleva: sin él, una caché podría servirlo viejo junto a un JS nuevo.
         assetFileNames: (asset) =>
-          asset.names.some((name) => name.endsWith('.wasm'))
+          asset.names.some((name) => PDFJS_WASM.includes(name))
             ? 'assets/[name][extname]'
             : 'assets/[name]-[hash][extname]',
       },

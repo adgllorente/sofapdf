@@ -1,6 +1,6 @@
 import type { OutputFile } from '@/tools/types'
 
-/** pdf-lib devuelve Uint8Array; lo envolvemos sin copiarlo otra vez. */
+/** Envuelve los bytes en un Blob sin copiarlos otra vez. */
 export function toBlob(bytes: Uint8Array, type = 'application/pdf'): Blob {
   return new Blob([bytes as unknown as BlobPart], { type })
 }

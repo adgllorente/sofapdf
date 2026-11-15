@@ -1,6 +1,5 @@
-import { PDFDocument } from 'pdf-lib'
 import { fmt, t } from '@/i18n'
-import { toBlob } from '@/lib/files'
+import { pdfBlob, readPdf, usingPdf } from '@/lib/mupdf'
 import { baseName } from '@/lib/pages'
 import type { ToolRun } from '@/tools/types'
 
@@ -17,30 +16,29 @@ export const run: ToolRun = async (files, values, ctx) => {
     throw new Error(t.errors.cropEmpty)
   }
 
-  const document_ = await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true })
-  const pages = document_.getPages()
+  return usingPdf(await readPdf(file), (doc) => {
+    const pageCount = doc.countPages()
 
-  for (const [index, page] of pages.entries()) {
-    if (!applyAll && index + 1 !== selectedPage) continue
-    const { width: pw, height: ph } = page.getSize()
-    // La preview mide `y` desde arriba; el sistema de coordenadas del PDF
-    // va de abajo arriba, así que hay que invertir: la esquina inferior
-    // del recorte está a `(1 - y - height)` desde la base de la página.
-    page.setCropBox(
-      x * pw,
-      (1 - y - height) * ph,
-      width * pw,
-      height * ph,
-    )
-    ctx.onProgress((index + 1) / pages.length, fmt(t.progress.page, { n: index + 1 }))
-  }
+    for (let index = 0; index < pageCount; index++) {
+      if (!applyAll && index + 1 !== selectedPage) continue
+      const page = doc.loadPage(index)
+      // Los límites y `setPageBox` usan el espacio visual (arriba a la izquierda,
+      // rotación aplicada), el mismo en que la preview mide el recorte.
+      const [x0, y0, x1, y1] = page.getBounds()
+      const pw = x1 - x0
+      const ph = y1 - y0
+      page.setPageBox('CropBox', [
+        x0 + x * pw,
+        y0 + y * ph,
+        x0 + (x + width) * pw,
+        y0 + (y + height) * ph,
+      ])
+      page.destroy()
+      ctx.onProgress((index + 1) / pageCount, fmt(t.progress.page, { n: index + 1 }))
+    }
 
-  return [
-    {
-      name: `${baseName(file.name)}-${t.filenames.cropped}.pdf`,
-      blob: toBlob(await document_.save()),
-    },
-  ]
+    return [{ name: `${baseName(file.name)}-${t.filenames.cropped}.pdf`, blob: pdfBlob(doc) }]
+  })
 }
 
 function clamp(value: number, min: number, max: number): number {
