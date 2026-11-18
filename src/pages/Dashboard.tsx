@@ -8,7 +8,9 @@ import { applyDocumentSeo, fmt, t } from "@/i18n";
 import { APP } from "@/config";
 import { useLocale } from "@/i18n/react";
 import { renderInline } from "@/i18n/inline";
+import { matchScore } from "@/lib/search";
 import { CATEGORY_IDS, sortTools, TOOLS } from "@/tools/registry";
+import type { Tool } from "@/tools/types";
 
 type PointKey = keyof typeof t.privacyPoints;
 
@@ -73,22 +75,45 @@ export function Dashboard() {
 
 function ToolsSection() {
   const [activeTab, setActiveTab] = useState<TabId>("all");
+  const [query, setQuery] = useState("");
+
+  const scores = new Map<Tool, number>();
+  for (const tool of TOOLS) {
+    const text = t.tools[tool.slug];
+    const score = matchScore(query, {
+      name: text.name,
+      texts: [text.short, text.description],
+    });
+    if (score > 0) scores.set(tool, score);
+  }
+  const matchingTools = TOOLS.filter((tool) => scores.has(tool));
 
   const tabs: { id: TabId; label: string; count: number }[] = [
-    { id: "all", label: t.tabs.all, count: TOOLS.length },
+    { id: "all", label: t.tabs.all, count: matchingTools.length },
     ...CATEGORY_IDS.map((id) => ({
       id,
       label: t.categories[id].short,
-      count: TOOLS.filter((tool) => tool.category === id).length,
+      count: matchingTools.filter((tool) => tool.category === id).length,
     })),
   ];
 
-  const visibleTools = sortTools(
+  const sortedTools = sortTools(
     activeTab === "all"
-      ? TOOLS
-      : TOOLS.filter((tool) => tool.category === activeTab),
+      ? matchingTools
+      : matchingTools.filter((tool) => tool.category === activeTab),
     (tool) => t.tools[tool.slug].name,
   );
+  // Con consulta manda la relevancia; el orden habitual solo desempata.
+  const visibleTools = query.trim()
+    ? sortedTools
+        .map((tool, index) => ({ tool, index }))
+        .sort(
+          (a, b) =>
+            (scores.get(b.tool) ?? 0) - (scores.get(a.tool) ?? 0) ||
+            a.index - b.index,
+        )
+        .map(({ tool }) => tool)
+    : sortedTools;
 
   return (
     <div
@@ -130,6 +155,38 @@ function ToolsSection() {
         </div>
       </Link>
 
+      <div className="relative">
+        <Icon
+          name="search"
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted"
+        />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") setQuery("");
+          }}
+          placeholder={t.search.placeholder}
+          aria-label={t.search.label}
+          autoComplete="off"
+          spellCheck={false}
+          className="w-full rounded-card border border-line bg-surface py-3 pr-12 pl-12 text-base text-ink placeholder:text-muted transition outline-none focus:border-accent [&::-webkit-search-cancel-button]:hidden"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            aria-label={t.search.clear}
+            title={t.search.clear}
+            className="absolute top-1/2 right-3 grid size-8 -translate-y-1/2 place-items-center rounded-full text-muted transition hover:bg-accent-soft hover:text-ink"
+          >
+            <Icon name="x" className="size-4" />
+          </button>
+        )}
+      </div>
+
       <div role="tablist" className="flex flex-wrap gap-2">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -166,6 +223,12 @@ function ToolsSection() {
           <ToolCard key={tool.slug} tool={tool} />
         ))}
       </div>
+
+      {visibleTools.length === 0 && (
+        <p role="status" className="py-10 text-center text-muted">
+          {fmt(t.search.empty, { query: query.trim() })}
+        </p>
+      )}
     </div>
   );
 }

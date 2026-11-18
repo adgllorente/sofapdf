@@ -134,6 +134,13 @@ export const es = {
     all: 'Todo',
   },
 
+  search: {
+    label: 'Buscar herramientas',
+    placeholder: 'Buscar: comprimir, unir, firmar…',
+    clear: 'Borrar la búsqueda',
+    empty: 'Ninguna herramienta coincide con «{query}».',
+  },
+
   offlinePage: {
     title: 'Herramientas PDF offline gratis — sin subir archivos',
     heading: 'Herramientas PDF offline y privadas',
