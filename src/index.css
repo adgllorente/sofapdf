@@ -26,6 +26,11 @@
   --color-on-accent: #ffffff;
   --color-danger: #b91c1c;
 
+  /* Lo que se dibuja sobre una página PDF: el papel es blanco en los dos temas. */
+  --color-paper-ink: #1c1917;
+  --color-field: #dbeafecc;
+  --color-field-line: #3b82f6;
+
   --radius-card: 0.75rem;
 }
 

@@ -8,6 +8,7 @@ import { SignaturePreview } from './SignaturePreview'
 import { EditPreview } from './EditPreview'
 import { MetadataPreview } from './MetadataPreview'
 import { BookmarksPreview } from './BookmarksPreview'
+import { FormPreview } from './FormPreview'
 
 /** Los ids son estables: se usan como ancla en la URL y como clave del diccionario. */
 export const CATEGORY_IDS: ToolCategoryId[] = [
@@ -455,6 +456,18 @@ export const TOOLS: Tool[] = [
     minFiles: 1,
     load: IMPLS['edit'],
     Preview: EditPreview,
+  },
+  {
+    slug: 'fill-form',
+    icon: 'form',
+    category: 'edicion',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    options: [{ key: 'flatten', type: 'toggle', default: false }],
+    load: () => import('./impl/fill-form').then((m) => m.run),
+    Preview: FormPreview,
   },
   {
     slug: 'redact',

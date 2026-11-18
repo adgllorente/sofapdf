@@ -96,6 +96,7 @@ export type ToolSlug =
   | 'sign'
   | 'redact'
   | 'edit'
+  | 'fill-form'
   | 'metadata'
   | 'report'
   | 'accessibility'
