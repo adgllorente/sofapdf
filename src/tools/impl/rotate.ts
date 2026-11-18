@@ -1,21 +1,23 @@
-import { PDFDocument, degrees } from 'pdf-lib'
 import { t } from '@/i18n'
-import { toBlob } from '@/lib/files'
+import { pdfBlob, readPdf, usingPdf } from '@/lib/mupdf'
 import { baseName, parsePageList } from '@/lib/pages'
 import type { ToolRun } from '@/tools/types'
 
 export const run: ToolRun = async (files, values, ctx) => {
   const [file] = files
-  const document_ = await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true })
-  const targets = parsePageList(String(values.pages), document_.getPageCount())
-  const turn = Number(values.angle)
+  return usingPdf(await readPdf(file), (doc) => {
+    const targets = parsePageList(String(values.pages), doc.countPages())
+    const turn = Number(values.angle)
 
-  for (const [index, pageIndex] of targets.entries()) {
-    const page = document_.getPage(pageIndex)
-    // La rotación es acumulativa sobre la que ya trae la página.
-    page.setRotation(degrees((page.getRotation().angle + turn + 360) % 360))
-    ctx.onProgress((index + 1) / targets.length)
-  }
+    for (const [index, pageIndex] of targets.entries()) {
+      const page = doc.findPage(pageIndex)
+      // La rotación es acumulativa sobre la que ya trae la página, que puede heredarse del árbol.
+      const current = page.getInheritable('Rotate')
+      const angle = current.isNumber() ? current.asNumber() : 0
+      page.put('Rotate', (((angle + turn) % 360) + 360) % 360)
+      ctx.onProgress((index + 1) / targets.length)
+    }
 
-  return [{ name: `${baseName(file.name)}-${t.filenames.rotated}.pdf`, blob: toBlob(await document_.save()) }]
+    return [{ name: `${baseName(file.name)}-${t.filenames.rotated}.pdf`, blob: pdfBlob(doc) }]
+  })
 }

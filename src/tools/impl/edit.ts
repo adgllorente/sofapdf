@@ -1,8 +1,7 @@
-import { LineCapStyle, PDFDocument, StandardFonts, degrees, rgb } from 'pdf-lib'
 import { fmt, t } from '@/i18n'
-import { toBlob } from '@/lib/files'
+import { mupdf, pdfBlob, readPdf, usingPdf, yieldToUI } from '@/lib/mupdf'
+import { Overlay, hexColor, num, rotationAround, type PageCanvas, type StandardFont } from '@/lib/overlay'
 import { baseName } from '@/lib/pages'
-import { parseHexColor } from '@/lib/colors'
 import type { ToolRun } from '@/tools/types'
 
 type Point = { x: number; y: number }
@@ -14,25 +13,19 @@ type EditObject = {
   rotation: number
 }
 
-function paint(value: string) {
-  const parsed = parseHexColor(value)
-  return {
-    color: parsed.alpha === 0 ? undefined : rgb(parsed.red, parsed.green, parsed.blue),
-    alpha: parsed.alpha,
-  }
+/** Aproximación estándar de un cuarto de elipse con una Bézier cúbica. */
+const KAPPA = 0.5523
+
+function fontName(item: EditObject): StandardFont {
+  const style = item.bold && item.italic ? 3 : item.bold ? 1 : item.italic ? 2 : 0
+  if (item.font === 'Courier') return (['Courier', 'Courier-Bold', 'Courier-Oblique', 'Courier-BoldOblique'] as const)[style]
+  if (item.font === 'Times' || item.font === 'TimesRoman') return (['Times-Roman', 'Times-Bold', 'Times-Italic', 'Times-BoldItalic'] as const)[style]
+  return (['Helvetica', 'Helvetica-Bold', 'Helvetica-Oblique', 'Helvetica-BoldOblique'] as const)[style]
 }
 
-async function dataUrlBytes(value: string) {
-  const encoded = value.split(',')[1] ?? ''
-  const binary = atob(encoded)
+function dataUrlBytes(value: string): Uint8Array {
+  const binary = atob(value.split(',')[1] ?? '')
   return Uint8Array.from(binary, (char) => char.charCodeAt(0))
-}
-
-function fontName(item: EditObject) {
-  const base = item.font === 'Times' ? 'TimesRoman' : item.font
-  if (base === 'Courier') return item.bold && item.italic ? StandardFonts.CourierBoldOblique : item.bold ? StandardFonts.CourierBold : item.italic ? StandardFonts.CourierOblique : StandardFonts.Courier
-  if (base === 'TimesRoman') return item.bold && item.italic ? StandardFonts.TimesRomanBoldItalic : item.bold ? StandardFonts.TimesRomanBold : item.italic ? StandardFonts.TimesRomanItalic : StandardFonts.TimesRoman
-  return item.bold && item.italic ? StandardFonts.HelveticaBoldOblique : item.bold ? StandardFonts.HelveticaBold : item.italic ? StandardFonts.HelveticaOblique : StandardFonts.Helvetica
 }
 
 function rotatePoint(point: Point, item: EditObject): Point {
@@ -42,62 +35,145 @@ function rotatePoint(point: Point, item: EditObject): Point {
   return { x: center.x + x * Math.cos(angle) - y * Math.sin(angle), y: center.y + x * Math.sin(angle) + y * Math.cos(angle) }
 }
 
+/** Relleno y trazo opcionales: un color transparente o un grosor 0 no se pintan. */
+function paintShape(page: PageCanvas, item: EditObject, opacity: number, path: string): void {
+  const fill = hexColor(item.bgColor)
+  const border = hexColor(item.borderColor)
+  const hasFill = fill.alpha > 0
+  const hasStroke = border.alpha > 0 && item.borderWidth > 0
+  if (!hasFill && !hasStroke) return
+  page.alpha(opacity * fill.alpha, opacity * border.alpha)
+  if (hasFill) page.fill(fill.rgb)
+  if (hasStroke) {
+    page.stroke(border.rgb)
+    page.ops.push(`${num(item.borderWidth)} w`)
+  }
+  page.ops.push(`${path} ${hasFill && hasStroke ? 'B' : hasFill ? 'f' : 'S'}`)
+}
+
+function line(page: PageCanvas, color: string, opacity: number, width: number, from: Point, to: Point): void {
+  const stroke = hexColor(color)
+  if (stroke.alpha === 0) return
+  page.alpha(1, opacity * stroke.alpha)
+  page.stroke(stroke.rgb)
+  page.ops.push(`${num(Math.max(1, width))} w 1 J ${num(from.x)} ${num(from.y)} m ${num(to.x)} ${num(to.y)} l S`)
+}
+
 export const run: ToolRun = async (files, values, ctx) => {
   const [file] = files
   let objects: EditObject[] = []
   try { objects = JSON.parse(String(values.editor ?? '[]')) as EditObject[] } catch { /* El editor solo puede producir JSON controlado. */ }
   if (!objects.length) throw new Error(t.errors.editEmpty)
-  const document_ = await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true })
-  const pages = document_.getPages()
-  const fonts = new Map<string, Awaited<ReturnType<typeof document_.embedFont>>>()
-  const images = new Map<string, Awaited<ReturnType<typeof document_.embedPng>>>()
 
-  for (const [index, item] of objects.entries()) {
-    const page = pages[item.page - 1]
-    if (!page) continue
-    const { width, height } = page.getSize()
-    const x = item.x * width, y = height - (item.y + item.height) * height
-    const opacity = Math.max(0, Math.min(1, Number.isFinite(item.opacity) ? item.opacity : 1))
-    if (item.type === 'highlight') {
-      const fill = paint(item.color)
-      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: fill.color, opacity: opacity * fill.alpha, rotate: degrees(item.rotation ?? 0) })
-    } else if (item.type === 'underlineText' || item.type === 'strikeText') {
-      const lineY = item.type === 'strikeText' ? y + item.height * height / 2 : y + item.borderWidth
-      const stroke = paint(item.color)
-      page.drawLine({ start: { x, y: lineY }, end: { x: x + item.width * width, y: lineY }, thickness: Math.max(1, item.borderWidth), color: stroke.color, opacity: opacity * stroke.alpha })
-    } else if (item.type === 'text') {
-      const key = fontName(item)
-      let font = fonts.get(key)
-      if (!font) { font = await document_.embedFont(key); fonts.set(key, font) }
-      const size = Math.max(4, item.fontSize || 18)
-      const textWidth = font.widthOfTextAtSize(item.text || ' ', size)
-      const textX = item.align === 'center' ? x + (item.width * width - textWidth) / 2 : item.align === 'right' ? x + item.width * width - textWidth : x
-      const background = paint(item.bgColor)
-      const border = paint(item.borderColor)
-      const text = paint(item.color)
-      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: background.color, opacity: opacity * background.alpha, borderColor: border.color, borderWidth: 0, rotate: degrees(item.rotation ?? 0) })
-      page.drawText(item.text.replace(/\r\n/g, '\n'), { x: textX, y: y + item.height * height - size - 3, size, font, color: text.color, opacity: opacity * text.alpha, lineHeight: size, rotate: degrees(item.rotation ?? 0) })
-      if (item.underline) page.drawLine({ start: { x: textX, y: y + item.height * height - size - 5 }, end: { x: textX + textWidth, y: y + item.height * height - size - 5 }, thickness: Math.max(1, item.borderWidth), color: text.color, opacity: opacity * text.alpha, lineCap: LineCapStyle.Round })
-    } else if (item.type === 'image' && item.imageData) {
-      const key = item.imageData.slice(0, 40)
-      let image = images.get(key)
-      if (!image) { const bytes = await dataUrlBytes(item.imageData); image = item.imageData.startsWith('data:image/jpeg') ? await document_.embedJpg(bytes) : await document_.embedPng(bytes); images.set(key, image) }
-      page.drawImage(image, { x, y, width: item.width * width, height: item.height * height, opacity, rotate: degrees(item.rotation ?? 0) })
-    } else if (item.type === 'pencil') {
-      const points = item.points ?? []
-      const stroke = paint(item.color)
-      for (let point = 1; point < points.length; point++) { const start = rotatePoint(points[point - 1], item), end = rotatePoint(points[point], item); page.drawLine({ start: { x: start.x * width, y: height - start.y * height }, end: { x: end.x * width, y: height - end.y * height }, thickness: Math.max(1, item.borderWidth), color: stroke.color, opacity: opacity * stroke.alpha, lineCap: LineCapStyle.Round }) }
-    } else if (item.type === 'ellipse') {
-      const fill = paint(item.bgColor), border = paint(item.borderColor)
-      page.drawEllipse({ x: x + item.width * width / 2, y: y + item.height * height / 2, xScale: item.width * width / 2, yScale: item.height * height / 2, color: fill.color, borderColor: border.color, borderWidth: item.borderWidth, opacity: opacity * fill.alpha, borderOpacity: opacity * border.alpha, rotate: degrees(item.rotation ?? 0) })
-    } else if (item.type === 'triangle') {
-      const fill = paint(item.bgColor), border = paint(item.borderColor)
-      page.drawSvgPath(`M 0 0 L ${item.width * width} 0 L ${item.width * width / 2} ${item.height * height} Z`, { x, y, color: fill.color, borderColor: border.color, borderWidth: item.borderWidth, opacity: opacity * fill.alpha, borderOpacity: opacity * border.alpha, rotate: degrees(item.rotation ?? 0) })
-    } else {
-      const fill = paint(item.bgColor), border = paint(item.borderColor)
-      page.drawRectangle({ x, y, width: item.width * width, height: item.height * height, color: fill.color, borderColor: border.color, borderWidth: item.borderWidth, opacity: opacity * fill.alpha, borderOpacity: opacity * border.alpha, rotate: degrees(item.rotation ?? 0) })
+  return usingPdf(await readPdf(file), async (doc) => {
+    const overlay = new Overlay(doc)
+    const images = new Map<string, { ref: mupdf.PDFObject; width: number; height: number }>()
+    const pages = new Map<number, PageCanvas>()
+    const count = doc.countPages()
+
+    try {
+      for (const [index, item] of objects.entries()) {
+        if (item.page < 1 || item.page > count) continue
+        let page = pages.get(item.page)
+        if (!page) { page = overlay.page(item.page - 1); pages.set(item.page, page) }
+
+        const w = item.width * page.width, h = item.height * page.height
+        const x = page.x0 + item.x * page.width
+        const y = page.y0 + page.height - (item.y + item.height) * page.height
+        const opacity = Math.max(0, Math.min(1, Number.isFinite(item.opacity) ? item.opacity : 1))
+
+        page.save()
+        // La vista previa gira con CSS alrededor del centro y en sentido horario.
+        if (item.type !== 'pencil' && item.rotation) page.transform(rotationAround(x + w / 2, y + h / 2, item.rotation))
+
+        if (item.type === 'highlight') {
+          const fill = hexColor(item.color)
+          if (fill.alpha > 0) {
+            page.alpha(opacity * fill.alpha)
+            page.fill(fill.rgb)
+            page.ops.push(`${num(x)} ${num(y)} ${num(w)} ${num(h)} re f`)
+          }
+        } else if (item.type === 'underlineText' || item.type === 'strikeText') {
+          const lineY = item.type === 'strikeText' ? y + h / 2 : y + item.borderWidth
+          line(page, item.color, opacity, item.borderWidth, { x, y: lineY }, { x: x + w, y: lineY })
+        } else if (item.type === 'text') {
+          drawText(overlay, page, item, opacity, x, y, w, h)
+        } else if (item.type === 'image' && item.imageData) {
+          const key = item.imageData
+          let image = images.get(key)
+          if (!image) {
+            const decoded = new mupdf.Image(dataUrlBytes(item.imageData))
+            image = { ref: doc.addImage(decoded), width: decoded.getWidth(), height: decoded.getHeight() }
+            decoded.destroy()
+            images.set(key, image)
+          }
+          // La vista previa usa object-contain: la imagen conserva su proporción dentro de la caja.
+          const scale = Math.min(w / image.width, h / image.height)
+          const iw = image.width * scale, ih = image.height * scale
+          page.alpha(opacity)
+          page.image(image.ref, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih)
+        } else if (item.type === 'pencil') {
+          const points = (item.points ?? []).map((point) => rotatePoint(point, item))
+          const stroke = hexColor(item.color)
+          if (points.length > 1 && stroke.alpha > 0) {
+            // Un único trazo: con segmentos sueltos la opacidad se acumula en cada unión.
+            const at = (p: Point) => `${num(page.x0 + p.x * page.width)} ${num(page.y0 + page.height - p.y * page.height)}`
+            page.alpha(1, opacity * stroke.alpha)
+            page.stroke(stroke.rgb)
+            page.ops.push(`${num(Math.max(1, item.borderWidth))} w 1 J 1 j ${at(points[0])} m ${points.slice(1).map((p) => `${at(p)} l`).join(' ')} S`)
+          }
+        } else if (item.type === 'ellipse') {
+          const cx = x + w / 2, cy = y + h / 2, rx = w / 2, ry = h / 2, kx = rx * KAPPA, ky = ry * KAPPA
+          const path = [
+            `${num(cx + rx)} ${num(cy)} m`,
+            `${num(cx + rx)} ${num(cy + ky)} ${num(cx + kx)} ${num(cy + ry)} ${num(cx)} ${num(cy + ry)} c`,
+            `${num(cx - kx)} ${num(cy + ry)} ${num(cx - rx)} ${num(cy + ky)} ${num(cx - rx)} ${num(cy)} c`,
+            `${num(cx - rx)} ${num(cy - ky)} ${num(cx - kx)} ${num(cy - ry)} ${num(cx)} ${num(cy - ry)} c`,
+            `${num(cx + kx)} ${num(cy - ry)} ${num(cx + rx)} ${num(cy - ky)} ${num(cx + rx)} ${num(cy)} c h`,
+          ].join(' ')
+          paintShape(page, item, opacity, path)
+        } else if (item.type === 'triangle') {
+          // Vértice arriba y base abajo, como el polígono de la vista previa.
+          paintShape(page, item, opacity, `${num(x + w / 2)} ${num(y + h)} m ${num(x + w)} ${num(y)} l ${num(x)} ${num(y)} l h`)
+        } else {
+          paintShape(page, item, opacity, `${num(x)} ${num(y)} ${num(w)} ${num(h)} re`)
+        }
+
+        page.restore()
+        ctx.onProgress((index + 1) / objects.length, fmt(t.progress.page, { n: item.page }))
+        await yieldToUI()
+      }
+
+      for (const page of pages.values()) page.finish()
+      return [{ name: `${baseName(file.name)}-${t.filenames.edited}.pdf`, blob: pdfBlob(doc) }]
+    } finally {
+      overlay.dispose()
     }
-    ctx.onProgress((index + 1) / objects.length, fmt(t.progress.page, { n: item.page }))
+  })
+}
+
+function drawText(overlay: Overlay, page: PageCanvas, item: EditObject, opacity: number, x: number, y: number, w: number, h: number): void {
+  const background = hexColor(item.bgColor)
+  if (background.alpha > 0) {
+    page.alpha(opacity * background.alpha)
+    page.fill(background.rgb)
+    page.ops.push(`${num(x)} ${num(y)} ${num(w)} ${num(h)} re f`)
   }
-  return [{ name: `${baseName(file.name)}-${t.filenames.edited}.pdf`, blob: toBlob(await document_.save()) }]
+
+  const color = hexColor(item.color)
+  if (color.alpha === 0) return
+  const font = fontName(item)
+  const size = Math.max(4, item.fontSize || 18)
+  const lines = (item.text ?? '').replace(/\r\n/g, '\n').split('\n')
+  for (const [index, text] of lines.entries()) {
+    const textWidth = overlay.textWidth(font, text, size)
+    const textX = item.align === 'center' ? x + (w - textWidth) / 2 : item.align === 'right' ? x + w - textWidth : x
+    const baseline = y + h - size - 3 - index * size
+    page.alpha(opacity * color.alpha)
+    page.fill(color.rgb)
+    page.text(text, textX, baseline, font, size)
+    if (item.underline && text) {
+      line(page, item.color, opacity, item.borderWidth, { x: textX, y: baseline - 2 }, { x: textX + textWidth, y: baseline - 2 })
+    }
+  }
 }

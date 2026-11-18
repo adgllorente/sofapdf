@@ -14,24 +14,10 @@ export const run: ToolRun = async (files, values, ctx) => {
 
   if ((await encryptionState(input)) === 'plain') throw new Error(t.errors.notEncrypted)
 
+  // Si solo lleva contraseña de propietario, MuPDF lo abre sin pedir ninguna y
+  // la escrita se ignora.
   ctx.onProgress(0.4, t.progress.decrypting)
-  let output: Uint8Array | null = null
-  try {
-    output = await decryptPdf(input, password)
-  } catch {
-    // Muchos PDF solo llevan contraseña de propietario y se abren sin ninguna.
-    if (password) {
-      try {
-        output = await decryptPdf(input, '')
-      } catch {
-        output = null
-      }
-    }
-  }
-
-  // Muchos PDF solo llevan contraseña de propietario y se abren sin ninguna: si
-  // la escrita no vale, todavía puede ser uno de esos.
-  if (!output) throw new Error(t.errors.wrongPassword)
+  const output = await decryptPdf(input, password)
 
   ctx.onProgress(1, t.progress.done)
   return [{ name: `${baseName(file.name)}-${t.filenames.unlocked}.pdf`, blob: toBlob(output) }]

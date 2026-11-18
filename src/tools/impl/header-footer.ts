@@ -1,8 +1,10 @@
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
 import { t } from '@/i18n'
-import { toBlob } from '@/lib/files'
+import { pdfBlob, readPdf, usingPdf, yieldToUI } from '@/lib/mupdf'
+import { Overlay, type PageCanvas, type Rgb } from '@/lib/overlay'
 import { baseName, parsePageList } from '@/lib/pages'
 import type { ToolRun } from '@/tools/types'
+
+const INK: Rgb = [0.15, 0.15, 0.15]
 
 export const run: ToolRun = async (files, values, ctx) => {
   const [file] = files
@@ -10,28 +12,32 @@ export const run: ToolRun = async (files, values, ctx) => {
   const footer = String(values.footer ?? '').trim()
   if (!header && !footer) throw new Error(t.errors.headerFooterEmpty)
 
-  const document_ = await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true })
-  const font = await document_.embedFont(StandardFonts.Helvetica)
-  const pages = document_.getPages()
-  const targets = parsePageList(String(values.pages), pages.length)
-  const size = Number(values.size)
-  const margin = Number(values.margin)
-  const date = new Date().toLocaleDateString()
+  return usingPdf(await readPdf(file), async (doc) => {
+    const overlay = new Overlay(doc)
+    const count = doc.countPages()
+    const targets = parsePageList(String(values.pages), count)
+    const size = Number(values.size)
+    const margin = Number(values.margin)
+    const date = new Date().toLocaleDateString()
 
-  for (const [index, pageIndex] of targets.entries()) {
-    const page = pages[pageIndex]
-    const { width, height } = page.getSize()
-    const variables = { page: String(pageIndex + 1), total: String(pages.length), file: file.name, date }
+    try {
+      for (const [index, pageIndex] of targets.entries()) {
+        const page = overlay.page(pageIndex)
+        const variables = { page: String(pageIndex + 1), total: String(count), file: file.name, date }
 
-    drawText(page, expand(header, variables), font, size, margin, width, height, true)
-    drawText(page, expand(footer, variables), font, size, margin, width, height, false)
-    ctx.onProgress((index + 1) / targets.length)
-  }
-
-  return [{ name: `${baseName(file.name)}-${t.filenames.headerFooter}.pdf`, blob: toBlob(await document_.save()) }]
+        drawText(overlay, page, expand(header, variables), size, margin, true)
+        drawText(overlay, page, expand(footer, variables), size, margin, false)
+        page.finish()
+        ctx.onProgress((index + 1) / targets.length)
+        await yieldToUI()
+      }
+      return [{ name: `${baseName(file.name)}-${t.filenames.headerFooter}.pdf`, blob: pdfBlob(doc) }]
+    } finally {
+      overlay.dispose()
+    }
+  })
 }
 
-type PdfPage = ReturnType<PDFDocument['getPages']>[number]
 type Variables = { page: string; total: string; file: string; date: string }
 
 function expand(text: string, variables: Variables): string {
@@ -39,18 +45,17 @@ function expand(text: string, variables: Variables): string {
 }
 
 function drawText(
-  page: PdfPage,
+  overlay: Overlay,
+  page: PageCanvas,
   text: string,
-  font: Awaited<ReturnType<PDFDocument['embedFont']>>,
   size: number,
   margin: number,
-  width: number,
-  height: number,
   header: boolean,
 ): void {
   if (!text) return
-  const textWidth = font.widthOfTextAtSize(text, size)
-  const x = Math.max(margin, (width - textWidth) / 2)
-  const y = header ? height - margin - size : margin
-  page.drawText(text, { x, y, size, font, color: rgb(0.15, 0.15, 0.15) })
+  const textWidth = overlay.textWidth('Helvetica', text, size)
+  const x = Math.max(margin, (page.width - textWidth) / 2)
+  const y = header ? page.height - margin - size : margin
+  page.fill(INK)
+  page.text(text, page.x0 + x, page.y0 + y, 'Helvetica', size)
 }

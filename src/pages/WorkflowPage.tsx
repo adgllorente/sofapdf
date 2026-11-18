@@ -7,7 +7,7 @@ import { PreviewModal } from '@/components/PreviewModal'
 import { UnlockModal } from '@/components/UnlockModal'
 import { fmt, t } from '@/i18n'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
-import { encryptedFiles, unlockFiles } from '@/lib/unlock'
+import { encryptedFiles, runTool, unlockFiles, warmEngine } from '@/tools/runner'
 import { bumpToolUsage } from '@/lib/usage'
 import { loadMetadataFromFile } from '@/tools/metadata-loader'
 import { getTool, TOOLS } from '@/tools/registry'
@@ -46,6 +46,7 @@ function WorkflowRunner() {
     const currentSelection = ++selectionId.current
     setFiles(nextFiles)
     setUnlockingFiles([])
+    if (nextFiles.length > 0) warmEngine()
 
     // Si el workflow ya incluye una acción de contraseñas, esa acción gestiona
     // explícitamente el acceso al documento y no se duplica el diálogo.
@@ -167,8 +168,7 @@ function WorkflowRunner() {
       for (const [fileIndex, file] of files.entries()) {
         let current = file
         for (const [stepIndex, step] of steps.entries()) {
-          const run = await step.tool.load!()
-          const result = await run([current], step.values, {
+          const result = await runTool(step.tool, [current], step.values, {
             onProgress: (ratio, label = '') =>
               setProgress({
                 ratio: (fileIndex * steps.length + stepIndex + Math.max(0, Math.min(1, ratio))) /
@@ -302,7 +302,7 @@ function WorkflowRunner() {
         </section>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button type="button" onClick={execute} disabled={!ready || running || checkingEncryption || unlockingFiles.length > 0} className="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40">{running ? t.run.processing : t.workflow.run}</button>
+          <button type="button" onClick={execute} disabled={!ready || running || checkingEncryption || unlockingFiles.length > 0} className="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40">{running ? t.run.processing : checkingEncryption ? t.run.checking : t.workflow.run}</button>
           {(files.length > 0 || steps.length > 0) && <button type="button" onClick={reset} disabled={running} className="rounded-lg border border-line px-4 py-2.5 text-sm text-muted transition hover:border-line-strong hover:text-ink disabled:opacity-40">{t.workflow.reset}</button>}
           {!ready && <span className="text-sm text-muted">{steps.length === 0 ? t.workflow.empty : t.run.needOne}</span>}
         </div>

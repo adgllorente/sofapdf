@@ -1,4 +1,3 @@
-import { PDFDocument } from 'pdf-lib/es'
 import { bytesOf, indexOfBytes } from '@/lib/bytes'
 
 const ENCRYPT_KEY = bytesOf('/Encrypt')
@@ -17,14 +16,18 @@ export type EncryptionState = 'encrypted' | 'plain' | 'unknown'
 /** `unknown` cuando el documento está tan dañado que no se deja parsear. */
 export async function encryptionState(bytes: Uint8Array): Promise<EncryptionState> {
   if (!mentionsEncrypt(bytes)) return 'plain'
+  // MuPDF solo se carga si el escaneo no basta: su WASM tarda en llegar y
+  // bloquearía el botón de la herramienta con cualquier PDF.
+  const { mupdf } = await import('@/lib/mupdf')
+  let doc: InstanceType<typeof mupdf.Document> | null = null
   try {
-    // `isEncrypted` mira el `/Encrypt` del tráiler, así que confirma lo que el
-    // escaneo solo sospecha. Con `ignoreEncryption` para que lo diga en vez de
-    // lanzar: sus errores no sobreviven a `instanceof` y habría que mirar el texto.
-    const doc = await PDFDocument.load(bytes, { ignoreEncryption: true })
-    return doc.isEncrypted ? 'encrypted' : 'plain'
+    // `needsPassword` no ve los PDF que solo llevan contraseña de propietario;
+    // el metadato de cifrado sí.
+    doc = mupdf.Document.openDocument(bytes, 'application/pdf')
+    return doc.getMetaData(mupdf.Document.META_ENCRYPTION) === 'None' ? 'plain' : 'encrypted'
   } catch {
-    // Un documento roto no se deja parsear; que decida qpdf.
     return 'unknown'
+  } finally {
+    doc?.destroy()
   }
 }

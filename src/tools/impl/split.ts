@@ -1,50 +1,59 @@
-import { PDFDocument } from 'pdf-lib'
 import { fmt, t } from '@/i18n'
+import { appendPages, mupdf, pdfBlob, pdfBytes, readPdf, usingPdf, yieldToUI } from '@/lib/mupdf'
 import { toBlob } from '@/lib/files'
 import { baseName, expandRanges, padIndex, parseRanges } from '@/lib/pages'
 import type { OutputFile, ToolRun } from '@/tools/types'
 
 const BYTES_PER_MB = 1024 * 1024
 
+type PDFDocument = InstanceType<typeof mupdf.PDFDocument>
+
 export const run: ToolRun = async (files, values, ctx) => {
   const [file] = files
-  const source = await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true })
-  const pageCount = source.getPageCount()
-  const stem = baseName(file.name)
-  const mode = String(values.mode)
+  return usingPdf(await readPdf(file), async (source) => {
+    const pageCount = source.countPages()
+    const stem = baseName(file.name)
+    const mode = String(values.mode)
 
-  if (mode === 'size') return splitBySize(source, stem, pageCount, Number(values.maxSize), ctx)
+    if (mode === 'size') return splitBySize(source, stem, pageCount, Number(values.maxSize), ctx)
 
-  const groups =
-    mode === 'each'
-      ? expandRanges(parseRanges(String(values.ranges), pageCount)).map((index) => [index])
-      : mode === 'extract'
-        ? [expandRanges(parseRanges(String(values.ranges), pageCount))]
-        : parseRanges(String(values.ranges), pageCount).map(({ from, to }) =>
-            Array.from({ length: to - from + 1 }, (_, offset) => from + offset),
-          )
+    const groups =
+      mode === 'each'
+        ? expandRanges(parseRanges(String(values.ranges), pageCount)).map((index) => [index])
+        : mode === 'extract'
+          ? [expandRanges(parseRanges(String(values.ranges), pageCount))]
+          : parseRanges(String(values.ranges), pageCount).map(({ from, to }) =>
+              Array.from({ length: to - from + 1 }, (_, offset) => from + offset),
+            )
 
-  const outputs: OutputFile[] = []
-  for (const [index, indices] of groups.entries()) {
-    ctx.onProgress(
-      index / groups.length,
-      fmt(t.progress.document, { n: index + 1, total: groups.length }),
-    )
-    const target = await PDFDocument.create()
-    const pages = await target.copyPages(source, indices)
-    for (const page of pages) target.addPage(page)
+    const outputs: OutputFile[] = []
+    for (const [index, indices] of groups.entries()) {
+      ctx.onProgress(
+        index / groups.length,
+        fmt(t.progress.document, { n: index + 1, total: groups.length }),
+      )
+      await yieldToUI()
+      const target = new mupdf.PDFDocument()
+      let blob: Blob
+      try {
+        appendPages(target, source, indices)
+        blob = pdfBlob(target)
+      } finally {
+        target.destroy()
+      }
 
-    const label =
-      mode === 'extract'
-        ? t.filenames.selection
-        : indices.length === 1
-          ? `p${padIndex(indices[0] + 1, pageCount)}`
-          : `p${padIndex(indices[0] + 1, pageCount)}-${padIndex(indices.at(-1)! + 1, pageCount)}`
+      const label =
+        mode === 'extract'
+          ? t.filenames.selection
+          : indices.length === 1
+            ? `p${padIndex(indices[0] + 1, pageCount)}`
+            : `p${padIndex(indices[0] + 1, pageCount)}-${padIndex(indices.at(-1)! + 1, pageCount)}`
 
-    outputs.push({ name: `${stem}-${label}.pdf`, blob: toBlob(await target.save()) })
-  }
+      outputs.push({ name: `${stem}-${label}.pdf`, blob })
+    }
 
-  return outputs
+    return outputs
+  })
 }
 
 async function splitBySize(
@@ -60,44 +69,49 @@ async function splitBySize(
 
   const limit = maxSize * BYTES_PER_MB
   const outputs: OutputFile[] = []
+  const partName = (from: number, to: number) =>
+    `${stem}-${t.filenames.sizePart}-${padIndex(from, pageCount)}-${padIndex(to, pageCount)}.pdf`
+
   let start = 0
-  let target = await PDFDocument.create()
+  // Último guardado que cabía: evita volver a serializar al cerrar la parte.
+  let accepted: Uint8Array | null = null
+  let target = new mupdf.PDFDocument()
 
-  for (let index = 0; index < pageCount; index++) {
-    const [page] = await target.copyPages(source, [index])
-    target.addPage(page)
-    const candidate = await target.save()
+  try {
+    for (let index = 0; index < pageCount; index++) {
+      appendPages(target, source, [index])
+      const candidate = pdfBytes(target)
 
-    if (candidate.byteLength > limit) {
-      target.removePage(target.getPageCount() - 1)
-      if (index === start) {
-        throw new Error(
-          fmt(t.errors.pageTooLarge, {
-            page: index + 1,
-            size: toMegabytes(candidate.byteLength),
-            max: maxSize,
-          }),
-        )
+      if (candidate.byteLength > limit) {
+        if (index === start) {
+          throw new Error(
+            fmt(t.errors.pageTooLarge, {
+              page: index + 1,
+              size: toMegabytes(candidate.byteLength),
+              max: maxSize,
+            }),
+          )
+        }
+
+        outputs.push({ name: partName(start + 1, index), blob: toBlob(accepted!) })
+        target.destroy()
+        target = new mupdf.PDFDocument()
+        start = index
+        appendPages(target, source, [index])
+        accepted = pdfBytes(target)
+      } else {
+        accepted = candidate
       }
 
-      outputs.push({
-        name: `${stem}-${t.filenames.sizePart}-${padIndex(start + 1, pageCount)}-${padIndex(index, pageCount)}.pdf`,
-        blob: toBlob(await target.save()),
-      })
-      target = await PDFDocument.create()
-      start = index
-      const [nextPage] = await target.copyPages(source, [index])
-      target.addPage(nextPage)
+      ctx.onProgress((index + 1) / pageCount, fmt(t.progress.page, { n: index + 1 }))
+      await yieldToUI()
     }
 
-    ctx.onProgress((index + 1) / pageCount, fmt(t.progress.page, { n: index + 1 }))
+    outputs.push({ name: partName(start + 1, pageCount), blob: toBlob(accepted!) })
+    return outputs
+  } finally {
+    target.destroy()
   }
-
-  outputs.push({
-    name: `${stem}-${t.filenames.sizePart}-${padIndex(start + 1, pageCount)}-${padIndex(pageCount, pageCount)}.pdf`,
-    blob: toBlob(await target.save()),
-  })
-  return outputs
 }
 
 function toMegabytes(bytes: number): string {

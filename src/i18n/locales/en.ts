@@ -254,6 +254,7 @@ export const en: typeof es = {
   run: {
     back: 'All tools',
     processing: 'Working…',
+    checking: 'Checking the file…',
     reset: 'Start over',
     needOne: 'Add a file to begin.',
     needMany: 'Add at least {n} files.',
@@ -371,7 +372,7 @@ export const en: typeof es = {
     noImages: 'No image could be read.',
     emptyPassword: 'Enter a password.',
     passwordMismatch: 'The two passwords do not match.',
-    passwordReservedChar: 'The password cannot start with “-” or “@”.',
+    passwordComma: 'The password cannot contain commas.',
     passwordTooLong:
       'The password takes {bytes} bytes and the encryption allows {max} (accents and emoji take several).',
     alreadyEncrypted: 'This PDF is already encrypted: remove the current password first.',
@@ -387,7 +388,6 @@ export const en: typeof es = {
     organizeEmpty: 'No pages left: add at least one before exporting.',
     cropEmpty: 'The crop leaves the page empty: ease one of the margins.',
     redactEmpty: 'Draw at least one rectangle over the text you want to redact.',
-    redactFailed: 'Could not render the page for redaction.',
     ocrFailed: 'Could not recognise the text on page {n}.',
     compareNeedTwo: 'Upload two PDFs to compare.',
     compareFailed: 'Could not compare the pages.',
@@ -399,6 +399,7 @@ export const en: typeof es = {
     bookmarkTitle: 'Every bookmark needs a title.',
     bookmarkPage: 'Page {page} does not exist: the document has {total}.',
     headerFooterEmpty: 'Enter text for the header or footer.',
+    notPdf: 'Could not read “{name}”: it does not look like a valid PDF.',
   },
 
   filenames: {
@@ -438,6 +439,8 @@ export const en: typeof es = {
   progress: {
     page: 'Page {n}',
     document: 'Document {n} of {total}',
+    image: 'Image {n} of {total}',
+    preparing: 'Getting the PDF engine ready…',
     reading: 'Reading {name}',
     readingPdf: 'Reading the PDF',
     compressingImages: 'Compressing images',
@@ -446,7 +449,6 @@ export const en: typeof es = {
     writingPdf: 'Writing the PDF',
     repairing: 'Rebuilding the structure',
     sanitizing: 'Removing active elements and attached data',
-    rebuildingObjects: 'Recovering the objects',
     salvaging: 'Salvaging what is left',
     encrypting: 'Encrypting the document',
     decrypting: 'Decrypting the document',
@@ -884,7 +886,7 @@ export const en: typeof es = {
           {
             question: 'What compression does {app} use?',
             answer:
-              'It rewrites the PDF with pdf-lib and re-encodes embedded JPEG images through the browser canvas. The selected level changes their scale and quality; text remains text and is not rasterised. PNG, CMYK and masked images are not modified for now.',
+              'It recompresses colour and greyscale images as JPEG and compacts the rest of the document. The selected level changes their scale and quality; text remains text and is not rasterised. CMYK, palette images and masks are not modified for now.',
           },
         ],
       },
@@ -999,7 +1001,7 @@ export const en: typeof es = {
       short: 'Remove text from the PDF irreversibly.',
       description: 'Draw rectangles over the text you want gone. The text is deleted from the document, not covered with a box.',
       action: 'Redact',
-      note: 'The selected text is removed from the PDF: the whole page becomes an image and the text stops being text. This is not reversible.',
+      note: 'Whatever lies under each rectangle (text, images and drawings) is deleted from the PDF, not just covered. The rest of the page stays selectable text. This is not reversible.',
       preview: {
         title: 'Areas to redact',
         hint: 'Drag on the page to draw a rectangle. Click an existing one to delete it.',

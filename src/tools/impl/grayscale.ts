@@ -1,12 +1,12 @@
-import { PDFArray, PDFDocument, PDFName, PDFNumber, PDFRawStream, JpegEmbedder } from 'pdf-lib/es'
-import { decodePDFRawStream } from 'pdf-lib/es/core'
-import { JpxImage } from 'pdfjs-dist/image_decoders/pdf.image_decoders.mjs'
-import type { PDFRef } from 'pdf-lib/es'
-import { t } from '@/i18n'
-import { toBlob } from '@/lib/files'
+import { fmt, t } from '@/i18n'
+import { mupdf, pdfBlob, readPdf, usingPdf, yieldToUI } from '@/lib/mupdf'
 import { baseName } from '@/lib/pages'
-import { wasmUrl } from '@/lib/pdfjs'
 import type { ToolRun } from '@/tools/types'
+
+type PdfObject = InstanceType<typeof mupdf.PDFObject>
+type PdfDoc = InstanceType<typeof mupdf.PDFDocument>
+
+const JPEG_QUALITY = 92
 
 function luminance(red: number, green: number, blue: number): number {
   return 0.2126 * red + 0.7152 * green + 0.0722 * blue
@@ -25,161 +25,147 @@ function format(value: number): string {
 }
 
 /** Convierte los operadores de color básicos sin tocar los operadores de texto. */
-function convertContentColors(bytes: Uint8Array): Uint8Array {
-  let content = new TextDecoder('latin1').decode(bytes)
+function convertContentColors(content: string): string {
   const cmyk = /(-?(?:\d*\.)?\d+)\s+(-?(?:\d*\.)?\d+)\s+(-?(?:\d*\.)?\d+)\s+(-?(?:\d*\.)?\d+)\s+(k|K|sc|SC|scn|SCN)(?=\s|$)/g
   content = content.replace(cmyk, (_, cyan, magenta, yellow, black, operator: string) => {
     const gray = grayFromCmyk(number(cyan), number(magenta), number(yellow), number(black))
     return `${format(gray)} ${operator === operator.toUpperCase() ? 'G' : 'g'}`
   })
   const rgb = /(-?(?:\d*\.)?\d+)\s+(-?(?:\d*\.)?\d+)\s+(-?(?:\d*\.)?\d+)\s+(rg|RG|sc|SC|scn|SCN)(?=\s|$)/g
-  content = content.replace(rgb, (_, red, green, blue, operator: string) => {
+  return content.replace(rgb, (_, red, green, blue, operator: string) => {
     const gray = luminance(number(red), number(green), number(blue))
     return `${format(gray)} ${operator === operator.toUpperCase() ? 'G' : 'g'}`
   })
-  return new TextEncoder().encode(content)
 }
 
-function sameBytes(left: Uint8Array, right: Uint8Array): boolean {
-  if (left.length !== right.length) return false
-  return left.every((value, index) => value === right[index])
+function nameOf(object: PdfObject): string | null {
+  return object.isName() ? object.asName() : null
 }
 
-async function grayscaleJpeg(bytes: Uint8Array, width: number, height: number): Promise<Uint8Array | null> {
-  const bitmap = await createImageBitmap(new Blob([bytes.buffer as ArrayBuffer], { type: 'image/jpeg' }))
-  const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
-  const context = canvas.getContext('2d')
-  if (!context) {
-    bitmap.close()
-    return null
+/** Último filtro de la cadena: el que define el códec de la imagen. */
+function codec(stream: PdfObject): string | null {
+  const filter = stream.get('Filter')
+  if (filter.isArray()) return filter.length > 0 ? nameOf(filter.get(filter.length - 1)) : null
+  return nameOf(filter)
+}
+
+// Latin-1 byte a byte: UTF-8 o windows-1252 alterarían los bytes binarios de
+// las imágenes inline al volver a escribir el stream.
+function latin1Decode(bytes: Uint8Array): string {
+  let text = ''
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    text += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
   }
-  context.filter = 'grayscale(1)'
-  context.drawImage(bitmap, 0, 0)
-  bitmap.close()
-  const result = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92))
-  canvas.width = 0
-  canvas.height = 0
-  return result ? new Uint8Array(await result.arrayBuffer()) : null
+  return text
 }
 
-async function grayscaleJpx(bytes: Uint8Array, width: number, height: number): Promise<Uint8Array | null> {
-  JpxImage.setOptions({ useWasm: true, useWorkerFetch: false, wasmUrl })
-  const decoded = await JpxImage.instance.decode(bytes, { numComponents: 3 })
-  const pixels = new Uint8ClampedArray(width * height * 4)
-  for (let source = 0, target = 0; target < pixels.length; source += 3, target += 4) {
-    const gray = luminance(decoded[source], decoded[source + 1], decoded[source + 2])
-    pixels[target] = gray
-    pixels[target + 1] = gray
-    pixels[target + 2] = gray
-    pixels[target + 3] = 255
+function latin1Encode(text: string): Uint8Array {
+  const bytes = new Uint8Array(text.length)
+  for (let i = 0; i < text.length; i++) bytes[i] = text.charCodeAt(i)
+  return bytes
+}
+
+function convertContentStream(stream: PdfObject): void {
+  const decoded = stream.readStream()
+  let content: string
+  try {
+    content = latin1Decode(decoded.asUint8Array())
+  } finally {
+    decoded.destroy()
   }
-  const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
-  const context = canvas.getContext('2d')
-  if (!context) return null
-  context.putImageData(new ImageData(pixels, width, height), 0, 0)
-  const result = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92))
-  canvas.width = 0
-  canvas.height = 0
-  return result ? new Uint8Array(await result.arrayBuffer()) : null
+  const converted = convertContentColors(content)
+  // Al reescribir el stream MuPDF quita el filtro; el guardado vuelve a comprimir.
+  if (converted !== content) stream.writeStream(latin1Encode(converted))
 }
 
-function imageCodec(stream: PDFRawStream): PDFName | undefined {
-  const filter = stream.dict.lookup(PDFName.of('Filter'))
-  if (filter instanceof PDFName) return filter
-  if (filter instanceof PDFArray && filter.size() > 0) {
-    return filter.lookup(filter.size() - 1, PDFName)
-  }
-  return undefined
-}
-
-function imageBytes(stream: PDFRawStream): Uint8Array {
-  const filter = stream.dict.lookup(PDFName.of('Filter'))
-  if (!(filter instanceof PDFArray) || filter.size() < 2) return stream.contents
-
-  // Algunos exportadores envuelven el JPEG en Flate para el transporte del objeto.
-  const first = filter.lookup(0, PDFName)
-  if (first !== PDFName.of('FlateDecode')) return stream.contents
-  const dict = stream.dict.clone()
-  dict.set(PDFName.of('Filter'), first)
-  const params = stream.dict.lookup(PDFName.of('DecodeParms'))
-  if (params instanceof PDFArray) {
-    const firstParams = params.lookup(0)
-    if (firstParams) dict.set(PDFName.of('DecodeParms'), firstParams)
-    else dict.delete(PDFName.of('DecodeParms'))
-  } else dict.delete(PDFName.of('DecodeParms'))
-  return decodePDFRawStream(PDFRawStream.of(dict, stream.contents)).decode()
-}
-
-async function convertImages(document_: PDFDocument, onProgress: (ratio: number) => void): Promise<void> {
-  const images: { ref: PDFRef; stream: PDFRawStream }[] = []
-  for (const [ref, object] of document_.context.enumerateIndirectObjects()) {
-    if (!(object instanceof PDFRawStream)) continue
-    if (object.dict.lookup(PDFName.of('Subtype')) !== PDFName.of('Image')) continue
-    const codec = imageCodec(object)
-    if (codec !== PDFName.of('DCTDecode') && codec !== PDFName.of('JPXDecode')) continue
-    images.push({ ref, stream: object })
-  }
-  for (const [index, image] of images.entries()) {
-    const width = image.stream.dict.lookup(PDFName.of('Width'))
-    const height = image.stream.dict.lookup(PDFName.of('Height'))
-    const widthValue = width instanceof PDFNumber ? width.asNumber() : 0
-    const heightValue = height instanceof PDFNumber ? height.asNumber() : 0
-    if (widthValue && heightValue) {
-      try {
-        const codec = imageCodec(image.stream)
-        const bytes = imageBytes(image.stream)
-        const gray = codec === PDFName.of('JPXDecode')
-          ? await grayscaleJpx(bytes, widthValue, heightValue)
-          : await grayscaleJpeg(bytes, widthValue, heightValue)
-        if (gray) {
-          const embedder = await JpegEmbedder.for(gray)
-          await embedder.embedIntoContext(document_.context, image.ref)
-        }
-      } catch {
-        // Las imágenes no compatibles conservan su formato original.
+/** Sustituye la imagen por su versión en gris conservando el objeto y su SMask. */
+function convertImage(doc: PdfDoc, stream: PdfObject): void {
+  if (stream.get('ImageMask').isBoolean() && stream.get('ImageMask').asBoolean()) return
+  const image = doc.loadImage(stream)
+  try {
+    const colorspace = image.getColorSpace()
+    if (!colorspace || colorspace.isGray()) return
+    const source = image.toPixmap()
+    const gray = source.convertToColorSpace(mupdf.ColorSpace.DeviceGray, false)
+    source.destroy()
+    try {
+      const wasJpeg = codec(stream) === 'DCTDecode' || codec(stream) === 'JPXDecode'
+      for (const key of ['Filter', 'DecodeParms', 'Decode', 'ColorSpace', 'BitsPerComponent']) stream.delete(key)
+      // Un color key se expresa en el espacio de color original: deja de valer en gris.
+      if (stream.get('Mask').isArray()) stream.delete('Mask')
+      stream.put('ColorSpace', doc.newName('DeviceGray'))
+      stream.put('BitsPerComponent', 8)
+      stream.put('Width', gray.getWidth())
+      stream.put('Height', gray.getHeight())
+      if (wasJpeg) {
+        stream.writeRawStream(gray.asJPEG(JPEG_QUALITY).slice())
+        stream.put('Filter', doc.newName('DCTDecode'))
+      } else {
+        stream.writeStream(packedSamples(gray))
       }
+    } finally {
+      gray.destroy()
     }
-    onProgress((index + 1) / Math.max(1, images.length))
+  } finally {
+    image.destroy()
   }
+}
+
+/** Muestras de 8 bits sin el relleno de fila que pueda llevar el pixmap. */
+function packedSamples(pixmap: InstanceType<typeof mupdf.Pixmap>): Uint8Array {
+  const width = pixmap.getWidth()
+  const height = pixmap.getHeight()
+  const stride = pixmap.getStride()
+  const pixels = pixmap.getPixels()
+  if (stride === width) return pixels.slice() as unknown as Uint8Array
+  const packed = new Uint8Array(width * height)
+  for (let y = 0; y < height; y++) packed.set(pixels.subarray(y * stride, y * stride + width), y * width)
+  return packed
 }
 
 export const run: ToolRun = async (files, _values, ctx) => {
   const [file] = files
   ctx.onProgress(0.05, t.progress.readingPdf)
-  const document_ = await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true })
+  await yieldToUI()
 
-  const streams = [...document_.context.enumerateIndirectObjects()]
-    .filter(([, object]) => {
-      if (!(object instanceof PDFRawStream)) return false
-      const subtype = object.dict.lookup(PDFName.of('Subtype'))
-      return !subtype || subtype === PDFName.of('Form')
-    })
-  for (const [ref, object] of streams) {
-    if (!(object instanceof PDFRawStream)) continue
-    let decoded: Uint8Array
-    try {
-      decoded = decodePDFRawStream(object).decode()
-    } catch {
-      continue
+  const blob = await usingPdf(await readPdf(file), async (doc) => {
+    const contents: PdfObject[] = []
+    const images: PdfObject[] = []
+    for (let num = 1; num < doc.countObjects(); num++) {
+      const object = doc.newIndirect(num)
+      if (!object.isStream()) continue
+      const subtype = nameOf(object.get('Subtype'))
+      if (subtype === 'Image') images.push(object)
+      else if (!subtype || subtype === 'Form') contents.push(object)
     }
-    const converted = convertContentColors(decoded)
-    if (!sameBytes(decoded, converted)) {
-      // Se escribe sin filtro porque el contenido ya se ha decodificado.
-      const dict = object.dict.clone(document_.context)
-      dict.delete(PDFName.of('Filter'))
-      dict.delete(PDFName.of('DecodeParms'))
-      document_.context.assign(ref, PDFRawStream.of(dict, converted))
-    }
-  }
 
-  ctx.onProgress(0.35, t.progress.grayscalingImages)
-  await convertImages(document_, (ratio) => ctx.onProgress(0.35 + ratio * 0.5))
-  ctx.onProgress(0.9, t.progress.writingPdf)
-  const bytes = await document_.save()
+    for (const stream of contents) {
+      try {
+        convertContentStream(stream)
+      } catch {
+        // Un stream que no se deja decodificar se queda como estaba.
+      }
+    }
+
+    ctx.onProgress(0.35, t.progress.grayscalingImages)
+    for (const [index, stream] of images.entries()) {
+      try {
+        convertImage(doc, stream)
+      } catch {
+        // Las imágenes no compatibles conservan su formato original.
+      }
+      ctx.onProgress(
+        0.35 + ((index + 1) / Math.max(1, images.length)) * 0.5,
+        fmt(t.progress.image, { n: index + 1, total: images.length }),
+      )
+      await yieldToUI()
+    }
+
+    ctx.onProgress(0.9, t.progress.writingPdf)
+    await yieldToUI()
+    return pdfBlob(doc)
+  })
+
   ctx.onProgress(1, t.progress.done)
-  return [{ name: `${baseName(file.name)}-${t.filenames.grayscale}.pdf`, blob: toBlob(bytes) }]
+  return [{ name: `${baseName(file.name)}-${t.filenames.grayscale}.pdf`, blob }]
 }

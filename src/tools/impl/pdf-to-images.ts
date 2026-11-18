@@ -1,53 +1,41 @@
 import { fmt, t } from '@/i18n'
-import { getPdfDocument } from '@/lib/pdfjs'
+import { pixmapToJpeg, pixmapToPng, readPdf, renderPage, usingPdf, yieldToUI } from '@/lib/mupdf'
 import { baseName, padIndex, parsePageList } from '@/lib/pages'
 import type { OutputFile, ToolRun } from '@/tools/types'
 
 export const run: ToolRun = async (files, values, ctx) => {
   const [file] = files
-  const data = new Uint8Array(await file.arrayBuffer())
-  const task = getPdfDocument(data)
-  const document_ = await task.promise
-
-  try {
-    const targets = parsePageList(String(values.pages), document_.numPages)
+  return usingPdf(await readPdf(file), async (doc) => {
+    const total = doc.countPages()
+    const targets = parsePageList(String(values.pages), total)
     const scale = Number(values.scale)
-    const format = String(values.format)
-    const quality = Number(values.quality) / 100
-    const mime = format === 'png' ? 'image/png' : 'image/jpeg'
+    const png = String(values.format) === 'png'
+    const quality = Number(values.quality)
     const stem = baseName(file.name)
 
     const outputs: OutputFile[] = []
     for (const [index, pageIndex] of targets.entries()) {
       ctx.onProgress(index / targets.length, fmt(t.progress.page, { n: pageIndex + 1 }))
+      await yieldToUI()
 
-      const page = await document_.getPage(pageIndex + 1)
-      const viewport = page.getViewport({ scale })
-      const canvas = document.createElement('canvas')
-      canvas.width = Math.ceil(viewport.width)
-      canvas.height = Math.ceil(viewport.height)
-
-      // pdf.js pinta fondo blanco por defecto: necesario porque JPEG no tiene alfa.
-      await page.render({ canvas, viewport }).promise
-      page.cleanup()
-
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, mime, format === 'png' ? undefined : quality),
-      )
-      if (!blob) throw new Error(fmt(t.errors.exportPage, { page: pageIndex + 1 }))
+      const page = doc.loadPage(pageIndex)
+      let bytes: Uint8Array
+      try {
+        // Sin alfa: el fondo queda blanco, que es lo que necesita un JPEG.
+        const pixmap = renderPage(page, scale)
+        bytes = png ? pixmapToPng(pixmap) : pixmapToJpeg(pixmap, quality)
+      } catch {
+        throw new Error(fmt(t.errors.exportPage, { page: pageIndex + 1 }))
+      } finally {
+        page.destroy()
+      }
 
       outputs.push({
-        name: `${stem}-${padIndex(pageIndex + 1, document_.numPages)}.${format === 'png' ? 'png' : 'jpg'}`,
-        blob,
+        name: `${stem}-${padIndex(pageIndex + 1, total)}.${png ? 'png' : 'jpg'}`,
+        blob: new Blob([bytes as BlobPart], { type: png ? 'image/png' : 'image/jpeg' }),
       })
-
-      // Liberar el bitmap cuanto antes: son varios MB por página a 288 ppp.
-      canvas.width = 0
-      canvas.height = 0
     }
 
     return outputs
-  } finally {
-    await task.destroy()
-  }
+  })
 }

@@ -1,7 +1,6 @@
-import { PDFDocument, PDFName } from 'pdf-lib'
 import { t } from '@/i18n'
 import { encryptionState } from '@/lib/encryption'
-import { toBlob } from '@/lib/files'
+import { openPdf, pdfBlob, usingPdf } from '@/lib/mupdf'
 import { baseName } from '@/lib/pages'
 import type { ToolRun } from '@/tools/types'
 
@@ -23,13 +22,9 @@ const catalogEntries = [
 
 const pageEntries = ['AA', 'AF', 'Annots', 'Metadata', 'PieceInfo']
 
-function removeEntries(dict: { delete: (key: PDFName) => boolean }, entries: string[]): void {
-  for (const entry of entries) dict.delete(PDFName.of(entry))
-}
-
 /**
- * Copiar solo las páginas alcanza los objetos que forman su aspecto visible y
- * descarta el resto del catálogo de origen, incluidos objetos ya huérfanos.
+ * Se quitan las entradas del catálogo y de cada página, y el Info dict del
+ * tráiler; al guardar, `garbage` descarta todo lo que quedó sin referencia.
  */
 export const run: ToolRun = async (files, _values, ctx) => {
   const [file] = files
@@ -38,25 +33,21 @@ export const run: ToolRun = async (files, _values, ctx) => {
   const input = new Uint8Array(await file.arrayBuffer())
   if ((await encryptionState(input)) === 'encrypted') throw new Error(t.errors.sanitizeEncrypted)
 
-  const source = await PDFDocument.load(input, {
-    updateMetadata: false,
+  return usingPdf(openPdf(input, file.name), (doc) => {
+    ctx.onProgress(0.35, t.progress.sanitizing)
+    const trailer = doc.getTrailer()
+    const catalog = trailer.get('Root')
+    for (const entry of catalogEntries) catalog.delete(entry)
+    trailer.delete('Info')
+
+    for (let i = 0; i < doc.countPages(); i++) {
+      const page = doc.findPage(i)
+      for (const entry of pageEntries) page.delete(entry)
+    }
+
+    ctx.onProgress(0.8, t.progress.writingPdf)
+    const blob = pdfBlob(doc)
+    ctx.onProgress(1, t.progress.done)
+    return [{ name: `${baseName(file.name)}-${t.filenames.sanitized}.pdf`, blob }]
   })
-
-  ctx.onProgress(0.35, t.progress.sanitizing)
-  removeEntries(source.catalog, catalogEntries)
-  for (const page of source.getPages()) removeEntries(page.node, pageEntries)
-
-  // El documento nuevo no conserva el catálogo ni el Info dict del original.
-  const output = await PDFDocument.create({ updateMetadata: false })
-  const pages = await output.copyPages(source, source.getPageIndices())
-  for (const page of pages) {
-    removeEntries(page.node, pageEntries)
-    output.addPage(page)
-  }
-
-  ctx.onProgress(0.8, t.progress.writingPdf)
-  const bytes = await output.save()
-  ctx.onProgress(1, t.progress.done)
-
-  return [{ name: `${baseName(file.name)}-${t.filenames.sanitized}.pdf`, blob: toBlob(bytes) }]
 }

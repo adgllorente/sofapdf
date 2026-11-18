@@ -258,6 +258,7 @@ export const es = {
   run: {
     back: 'Todas las herramientas',
     processing: 'Procesando…',
+    checking: 'Comprobando el archivo…',
     reset: 'Empezar de nuevo',
     needOne: 'Añade un archivo para empezar.',
     needMany: 'Añade al menos {n} archivos.',
@@ -375,7 +376,7 @@ export const es = {
     noImages: 'No se pudo leer ninguna imagen.',
     emptyPassword: 'Escribe una contraseña.',
     passwordMismatch: 'Las dos contraseñas no coinciden.',
-    passwordReservedChar: 'La contraseña no puede empezar por «-» ni por «@».',
+    passwordComma: 'La contraseña no puede contener comas.',
     passwordTooLong:
       'La contraseña ocupa {bytes} bytes y el cifrado admite {max} (las tildes y los emoji ocupan varios).',
     alreadyEncrypted: 'Este PDF ya está cifrado: quítale primero la contraseña actual.',
@@ -391,7 +392,6 @@ export const es = {
     organizeEmpty: 'No queda ninguna página: añade al menos una antes de exportar.',
     cropEmpty: 'El recorte deja la página vacía: reduce algún margen.',
     redactEmpty: 'Dibuja al menos un rectángulo sobre el texto que quieres censurar.',
-    redactFailed: 'No se pudo renderizar la página para censurar.',
     ocrFailed: 'No se pudo reconocer el texto de la página {n}.',
     compareNeedTwo: 'Sube dos PDFs para comparar.',
     compareFailed: 'No se pudo comparar las páginas.',
@@ -403,6 +403,7 @@ export const es = {
     bookmarkTitle: 'Cada marcador necesita un título.',
     bookmarkPage: 'La página {page} no existe: el documento tiene {total}.',
     headerFooterEmpty: 'Escribe un texto para el encabezado o el pie.',
+    notPdf: 'No se pudo leer «{name}»: no parece un PDF válido.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
@@ -443,6 +444,8 @@ export const es = {
   progress: {
     page: 'Página {n}',
     document: 'Documento {n} de {total}',
+    image: 'Imagen {n} de {total}',
+    preparing: 'Preparando el motor PDF…',
     reading: 'Leyendo {name}',
     readingPdf: 'Leyendo el PDF',
     compressingImages: 'Comprimiendo imágenes',
@@ -451,7 +454,6 @@ export const es = {
     writingPdf: 'Escribiendo el PDF',
     repairing: 'Reconstruyendo la estructura',
     sanitizing: 'Eliminando elementos activos y datos adjuntos',
-    rebuildingObjects: 'Recuperando los objetos',
     salvaging: 'Rescatando lo que queda',
     encrypting: 'Cifrando el documento',
     decrypting: 'Descifrando el documento',
@@ -889,7 +891,7 @@ export const es = {
           {
             question: '¿Qué compresión utiliza {app}?',
             answer:
-              'Reescribe el PDF con pdf-lib y re-encodea las imágenes JPEG incrustadas usando el canvas del navegador. El nivel elegido ajusta su escala y calidad; el texto sigue siendo texto y no se rasteriza. Las imágenes PNG, CMYK y las que tienen máscara no se modifican por ahora.',
+              'Recomprime las imágenes en color y en gris como JPEG y compacta el resto del documento. El nivel elegido ajusta su escala y calidad; el texto sigue siendo texto y no se rasteriza. Las imágenes CMYK, de paleta y las máscaras no se modifican por ahora.',
           },
         ],
       },
@@ -1004,7 +1006,7 @@ export const es = {
       short: 'Elimina texto del PDF de forma irreversible.',
       description: 'Dibuja rectángulos sobre el texto que quieres quitar. El texto se borra del documento, no se tapa con un rectángulo.',
       action: 'Censurar',
-      note: 'El texto seleccionado se elimina del PDF: la página entera se convierte en imagen y el texto deja de ser texto. No es reversible.',
+      note: 'Lo que queda bajo cada rectángulo (texto, imágenes y trazos) se borra del PDF, no solo se tapa. El resto de la página sigue siendo texto seleccionable. No es reversible.',
       preview: {
         title: 'Zonas a censurar',
         hint: 'Arrastra sobre la página para dibujar un rectángulo. Clic en uno existente para borrarlo.',

@@ -9,7 +9,7 @@ import { applyDocumentSeo, fmt, t } from '@/i18n'
 import { useLocale } from '@/i18n/react'
 import { toolText } from '@/i18n/tools'
 import { formatBytes, saveAllAsZip, saveBlob } from '@/lib/files'
-import { encryptedFiles, unlockFiles } from '@/lib/unlock'
+import { encryptedFiles, runTool, unlockFiles, warmEngine } from '@/tools/runner'
 import {
   bumpToolUsage,
   dismissSupportPrompt,
@@ -106,6 +106,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
     const currentSelection = ++selectionId.current
     setFiles(nextFiles)
     setUnlockingFiles([])
+    if (nextFiles.length > 0) warmEngine(tool.slug)
     if (isPasswordTool(tool) || nextFiles.length === 0) {
       setCheckingEncryption(false)
       return
@@ -144,8 +145,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
     setProgress({ ratio: 0, label: '' })
 
     try {
-      const run = await tool.load!()
-      const result = await run(files, values, {
+      const result = await runTool(tool, files, values, {
         onProgress: (ratio, label = '') => setProgress({ ratio, label }),
       })
       setOutputs(result)
@@ -266,7 +266,7 @@ function ToolRunner({ tool }: { tool: Tool }) {
             disabled={!ready || running || checkingEncryption || unlockingFiles.length > 0}
             className="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {running ? t.run.processing : text.action}
+            {running ? t.run.processing : checkingEncryption ? t.run.checking : text.action}
           </button>
           {files.length > 0 && (
             <button

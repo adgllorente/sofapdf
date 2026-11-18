@@ -1,15 +1,18 @@
-import { PDFDocument } from 'pdf-lib/es'
 import { t } from '@/i18n'
 import { bytesOf, indexOfBytes, lastIndexOfBytes } from '@/lib/bytes'
-import { encryptionState } from '@/lib/encryption'
 import { toBlob } from '@/lib/files'
+import { mupdf, pdfBytes } from '@/lib/mupdf'
 import { baseName } from '@/lib/pages'
-import { runQpdf } from '@/lib/qpdf'
 import type { ToolRun } from '@/tools/types'
 
 const HEADER = bytesOf('%PDF-')
 const FALLBACK_HEADER = bytesOf('%PDF-1.7\n')
 const ENDOBJ = bytesOf('endobj')
+
+/** Sin `encrypt=none`: si solo lleva contraseña de propietario, se conserva. */
+const REPAIR_OPTIONS = 'garbage=compact,compress'
+
+type Attempt = { output: Uint8Array | null; encrypted: boolean }
 
 export const run: ToolRun = async (files, _values, ctx) => {
   const [file] = files
@@ -17,31 +20,39 @@ export const run: ToolRun = async (files, _values, ctx) => {
   ctx.onProgress(0.1, t.progress.readingPdf)
   const input = withHeader(new Uint8Array(await file.arrayBuffer()))
 
-  // De más fiel a más agresivo. qpdf da el mejor resultado pero se planta ante
-  // un xref ilegible; pdf-lib no se fía del xref; el recorte tira lo que quedó
-  // a medias. Cada estrategia se prueba solo si la anterior no dio nada.
+  // Abrir con MuPDF ya reconstruye el xref si está roto. Si ni así sale nada, se
+  // recorta el objeto que quedó a medias y se vuelve a intentar.
   ctx.onProgress(0.3, t.progress.repairing)
-  let output = await viaQpdf(input)
+  let attempt = rebuild(input)
 
-  if (!output) {
-    ctx.onProgress(0.6, t.progress.rebuildingObjects)
-    output = await viaPdfLib(input)
-  }
-
-  if (!output) {
-    ctx.onProgress(0.85, t.progress.salvaging)
+  if (!attempt.output && !attempt.encrypted) {
+    ctx.onProgress(0.7, t.progress.salvaging)
     const trimmed = trimToLastObject(input)
-    if (trimmed) output = await viaPdfLib(trimmed)
+    if (trimmed) attempt = rebuild(trimmed)
   }
 
-  if (!output) {
-    // El aviso de cifrado se deja para el final: nada de él debe impedir un intento.
-    const encrypted = (await encryptionState(input)) === 'encrypted'
-    throw new Error(encrypted ? t.errors.repairEncrypted : t.errors.repairFailed)
+  if (!attempt.output) {
+    throw new Error(attempt.encrypted ? t.errors.repairEncrypted : t.errors.repairFailed)
   }
 
   ctx.onProgress(1, t.progress.done)
-  return [{ name: `${baseName(file.name)}-${t.filenames.repaired}.pdf`, blob: toBlob(output) }]
+  return [{ name: `${baseName(file.name)}-${t.filenames.repaired}.pdf`, blob: toBlob(attempt.output) }]
+}
+
+function rebuild(input: Uint8Array): Attempt {
+  let doc: InstanceType<typeof mupdf.Document> | null = null
+  try {
+    doc = mupdf.Document.openDocument(input, 'application/pdf')
+    // Reescribir un documento cifrado sin la contraseña daría streams ilegibles con pinta de sanos.
+    if (doc.needsPassword()) return { output: null, encrypted: true }
+    const pdf = doc.asPDF()
+    if (!pdf || pdf.countPages() === 0) return { output: null, encrypted: false }
+    return { output: pdfBytes(pdf, REPAIR_OPTIONS), encrypted: false }
+  } catch {
+    return { output: null, encrypted: false }
+  } finally {
+    doc?.destroy()
+  }
 }
 
 /** Los offsets del documento se miden desde `%PDF-`: lo anterior sobra. */
@@ -63,35 +74,4 @@ function trimToLastObject(bytes: Uint8Array): Uint8Array | null {
   if (at < 0) return null
   const end = at + ENDOBJ.length
   return end < bytes.length ? bytes.subarray(0, end) : null
-}
-
-async function viaQpdf(input: Uint8Array): Promise<Uint8Array | null> {
-  try {
-    // Reescribir el fichero ya reconstruye la tabla de referencias; un aviso no
-    // es un fallo, así que no debe contar como código de error.
-    const { code, output } = await runQpdf(input, ['--warning-exit-0'])
-    if (code !== 0 || !output || indexOfBytes(output.subarray(0, HEADER.length), HEADER) !== 0) {
-      return null
-    }
-    return output
-  } catch {
-    // Si el WASM no carga, quedan las estrategias en JS.
-    return null
-  }
-}
-
-async function viaPdfLib(input: Uint8Array): Promise<Uint8Array | null> {
-  try {
-    // pdf-lib recorre los objetos en vez de fiarse del xref, que es justo lo que
-    // suele estar roto. Sin `ignoreEncryption`: un documento cifrado se
-    // guardaría con los streams sin descifrar, ilegible pero con pinta de sano.
-    const doc = await PDFDocument.load(input, {
-      throwOnInvalidObject: false,
-      updateMetadata: false,
-    })
-    if (doc.getPageCount() === 0) return null
-    return await doc.save({ useObjectStreams: false })
-  } catch {
-    return null
-  }
 }
