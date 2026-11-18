@@ -404,7 +404,6 @@ export const en: typeof es = {
     formNoFields: 'This PDF has no fillable form fields.',
     formEmpty: 'Fill in at least one field or turn on “Flatten when done”.',
     formField: 'The field “{name}” could not be written.',
-    formEncoding: 'Some field contains characters the standard font cannot encode, so it cannot be flattened. Turn off “Flatten when done”: the viewer will draw them with its own font.',
     editEmpty: 'Add at least one element before exporting.',
     bookmarksEmpty: 'Add at least one bookmark before exporting.',
     bookmarkTitle: 'Every bookmark needs a title.',

@@ -1,72 +1,74 @@
-import {
-  PDFBool,
-  PDFCheckBox,
-  PDFDocument,
-  PDFDropdown,
-  PDFName,
-  PDFOptionList,
-  PDFRadioGroup,
-  PDFTextField,
-  StandardFonts,
-  type PDFField,
-  type PDFFont,
-} from 'pdf-lib'
 import { fmt, t } from '@/i18n'
-import { toBlob } from '@/lib/files'
+import { mupdf, pdfBlob, readPdf, usingPdf } from '@/lib/mupdf'
 import { baseName } from '@/lib/pages'
 import { parseFormValues, type FormValue } from '@/tools/form-fields'
 import type { ToolRun } from '@/tools/types'
 
-function choose(field: PDFDropdown | PDFOptionList, value: string): void {
+/** Estado «on» de una casilla o radio: la clave de /AP /N que no es /Off. */
+function onState(widget: mupdf.PDFWidget): string | undefined {
+  let state: string | undefined
+  widget.getObject().get('AP', 'N').forEach((_value, key) => {
+    if (typeof key === 'string' && key !== 'Off') state ??= key
+  })
+  return state
+}
+
+/** El valor /V vive en el campo: el primer antepasado con /T, que puede ser el propio widget. */
+function fieldDict(widget: mupdf.PDFWidget): mupdf.PDFObject | undefined {
+  let node = widget.getObject()
+  while (!node.isNull()) {
+    if (!node.get('T').isNull()) return node
+    node = node.get('Parent')
+  }
+  return undefined
+}
+
+// Escribe /AS y /V a mano: toggle() alterna y no permite fijar un estado concreto.
+function setButtons(
+  doc: mupdf.PDFDocument,
+  widgets: mupdf.PDFWidget[],
+  isActive: (state: string) => boolean,
+): void {
+  let value = 'Off'
+  for (const widget of widgets) {
+    const state = onState(widget)
+    const active = state !== undefined && isActive(state)
+    widget.getObject().put('AS', doc.newName(active ? state : 'Off'))
+    if (active) value = state
+  }
+  fieldDict(widgets[0])?.put('V', doc.newName(value))
+}
+
+function choose(widget: mupdf.PDFWidget, value: string): void {
   if (value === '') {
-    field.clear()
+    widget.setChoiceValue('')
     return
   }
-  const shown = field.getOptions()
-  if (shown.includes(value)) {
-    field.select(value)
+  const exports = widget.getOptions(true)
+  if (exports.includes(value)) {
+    widget.setChoiceValue(value)
     return
   }
-  // pdf.js entrega el valor de exportación; pdf-lib selecciona por el texto mostrado.
-  const match = field.acroField.getOptions().find((option) => option.value.decodeText() === value)
-  const display = match?.display?.decodeText() ?? match?.value.decodeText()
-  if (display !== undefined && shown.includes(display)) field.select(display)
-  else if (field instanceof PDFDropdown && field.isEditable()) field.select(value, false)
+  const index = widget.getOptions(false).indexOf(value)
+  if (index >= 0) widget.setChoiceValue(exports[index])
+  else if (widget.isComboBox()) widget.setChoiceValue(value)
 }
 
-function apply(field: PDFField, value: FormValue): void {
-  if (field instanceof PDFTextField) {
+function apply(doc: mupdf.PDFDocument, widgets: mupdf.PDFWidget[], value: FormValue): void {
+  const [first] = widgets
+  if (first.isText()) {
     const text = String(value)
-    const max = field.getMaxLength()
-    field.setText(max !== undefined ? text.slice(0, max) : text)
-  } else if (field instanceof PDFCheckBox) {
-    if (value === true) field.check()
-    else field.uncheck()
-  } else if (field instanceof PDFRadioGroup) {
-    const option = String(value)
-    if (value === '' || value === false) field.clear()
-    // Con /Opt pdf.js entrega el valor de exportación y pdf-lib lo traduce al estado «on».
-    else if (field.getOptions().includes(option)) field.select(option)
-    else field.acroField.setValue(PDFName.of(option))
-  } else if (field instanceof PDFDropdown || field instanceof PDFOptionList) {
-    choose(field, String(value))
+    const max = first.getMaxLen()
+    first.setTextValue(max > 0 ? text.slice(0, max) : text)
+  } else if (first.isCheckbox()) {
+    setButtons(doc, widgets, () => value === true)
+  } else if (first.isRadioButton()) {
+    const option = value === false ? '' : String(value)
+    setButtons(doc, widgets, (state) => state === option)
+  } else if (first.isChoice()) {
+    choose(first, String(value))
   }
-}
-
-/** Regenera la apariencia de un campo; devuelve false si su texto no cabe en WinAnsi. */
-function refresh(field: PDFField, font: PDFFont): boolean {
-  try {
-    if (field instanceof PDFCheckBox || field instanceof PDFRadioGroup) field.defaultUpdateAppearances()
-    else if (
-      field instanceof PDFTextField ||
-      field instanceof PDFDropdown ||
-      field instanceof PDFOptionList
-    )
-      field.defaultUpdateAppearances(font)
-    return true
-  } catch {
-    return false
-  }
+  for (const widget of widgets) widget.update()
 }
 
 export const run: ToolRun = async (files, values, ctx) => {
@@ -75,44 +77,49 @@ export const run: ToolRun = async (files, values, ctx) => {
   const flatten = values.flatten === true
 
   ctx.onProgress(0.1, t.progress.readingPdf)
-  const document_ = await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true })
-  const form = document_.getForm()
-  const fields = form.getFields()
-  if (fields.length === 0) throw new Error(t.errors.formNoFields)
-  if (edits.size === 0 && !flatten) throw new Error(t.errors.formEmpty)
-
-  ctx.onProgress(0.4, t.progress.fillingForm)
-  const font = await document_.embedFont(StandardFonts.Helvetica)
-  let missingAppearance = false
-  for (const field of fields) {
-    const name = field.getName()
-    if (!edits.has(name)) continue
+  return usingPdf(await readPdf(file), (doc) => {
+    const pages: mupdf.PDFPage[] = []
     try {
-      apply(field, edits.get(name) as FormValue)
-    } catch {
-      throw new Error(fmt(t.errors.formField, { name }))
+      const fields = new Map<string, mupdf.PDFWidget[]>()
+      for (let index = 0; index < doc.countPages(); index++) {
+        const page = doc.loadPage(index)
+        pages.push(page)
+        for (const widget of page.getWidgets()) {
+          const name = widget.getName()
+          const group = fields.get(name)
+          if (group) group.push(widget)
+          else fields.set(name, [widget])
+        }
+      }
+      if (fields.size === 0) throw new Error(t.errors.formNoFields)
+      if (edits.size === 0 && !flatten) throw new Error(t.errors.formEmpty)
+
+      ctx.onProgress(0.4, t.progress.fillingForm)
+      for (const [name, widgets] of fields) {
+        const value = edits.get(name)
+        if (value === undefined) continue
+        try {
+          apply(doc, widgets, value)
+        } catch {
+          throw new Error(fmt(t.errors.formField, { name }))
+        }
+      }
+
+      if (flatten) {
+        ctx.onProgress(0.7, t.progress.flattening)
+        try {
+          doc.bake(false, true)
+        } catch {
+          throw new Error(t.errors.flattenFailed)
+        }
+      }
+
+      ctx.onProgress(0.85, t.progress.writingPdf)
+      const blob = pdfBlob(doc)
+      ctx.onProgress(1, t.progress.done)
+      return [{ name: `${baseName(file.name)}-${t.filenames.filled}.pdf`, blob }]
+    } finally {
+      for (const page of pages) page.destroy()
     }
-    if (!refresh(field, font)) missingAppearance = true
-  }
-
-  if (missingAppearance) {
-    if (flatten) throw new Error(t.errors.formEncoding)
-    // El visor redibuja con su propia fuente los campos que Helvetica no sabe codificar.
-    form.acroForm.dict.set(PDFName.of('NeedAppearances'), PDFBool.True)
-  }
-
-  if (flatten) {
-    ctx.onProgress(0.7, t.progress.flattening)
-    try {
-      form.flatten({ updateFieldAppearances: false })
-    } catch {
-      throw new Error(t.errors.flattenFailed)
-    }
-  }
-
-  ctx.onProgress(0.85, t.progress.writingPdf)
-  const bytes = await document_.save({ updateFieldAppearances: false })
-
-  ctx.onProgress(1, t.progress.done)
-  return [{ name: `${baseName(file.name)}-${t.filenames.filled}.pdf`, blob: toBlob(bytes) }]
+  })
 }
