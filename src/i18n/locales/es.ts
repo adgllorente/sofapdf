@@ -408,7 +408,6 @@ export const es = {
     formNoFields: 'Este PDF no tiene campos de formulario rellenables.',
     formEmpty: 'Rellena al menos un campo o activa «Aplanar al terminar».',
     formField: 'No se pudo escribir el campo «{name}».',
-    formEncoding: 'Algún campo lleva caracteres que la fuente estándar no admite, así que no se puede aplanar. Desactiva «Aplanar al terminar»: el visor los dibujará con su propia fuente.',
     editEmpty: 'Añade al menos un elemento antes de exportar.',
     bookmarksEmpty: 'Añade al menos un marcador antes de exportar.',
     bookmarkTitle: 'Cada marcador necesita un título.',
