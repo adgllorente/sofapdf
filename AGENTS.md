@@ -22,9 +22,11 @@ Prohibido, aunque parezca cómodo o lo pida una tarea de forma ambigua:
 - APIs de conversión de terceros, incluidas las gratuitas.
 - Telemetría, informes de error remotos, mapas de calor, eventos de analítica a medida.
 - Fuentes, scripts, hojas de estilo, WASM o iconos servidos desde un CDN. Todo va en el bundle.
+- Persistir contenido de documentos en `localStorage`, `IndexedDB`, cookies o el sistema de
+  ficheros.
 
-**Única excepción: Vercel Web Analytics** (`<Analytics />` en `src/App.tsx`). Cuenta visitas y
-páginas vistas de forma agregada y solo ve la ruta de navegación. Está documentada en
+**Única excepción de red: Vercel Web Analytics** (`<Analytics />` en `src/App.tsx`). Cuenta
+visitas y páginas vistas de forma agregada y solo ve la ruta de navegación. Está documentada en
 `src/pages/Privacy.tsx` y así debe seguir:
 
 - No le mandes eventos propios (`track()`), ni nombres de fichero, opciones, número de páginas,
@@ -32,15 +34,14 @@ páginas vistas de forma agregada y solo ve la ruta de navegación. Está docume
 - No metas datos del usuario en la URL: la ruta es lo único que ve.
 - Ninguna otra analítica. Ampliarla es una decisión del dueño del producto, que se documenta
   antes en la página de privacidad.
-- Persistir contenido de documentos en `localStorage`, `IndexedDB`, cookies o el sistema de
-  ficheros.
 
 Solo se persisten preferencias y datos de uso de la interfaz (`theme`, `lang`,
 `supportPrompt.usageCount` y `supportPrompt.dismissedAt`). Si añades cualquier otra persistencia,
 tiene que ser una decisión consciente y documentada en `src/pages/Privacy.tsx`.
 
-Cargar recursos desde el **mismo origen** sí vale: es como se sirve el worker de pdf.js y como se
-servirán los módulos WASM. Usa el import de Vite (`import url from 'x?url'`), nunca una URL de CDN.
+Cargar recursos desde el **mismo origen** sí vale: es como se sirven el worker de pdf.js, el WASM
+de MuPDF y el modelo de OCR. Usa el import de Vite (`import url from 'x?url'` o
+`new URL('x', import.meta.url)`), nunca una URL de CDN.
 
 Si una tarea es imposible de cumplir sin red, no la implementes a medias: dilo y propón la
 alternativa local. Es preferible una herramienta menos a una promesa rota.
@@ -141,8 +142,8 @@ Reglas:
   12 no existe: el documento tiene 9». `ToolPage` lo muestra tal cual.
 - Reutiliza `@/lib/pages` para interpretar selecciones tipo `1-3, 5, 9-`, y `@/lib/files` para
   blobs y descargas.
-- Libera memoria en cuanto puedas: `page.cleanup()`, poner el canvas a `0×0`, y procesar página a
-  página en lugar de acumular todo en un array.
+- Procesa página a página en lugar de acumular todo en un array: el heap del WASM no se encoge,
+  así que un pico de memoria se queda reservado hasta que se descarta el worker.
 
 Si una herramienta pasa de `planned` a `ready`, quita `note` de los diccionarios si dejó de aplicar.
 
