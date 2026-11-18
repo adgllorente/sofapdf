@@ -130,6 +130,13 @@ export const en: typeof es = {
     all: 'All',
   },
 
+  search: {
+    label: 'Search tools',
+    placeholder: 'Search: compress, merge, sign…',
+    clear: 'Clear search',
+    empty: 'No tool matches “{query}”.',
+  },
+
   offlinePage: {
     title: 'Free Offline PDF Tools – No Upload Required',
     heading: 'Free offline PDF tools for private work',
