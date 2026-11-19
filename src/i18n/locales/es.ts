@@ -282,6 +282,10 @@ export const es = {
     textPreview: 'Vista previa del informe',
     close: 'Cerrar',
     loading: 'Cargando…',
+    previewLoading: 'Cargando documento…',
+    previewPageCount: '{n} páginas',
+    previewPageOne: '1 página',
+    previewRenderingMore: 'Preparando página {current} de {total}…',
     ephemeral: 'Los resultados están en la memoria de esta pestaña. Al cerrarla desaparecen.',
     support: {
       title: '¿Cuánto dirías que vale esta herramienta para ti?',

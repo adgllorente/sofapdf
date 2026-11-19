@@ -278,6 +278,10 @@ export const en: typeof es = {
     textPreview: 'Report preview',
     close: 'Close',
     loading: 'Loading…',
+    previewLoading: 'Loading document…',
+    previewPageCount: '{n} pages',
+    previewPageOne: '1 page',
+    previewRenderingMore: 'Preparing page {current} of {total}…',
     ephemeral: 'The results live in this tab’s memory. Closing it discards them.',
     support: {
       title: 'How much is this tool worth to you?',

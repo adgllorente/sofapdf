@@ -32,6 +32,7 @@ import {
   Highlighter,
   Image,
   Languages,
+  Loader2,
   Lock,
   Minimize2,
   Moon,
@@ -129,6 +130,7 @@ const ICONS = {
   spark: Sparkles,
   workflow: Workflow,
   tag: Tag,
+  loader: Loader2,
 } as const satisfies Record<string, LucideIcon>
 
 export type IconName = keyof typeof ICONS
