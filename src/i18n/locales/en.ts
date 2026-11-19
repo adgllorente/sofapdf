@@ -256,6 +256,9 @@ export const en: typeof es = {
     off: 'Off',
     showPassword: 'Show password',
     hidePassword: 'Hide password',
+    chooseImage: 'Select image',
+    changeImage: 'Change image',
+    removeImage: 'Remove image',
   },
 
   run: {
@@ -409,6 +412,7 @@ export const en: typeof es = {
     bookmarkTitle: 'Every bookmark needs a title.',
     bookmarkPage: 'Page {page} does not exist: the document has {total}.',
     headerFooterEmpty: 'Enter text for the header or footer.',
+    watermarkImageEmpty: 'Select an image for the watermark.',
     notPdf: 'Could not read “{name}”: it does not look like a valid PDF.',
   },
 
@@ -795,7 +799,16 @@ export const en: typeof es = {
       description: 'Adds a watermark with control over opacity, rotation and position.',
       action: 'Apply watermark',
       options: {
+        type: {
+          label: 'Watermark type',
+          choices: { text: 'Text', image: 'Image' },
+        },
         text: { label: 'Text' },
+        image: { label: 'Image' },
+        imageWidth: {
+          label: 'Image width (pt)',
+          help: 'Height adjusts automatically to preserve the aspect ratio.',
+        },
         position: {
           label: 'Position',
           choices: {

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { t } from '@/i18n'
 import { choiceLabel, optionText } from '@/i18n/tools'
 import { ColorPicker } from '@/components/ColorPicker'
+import { ImagePicker } from '@/components/ImagePicker'
 import { Icon } from '@/components/Icon'
 import type { OptionValues, Tool } from '@/tools/types'
 
@@ -27,10 +28,15 @@ export function OptionsForm({ tool, values, onChange, disabled }: Props) {
     <div className="grid gap-4 sm:grid-cols-2">
       {visible.map((field) => {
         const text = optionText(tool, field)
+        const isInteractive = field.type === 'color' || field.type === 'image'
+        const Wrapper = isInteractive ? 'div' : 'label'
 
         return (
-          <label key={field.key} className="block space-y-1.5">
-            <span className={`text-sm font-medium text-ink-soft ${field.type === 'color' ? 'block' : ''}`}>{text.label}</span>
+          <Wrapper
+            key={field.key}
+            className={`block space-y-1.5 ${field.type === 'image' ? 'sm:col-span-2' : ''}`}
+          >
+            <span className={`text-sm font-medium text-ink-soft ${isInteractive ? 'block' : ''}`}>{text.label}</span>
 
             {field.type === 'select' && (
               <select
@@ -78,6 +84,15 @@ export function OptionsForm({ tool, values, onChange, disabled }: Props) {
               </span>
             )}
 
+            {field.type === 'image' && (
+              <ImagePicker
+                label={text.label}
+                value={String(values[field.key] ?? '')}
+                disabled={disabled}
+                onChange={(value) => set(field.key, value)}
+              />
+            )}
+
             {field.type === 'color' && (
               <ColorPicker
                 label={text.label}
@@ -116,7 +131,7 @@ export function OptionsForm({ tool, values, onChange, disabled }: Props) {
             )}
 
             {text.help && <span className="block text-xs text-muted">{text.help}</span>}
-          </label>
+          </Wrapper>
         )
       })}
     </div>
