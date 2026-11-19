@@ -445,6 +445,7 @@ export const en: typeof es = {
     accessibility: 'accessibility',
     bookmarks: 'bookmarks',
     headerFooter: 'header-footer',
+    scanned: 'scanned',
   },
 
   progress: {
@@ -814,6 +815,44 @@ export const en: typeof es = {
         pages: {
           label: 'Pages',
           help: 'Leave "1-" to mark the whole document.',
+        },
+      },
+    },
+    'simulate-scan': {
+      name: 'Look like a scan',
+      short: 'Physical scan effect with grain, tilt, and paper texture.',
+      description:
+        'Make a digital PDF look like it was physically scanned, adding subtle rotation, paper texture, contrast, and noise.',
+      action: 'Apply scan effect',
+      options: {
+        mode: {
+          label: 'Color mode',
+          choices: {
+            color: 'Color (warm paper tint)',
+            grayscale: 'Grayscale',
+            bw: 'Black & white (photocopy)',
+          },
+        },
+        skew: {
+          label: 'Page tilt',
+          choices: {
+            slight: 'Slight (subtle)',
+            medium: 'Medium',
+            strong: 'Strong',
+            none: 'No tilt',
+          },
+        },
+        noise: {
+          label: 'Noise and texture',
+          choices: {
+            low: 'Low (clean)',
+            medium: 'Medium (standard)',
+            high: 'High (aged paper)',
+          },
+        },
+        blur: {
+          label: 'Optical softness',
+          help: 'Adds subtle analog blur to soften razor-sharp digital vector edges.',
         },
       },
     },

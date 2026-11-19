@@ -233,6 +233,38 @@ export const TOOLS: Tool[] = [
     load: IMPLS['watermark'],
   },
   {
+    slug: 'simulate-scan',
+    icon: 'printer',
+    category: 'edicion',
+    status: 'ready',
+    ...PDF,
+    multiple: false,
+    minFiles: 1,
+    workflow: true,
+    options: [
+      {
+        key: 'mode',
+        type: 'select',
+        default: 'color',
+        choices: ['color', 'grayscale', 'bw'],
+      },
+      {
+        key: 'skew',
+        type: 'select',
+        default: 'slight',
+        choices: ['slight', 'medium', 'strong', 'none'],
+      },
+      {
+        key: 'noise',
+        type: 'select',
+        default: 'medium',
+        choices: ['low', 'medium', 'high'],
+      },
+      { key: 'blur', type: 'toggle', default: true },
+    ],
+    load: IMPLS['simulate-scan'],
+  },
+  {
     slug: 'crop',
     icon: 'crop',
     category: 'edicion',

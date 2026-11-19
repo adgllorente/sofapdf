@@ -450,6 +450,7 @@ export const es = {
     accessibility: 'accesibilidad',
     bookmarks: 'marcadores',
     headerFooter: 'encabezado-pie',
+    scanned: 'escaneado',
   },
 
   progress: {
@@ -819,6 +820,44 @@ export const es = {
         pages: {
           label: 'Páginas',
           help: 'Deja "1-" para marcar el documento entero.',
+        },
+      },
+    },
+    'simulate-scan': {
+      name: 'Simular escáner',
+      short: 'Efecto de escaneado físico con grano, inclinación y textura de papel.',
+      description:
+        'Convierte un PDF digital en un documento que parece escaneado físicamente, con leve rotación, textura analógica, contraste y ruido.',
+      action: 'Simular escáner',
+      options: {
+        mode: {
+          label: 'Modo de color',
+          choices: {
+            color: 'Color (tono cálido de papel)',
+            grayscale: 'Escala de grises',
+            bw: 'Blanco y negro (fotocopia)',
+          },
+        },
+        skew: {
+          label: 'Inclinación de página',
+          choices: {
+            slight: 'Ligera (sutil)',
+            medium: 'Media',
+            strong: 'Pronunciada',
+            none: 'Sin inclinación',
+          },
+        },
+        noise: {
+          label: 'Ruido y textura',
+          choices: {
+            low: 'Bajo (limpio)',
+            medium: 'Medio (estándar)',
+            high: 'Alto (papel desgastado)',
+          },
+        },
+        blur: {
+          label: 'Suavizado óptico',
+          help: 'Añade un ligero desenfoque analógico para suavizar los bordes vectoriales digitales.',
         },
       },
     },
