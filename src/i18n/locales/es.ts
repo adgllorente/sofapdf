@@ -260,6 +260,9 @@ export const es = {
     off: 'Desactivado',
     showPassword: 'Mostrar contraseña',
     hidePassword: 'Ocultar contraseña',
+    chooseImage: 'Seleccionar imagen',
+    changeImage: 'Cambiar imagen',
+    removeImage: 'Eliminar imagen',
   },
 
   run: {
@@ -413,6 +416,7 @@ export const es = {
     bookmarkTitle: 'Cada marcador necesita un título.',
     bookmarkPage: 'La página {page} no existe: el documento tiene {total}.',
     headerFooterEmpty: 'Escribe un texto para el encabezado o el pie.',
+    watermarkImageEmpty: 'Selecciona una imagen para la marca de agua.',
     notPdf: 'No se pudo leer «{name}»: no parece un PDF válido.',
   },
 
@@ -800,7 +804,16 @@ export const es = {
       description: 'Añade una marca de agua con control de opacidad, giro y posición.',
       action: 'Aplicar marca de agua',
       options: {
+        type: {
+          label: 'Tipo de marca de agua',
+          choices: { text: 'Texto', image: 'Imagen' },
+        },
         text: { label: 'Texto' },
+        image: { label: 'Imagen' },
+        imageWidth: {
+          label: 'Ancho de la imagen (pt)',
+          help: 'El alto se ajustará automáticamente para mantener la proporción.',
+        },
         position: {
           label: 'Posición',
           choices: {

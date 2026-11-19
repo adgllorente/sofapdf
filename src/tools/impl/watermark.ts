@@ -1,5 +1,5 @@
 import { fmt, t } from '@/i18n'
-import { pdfBlob, readPdf, usingPdf, yieldToUI } from '@/lib/mupdf'
+import { mupdf, pdfBlob, readPdf, usingPdf, yieldToUI } from '@/lib/mupdf'
 import { Overlay, hexColor } from '@/lib/overlay'
 import { baseName, parsePageList } from '@/lib/pages'
 import type { ToolRun } from '@/tools/types'
@@ -23,23 +23,66 @@ const ANCHORS: Record<string, Anchor> = {
   'bottom-right': { x: (w, m) => w - m, y: (_, m) => m },
 }
 
+function dataUrlBytes(value: string): Uint8Array {
+  const base64 = value.includes(',') ? value.split(',')[1] : value
+  const binary = atob(base64 ?? '')
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return bytes
+}
+
 export const run: ToolRun = async (files, values, ctx) => {
   const [file] = files
   return usingPdf(await readPdf(file), async (doc) => {
-    // Helvetica Bold es base del formato: no embebe nada y da cuerpo a la marca.
-    const overlay = new Overlay(doc)
-    const text = String(values.text).trim() || 'WATERMARK'
-    const size = Number(values.size)
+    const isImage = String(values.type) === 'image'
     const opacity = Number(values.opacity) / 100
     const angle = Number(values.rotation)
     const anchor = ANCHORS[String(values.position)] ?? ANCHORS.center
-    const color = hexColor(LEGACY_COLORS[String(values.color)] ?? String(values.color))
-    // Margen mínimo para que la marca no choque con el borde ni con sí misma rotada.
-    const margin = Math.max(size / 2 + 8, 36)
-    const textWidth = overlay.textWidth('Helvetica-Bold', text, size)
     const rad = (angle * Math.PI) / 180
     const cos = Math.cos(rad)
     const sin = Math.sin(rad)
+
+    const overlay = new Overlay(doc)
+
+    let imageRef: mupdf.PDFObject | null = null
+    let imgW = 0
+    let imgH = 0
+    let text = ''
+    let size = 0
+    let color = { rgb: [0.5, 0.5, 0.5] as [number, number, number], alpha: 1 }
+    let textWidth = 0
+    let margin = 36
+
+    if (isImage) {
+      const dataUrl = String(values.image ?? '').trim()
+      if (!dataUrl) throw new Error(t.errors.watermarkImageEmpty)
+
+      let decoded: mupdf.Image
+      try {
+        decoded = new mupdf.Image(dataUrlBytes(dataUrl))
+      } catch {
+        throw new Error(t.errors.noImages)
+      }
+      try {
+        imgW = Number(values.imageWidth) || 200
+        imgH = imgW * (decoded.getHeight() / decoded.getWidth())
+        // Una sola copia de la imagen como XObject para todo el documento.
+        imageRef = doc.addImage(decoded)
+        margin = Math.max(Math.max(imgW, imgH) / 2 + 8, 36)
+      } finally {
+        decoded.destroy()
+      }
+    } else {
+      // Helvetica Bold es base del formato: no embebe nada y da cuerpo a la marca.
+      text = String(values.text).trim() || 'WATERMARK'
+      size = Number(values.size) || 72
+      color = hexColor(LEGACY_COLORS[String(values.color)] ?? String(values.color))
+      // Margen mínimo para que la marca no choque con el borde ni con sí misma rotada.
+      margin = Math.max(size / 2 + 8, 36)
+      textWidth = overlay.textWidth('Helvetica-Bold', text, size)
+    }
 
     const targets = parsePageList(String(values.pages), doc.countPages())
     try {
@@ -48,12 +91,16 @@ export const run: ToolRun = async (files, values, ctx) => {
         const targetX = page.x0 + anchor.x(page.width, margin)
         const targetY = page.y0 + anchor.y(page.height, margin)
 
-        // Girar alrededor del centro del texto: el ángulo es antihorario, como el del espacio PDF.
+        // Girar alrededor del centro del elemento: el ángulo es antihorario, como el del espacio PDF.
         page.save()
-        page.alpha(opacity * color.alpha)
-        page.fill(color.rgb)
+        page.alpha(opacity * (isImage ? 1 : color.alpha))
+        if (!isImage) page.fill(color.rgb)
         page.transform([cos, sin, -sin, cos, targetX, targetY])
-        page.text(text, -textWidth / 2, -size / 2, 'Helvetica-Bold', size)
+        if (isImage && imageRef) {
+          page.image(imageRef, -imgW / 2, -imgH / 2, imgW, imgH)
+        } else {
+          page.text(text, -textWidth / 2, -size / 2, 'Helvetica-Bold', size)
+        }
         page.restore()
         page.finish()
 

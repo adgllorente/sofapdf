@@ -28,6 +28,7 @@ export type OptionField =
   | (BaseField & { type: 'password'; default: string; placeholder?: string })
   | (BaseField & { type: 'number'; default: number; min?: number; max?: number; step?: number })
   | (BaseField & { type: 'toggle'; default: boolean })
+  | (BaseField & { type: 'image'; default: string })
 
 export type OutputFile = {
   name: string
