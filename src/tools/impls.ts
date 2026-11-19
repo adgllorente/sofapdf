@@ -37,4 +37,5 @@ export const IMPLS: Partial<Record<ToolSlug, () => Promise<ToolRun>>> = {
   bookmarks: () => import('./impl/bookmarks').then((m) => m.run),
   report: () => import('./impl/report').then((m) => m.run),
   accessibility: () => import('./impl/accessibility').then((m) => m.run),
+  'simulate-scan': () => import('./impl/simulate-scan').then((m) => m.run),
 }

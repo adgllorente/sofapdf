@@ -101,6 +101,7 @@ export type ToolSlug =
   | 'report'
   | 'accessibility'
   | 'bookmarks'
+  | 'simulate-scan'
 
 /** Familia de formatos aceptados; su etiqueta visible está en el diccionario. */
 export type AcceptKey = 'pdf' | 'image' | 'html'
