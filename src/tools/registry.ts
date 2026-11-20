@@ -34,6 +34,21 @@ export const TOOLS: Tool[] = [
     load: IMPLS['merge'],
   },
   {
+    slug: 'interleave',
+    icon: 'shuffle',
+    category: 'paginas',
+    status: 'ready',
+    ...PDF,
+    multiple: true,
+    minFiles: 2,
+    options: [
+      { key: 'reverseSecond', type: 'toggle', default: true },
+      { key: 'step', type: 'number', default: 1, min: 1, max: 50 },
+      { key: 'trailing', type: 'select', default: 'append', choices: ['append', 'discard'] },
+    ],
+    load: IMPLS['interleave'],
+  },
+  {
     slug: 'split',
     icon: 'split',
     category: 'paginas',
