@@ -414,10 +414,12 @@ export const en: typeof es = {
     headerFooterEmpty: 'Enter text for the header or footer.',
     watermarkImageEmpty: 'Select an image for the watermark.',
     notPdf: 'Could not read “{name}”: it does not look like a valid PDF.',
+    interleaveNeedTwo: 'Upload at least two PDF documents to interleave.',
   },
 
   filenames: {
     merged: 'merged',
+    interleaved: 'interleaved',
     images: 'images',
     extractedImages: 'extracted-images',
     selection: 'selection',
@@ -463,6 +465,7 @@ export const en: typeof es = {
     grayscalingImages: 'Converting images to grayscale',
     extractingImages: 'Extracting images',
     writingPdf: 'Writing the PDF',
+    interleaving: 'Interleaving pages',
     repairing: 'Rebuilding the structure',
     sanitizing: 'Removing active elements and attached data',
     salvaging: 'Salvaging what is left',
@@ -550,6 +553,30 @@ export const en: typeof es = {
       description:
         'Joins several PDFs into a single document. The list order is the final order; you can rearrange it before processing.',
       action: 'Merge PDF',
+    },
+    interleave: {
+      name: 'Interleave PDF',
+      short: 'Combine two or more PDFs by alternating their pages.',
+      description:
+        'Interleaves pages from two or more PDF documents into a single file. Ideal for combining front and back pages from separate two-sided scans.',
+      action: 'Interleave PDF',
+      options: {
+        reverseSecond: {
+          label: 'Reverse second document',
+          help: 'Useful if the back side was scanned in reverse order after flipping the stack.',
+        },
+        step: {
+          label: 'Pages per turn',
+          help: 'Number of pages to take from each document on each turn.',
+        },
+        trailing: {
+          label: 'Remaining pages',
+          choices: {
+            append: 'Append at end',
+            discard: 'Discard',
+          },
+        },
+      },
     },
     split: {
       name: 'Split PDF',

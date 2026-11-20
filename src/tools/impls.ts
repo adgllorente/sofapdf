@@ -6,6 +6,7 @@ import type { ToolRun, ToolSlug } from './types'
  */
 export const IMPLS: Partial<Record<ToolSlug, () => Promise<ToolRun>>> = {
   merge: () => import('./impl/merge').then((m) => m.run),
+  interleave: () => import('./impl/interleave').then((m) => m.run),
   split: () => import('./impl/split').then((m) => m.run),
   insert: () => import('./impl/insert').then((m) => m.run),
   duplicate: () => import('./impl/duplicate').then((m) => m.run),

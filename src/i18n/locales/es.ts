@@ -418,11 +418,13 @@ export const es = {
     headerFooterEmpty: 'Escribe un texto para el encabezado o el pie.',
     watermarkImageEmpty: 'Selecciona una imagen para la marca de agua.',
     notPdf: 'No se pudo leer «{name}»: no parece un PDF válido.',
+    interleaveNeedTwo: 'Sube al menos dos documentos PDF para intercalar.',
   },
 
   /** Trozos de nombre de fichero: sin acentos ni espacios, van al disco. */
   filenames: {
     merged: 'combinado',
+    interleaved: 'intercalado',
     images: 'imagenes',
     extractedImages: 'imagenes-extraidas',
     selection: 'seleccion',
@@ -468,6 +470,7 @@ export const es = {
     grayscalingImages: 'Convirtiendo imágenes a escala de grises',
     extractingImages: 'Extrayendo imágenes',
     writingPdf: 'Escribiendo el PDF',
+    interleaving: 'Intercalando páginas',
     repairing: 'Reconstruyendo la estructura',
     sanitizing: 'Eliminando elementos activos y datos adjuntos',
     salvaging: 'Rescatando lo que queda',
@@ -555,6 +558,30 @@ export const es = {
       description:
         'Junta varios PDF en un único documento. El orden de la lista es el orden final; puedes reordenarla antes de procesar.',
       action: 'Unir PDF',
+    },
+    interleave: {
+      name: 'Intercalar PDF',
+      short: 'Combina dos o más PDF alternando sus páginas.',
+      description:
+        'Intercala las páginas de dos o más documentos PDF en un único archivo. Ideal para unir anversos y reversos de escaneos a doble cara realizados por separado.',
+      action: 'Intercalar PDF',
+      options: {
+        reverseSecond: {
+          label: 'Invertir segundo documento',
+          help: 'Útil si el reverso se escaneó en orden inverso al dar la vuelta a las hojas.',
+        },
+        step: {
+          label: 'Páginas por turno',
+          help: 'Número de páginas que se toman de cada documento en cada alternancia.',
+        },
+        trailing: {
+          label: 'Páginas sobrantes',
+          choices: {
+            append: 'Añadir al final',
+            discard: 'Descartar',
+          },
+        },
+      },
     },
     split: {
       name: 'Dividir PDF',

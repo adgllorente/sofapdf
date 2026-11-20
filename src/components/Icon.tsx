@@ -45,6 +45,7 @@ import {
   Search,
   Shapes,
   ShieldCheck,
+  Shuffle,
   Sparkles,
   Split,
   Strikethrough,
@@ -69,6 +70,7 @@ const Github = createLucideIcon('Github', [
 
 const ICONS = {
   merge: GitMerge,
+  shuffle: Shuffle,
   split: Split,
   filePlus: FilePlus,
   copy: Copy,

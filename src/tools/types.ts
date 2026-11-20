@@ -69,6 +69,7 @@ export type ToolCategoryId =
 /** El slug es la clave con la que el diccionario nombra la herramienta. */
 export type ToolSlug =
   | 'merge'
+  | 'interleave'
   | 'split'
   | 'insert'
   | 'duplicate'
